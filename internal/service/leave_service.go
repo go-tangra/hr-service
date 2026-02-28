@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/tx7do/kratos-bootstrap/bootstrap"
@@ -152,10 +153,14 @@ func (s *LeaveService) ListLeaveRequests(ctx context.Context, req *hrV1.ListLeav
 		filters["status"] = leaveStatusToString(*req.Status)
 	}
 	if req.StartDate != nil {
-		filters["start_date"] = req.StartDate.AsTime()
+		if t, err := time.Parse(time.RFC3339, *req.StartDate); err == nil {
+			filters["start_date"] = t
+		}
 	}
 	if req.EndDate != nil {
-		filters["end_date"] = req.EndDate.AsTime()
+		if t, err := time.Parse(time.RFC3339, *req.EndDate); err == nil {
+			filters["end_date"] = t
+		}
 	}
 
 	page := int(req.GetPage())
@@ -335,8 +340,14 @@ func (s *LeaveService) CancelLeaveRequest(ctx context.Context, req *hrV1.CancelL
 }
 
 func (s *LeaveService) GetCalendarEvents(ctx context.Context, req *hrV1.GetCalendarEventsRequest) (*hrV1.GetCalendarEventsResponse, error) {
-	startDate := req.GetStartDate().AsTime()
-	endDate := req.GetEndDate().AsTime()
+	startDate, _ := time.Parse(time.RFC3339, req.GetStartDate())
+	endDate, _ := time.Parse(time.RFC3339, req.GetEndDate())
+	if startDate.IsZero() {
+		startDate = time.Now().AddDate(0, -1, 0)
+	}
+	if endDate.IsZero() {
+		endDate = time.Now().AddDate(0, 2, 0)
+	}
 	orgUnitName := ""
 	if req.OrgUnitName != nil {
 		orgUnitName = *req.OrgUnitName

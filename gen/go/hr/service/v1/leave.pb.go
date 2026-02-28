@@ -569,11 +569,11 @@ type ListLeaveRequestsRequest struct {
 	NoPaging *bool                  `protobuf:"varint,4,opt,name=no_paging,json=noPaging,proto3,oneof" json:"no_paging,omitempty"`
 	Query    *string                `protobuf:"bytes,5,opt,name=query,proto3,oneof" json:"query,omitempty"`
 	// Filters
-	UserId        *uint32                `protobuf:"varint,10,opt,name=user_id,json=userId,proto3,oneof" json:"user_id,omitempty"`
-	AbsenceTypeId *string                `protobuf:"bytes,11,opt,name=absence_type_id,json=absenceTypeId,proto3,oneof" json:"absence_type_id,omitempty"`
-	Status        *LeaveRequestStatus    `protobuf:"varint,12,opt,name=status,proto3,enum=hr.service.v1.LeaveRequestStatus,oneof" json:"status,omitempty"`
-	StartDate     *timestamppb.Timestamp `protobuf:"bytes,13,opt,name=start_date,json=startDate,proto3,oneof" json:"start_date,omitempty"`
-	EndDate       *timestamppb.Timestamp `protobuf:"bytes,14,opt,name=end_date,json=endDate,proto3,oneof" json:"end_date,omitempty"`
+	UserId        *uint32             `protobuf:"varint,10,opt,name=user_id,json=userId,proto3,oneof" json:"user_id,omitempty"`
+	AbsenceTypeId *string             `protobuf:"bytes,11,opt,name=absence_type_id,json=absenceTypeId,proto3,oneof" json:"absence_type_id,omitempty"`
+	Status        *LeaveRequestStatus `protobuf:"varint,12,opt,name=status,proto3,enum=hr.service.v1.LeaveRequestStatus,oneof" json:"status,omitempty"`
+	StartDate     *string             `protobuf:"bytes,13,opt,name=start_date,json=startDate,proto3,oneof" json:"start_date,omitempty"`
+	EndDate       *string             `protobuf:"bytes,14,opt,name=end_date,json=endDate,proto3,oneof" json:"end_date,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -664,18 +664,18 @@ func (x *ListLeaveRequestsRequest) GetStatus() LeaveRequestStatus {
 	return LeaveRequestStatus_LEAVE_REQUEST_STATUS_UNSPECIFIED
 }
 
-func (x *ListLeaveRequestsRequest) GetStartDate() *timestamppb.Timestamp {
-	if x != nil {
-		return x.StartDate
+func (x *ListLeaveRequestsRequest) GetStartDate() string {
+	if x != nil && x.StartDate != nil {
+		return *x.StartDate
 	}
-	return nil
+	return ""
 }
 
-func (x *ListLeaveRequestsRequest) GetEndDate() *timestamppb.Timestamp {
-	if x != nil {
-		return x.EndDate
+func (x *ListLeaveRequestsRequest) GetEndDate() string {
+	if x != nil && x.EndDate != nil {
+		return *x.EndDate
 	}
-	return nil
+	return ""
 }
 
 type ListLeaveRequestsResponse struct {
@@ -1289,8 +1289,8 @@ func (x *CalendarEvent) GetOrgUnitName() string {
 type GetCalendarEventsRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	TenantId      *uint32                `protobuf:"varint,1,opt,name=tenant_id,json=tenantId,proto3,oneof" json:"tenant_id,omitempty"`
-	StartDate     *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=start_date,json=startDate,proto3,oneof" json:"start_date,omitempty"`
-	EndDate       *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=end_date,json=endDate,proto3,oneof" json:"end_date,omitempty"`
+	StartDate     *string                `protobuf:"bytes,2,opt,name=start_date,json=startDate,proto3,oneof" json:"start_date,omitempty"`
+	EndDate       *string                `protobuf:"bytes,3,opt,name=end_date,json=endDate,proto3,oneof" json:"end_date,omitempty"`
 	OrgUnitName   *string                `protobuf:"bytes,4,opt,name=org_unit_name,json=orgUnitName,proto3,oneof" json:"org_unit_name,omitempty"`
 	UserId        *uint32                `protobuf:"varint,5,opt,name=user_id,json=userId,proto3,oneof" json:"user_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -1334,18 +1334,18 @@ func (x *GetCalendarEventsRequest) GetTenantId() uint32 {
 	return 0
 }
 
-func (x *GetCalendarEventsRequest) GetStartDate() *timestamppb.Timestamp {
-	if x != nil {
-		return x.StartDate
+func (x *GetCalendarEventsRequest) GetStartDate() string {
+	if x != nil && x.StartDate != nil {
+		return *x.StartDate
 	}
-	return nil
+	return ""
 }
 
-func (x *GetCalendarEventsRequest) GetEndDate() *timestamppb.Timestamp {
-	if x != nil {
-		return x.EndDate
+func (x *GetCalendarEventsRequest) GetEndDate() string {
+	if x != nil && x.EndDate != nil {
+		return *x.EndDate
 	}
-	return nil
+	return ""
 }
 
 func (x *GetCalendarEventsRequest) GetOrgUnitName() string {
@@ -1504,7 +1504,7 @@ const file_hr_service_v1_leave_proto_rawDesc = "" +
 	"\x02id\x18\x01 \x01(\tB\n" +
 	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\x02id\"[\n" +
 	"\x17GetLeaveRequestResponse\x12@\n" +
-	"\rleave_request\x18\x01 \x01(\v2\x1b.hr.service.v1.LeaveRequestR\fleaveRequest\"\xbf\x04\n" +
+	"\rleave_request\x18\x01 \x01(\v2\x1b.hr.service.v1.LeaveRequestR\fleaveRequest\"\x87\x04\n" +
 	"\x18ListLeaveRequestsRequest\x12 \n" +
 	"\ttenant_id\x18\x01 \x01(\rH\x00R\btenantId\x88\x01\x01\x12\x17\n" +
 	"\x04page\x18\x02 \x01(\x05H\x01R\x04page\x88\x01\x01\x12 \n" +
@@ -1514,10 +1514,10 @@ const file_hr_service_v1_leave_proto_rawDesc = "" +
 	"\auser_id\x18\n" +
 	" \x01(\rH\x05R\x06userId\x88\x01\x01\x12+\n" +
 	"\x0fabsence_type_id\x18\v \x01(\tH\x06R\rabsenceTypeId\x88\x01\x01\x12>\n" +
-	"\x06status\x18\f \x01(\x0e2!.hr.service.v1.LeaveRequestStatusH\aR\x06status\x88\x01\x01\x12>\n" +
+	"\x06status\x18\f \x01(\x0e2!.hr.service.v1.LeaveRequestStatusH\aR\x06status\x88\x01\x01\x12\"\n" +
 	"\n" +
-	"start_date\x18\r \x01(\v2\x1a.google.protobuf.TimestampH\bR\tstartDate\x88\x01\x01\x12:\n" +
-	"\bend_date\x18\x0e \x01(\v2\x1a.google.protobuf.TimestampH\tR\aendDate\x88\x01\x01B\f\n" +
+	"start_date\x18\r \x01(\tH\bR\tstartDate\x88\x01\x01\x12\x1e\n" +
+	"\bend_date\x18\x0e \x01(\tH\tR\aendDate\x88\x01\x01B\f\n" +
 	"\n" +
 	"_tenant_idB\a\n" +
 	"\x05_pageB\f\n" +
@@ -1580,12 +1580,12 @@ const file_hr_service_v1_leave_proto_rawDesc = "" +
 	"\x04days\x18\t \x01(\x01R\x04days\x129\n" +
 	"\x06status\x18\n" +
 	" \x01(\x0e2!.hr.service.v1.LeaveRequestStatusR\x06status\x12\"\n" +
-	"\rorg_unit_name\x18\v \x01(\tR\vorgUnitName\"\xc7\x02\n" +
+	"\rorg_unit_name\x18\v \x01(\tR\vorgUnitName\"\x8f\x02\n" +
 	"\x18GetCalendarEventsRequest\x12 \n" +
-	"\ttenant_id\x18\x01 \x01(\rH\x00R\btenantId\x88\x01\x01\x12>\n" +
+	"\ttenant_id\x18\x01 \x01(\rH\x00R\btenantId\x88\x01\x01\x12\"\n" +
 	"\n" +
-	"start_date\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampH\x01R\tstartDate\x88\x01\x01\x12:\n" +
-	"\bend_date\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampH\x02R\aendDate\x88\x01\x01\x12'\n" +
+	"start_date\x18\x02 \x01(\tH\x01R\tstartDate\x88\x01\x01\x12\x1e\n" +
+	"\bend_date\x18\x03 \x01(\tH\x02R\aendDate\x88\x01\x01\x12'\n" +
 	"\rorg_unit_name\x18\x04 \x01(\tH\x03R\vorgUnitName\x88\x01\x01\x12\x1c\n" +
 	"\auser_id\x18\x05 \x01(\rH\x04R\x06userId\x88\x01\x01B\f\n" +
 	"\n" +
@@ -1670,44 +1670,40 @@ var file_hr_service_v1_leave_proto_depIdxs = []int32{
 	1,  // 10: hr.service.v1.CreateLeaveRequestResponse.leave_request:type_name -> hr.service.v1.LeaveRequest
 	1,  // 11: hr.service.v1.GetLeaveRequestResponse.leave_request:type_name -> hr.service.v1.LeaveRequest
 	0,  // 12: hr.service.v1.ListLeaveRequestsRequest.status:type_name -> hr.service.v1.LeaveRequestStatus
-	20, // 13: hr.service.v1.ListLeaveRequestsRequest.start_date:type_name -> google.protobuf.Timestamp
-	20, // 14: hr.service.v1.ListLeaveRequestsRequest.end_date:type_name -> google.protobuf.Timestamp
-	1,  // 15: hr.service.v1.ListLeaveRequestsResponse.items:type_name -> hr.service.v1.LeaveRequest
-	1,  // 16: hr.service.v1.UpdateLeaveRequestRequest.data:type_name -> hr.service.v1.LeaveRequest
-	22, // 17: hr.service.v1.UpdateLeaveRequestRequest.update_mask:type_name -> google.protobuf.FieldMask
-	1,  // 18: hr.service.v1.UpdateLeaveRequestResponse.leave_request:type_name -> hr.service.v1.LeaveRequest
-	1,  // 19: hr.service.v1.ApproveLeaveRequestResponse.leave_request:type_name -> hr.service.v1.LeaveRequest
-	1,  // 20: hr.service.v1.RejectLeaveRequestResponse.leave_request:type_name -> hr.service.v1.LeaveRequest
-	1,  // 21: hr.service.v1.CancelLeaveRequestResponse.leave_request:type_name -> hr.service.v1.LeaveRequest
-	20, // 22: hr.service.v1.CalendarEvent.start_date:type_name -> google.protobuf.Timestamp
-	20, // 23: hr.service.v1.CalendarEvent.end_date:type_name -> google.protobuf.Timestamp
-	0,  // 24: hr.service.v1.CalendarEvent.status:type_name -> hr.service.v1.LeaveRequestStatus
-	20, // 25: hr.service.v1.GetCalendarEventsRequest.start_date:type_name -> google.protobuf.Timestamp
-	20, // 26: hr.service.v1.GetCalendarEventsRequest.end_date:type_name -> google.protobuf.Timestamp
-	17, // 27: hr.service.v1.GetCalendarEventsResponse.events:type_name -> hr.service.v1.CalendarEvent
-	2,  // 28: hr.service.v1.HrLeaveService.CreateLeaveRequest:input_type -> hr.service.v1.CreateLeaveRequestRequest
-	4,  // 29: hr.service.v1.HrLeaveService.GetLeaveRequest:input_type -> hr.service.v1.GetLeaveRequestRequest
-	6,  // 30: hr.service.v1.HrLeaveService.ListLeaveRequests:input_type -> hr.service.v1.ListLeaveRequestsRequest
-	8,  // 31: hr.service.v1.HrLeaveService.UpdateLeaveRequest:input_type -> hr.service.v1.UpdateLeaveRequestRequest
-	10, // 32: hr.service.v1.HrLeaveService.DeleteLeaveRequest:input_type -> hr.service.v1.DeleteLeaveRequestRequest
-	11, // 33: hr.service.v1.HrLeaveService.ApproveLeaveRequest:input_type -> hr.service.v1.ApproveLeaveRequestRequest
-	13, // 34: hr.service.v1.HrLeaveService.RejectLeaveRequest:input_type -> hr.service.v1.RejectLeaveRequestRequest
-	15, // 35: hr.service.v1.HrLeaveService.CancelLeaveRequest:input_type -> hr.service.v1.CancelLeaveRequestRequest
-	18, // 36: hr.service.v1.HrLeaveService.GetCalendarEvents:input_type -> hr.service.v1.GetCalendarEventsRequest
-	3,  // 37: hr.service.v1.HrLeaveService.CreateLeaveRequest:output_type -> hr.service.v1.CreateLeaveRequestResponse
-	5,  // 38: hr.service.v1.HrLeaveService.GetLeaveRequest:output_type -> hr.service.v1.GetLeaveRequestResponse
-	7,  // 39: hr.service.v1.HrLeaveService.ListLeaveRequests:output_type -> hr.service.v1.ListLeaveRequestsResponse
-	9,  // 40: hr.service.v1.HrLeaveService.UpdateLeaveRequest:output_type -> hr.service.v1.UpdateLeaveRequestResponse
-	23, // 41: hr.service.v1.HrLeaveService.DeleteLeaveRequest:output_type -> google.protobuf.Empty
-	12, // 42: hr.service.v1.HrLeaveService.ApproveLeaveRequest:output_type -> hr.service.v1.ApproveLeaveRequestResponse
-	14, // 43: hr.service.v1.HrLeaveService.RejectLeaveRequest:output_type -> hr.service.v1.RejectLeaveRequestResponse
-	16, // 44: hr.service.v1.HrLeaveService.CancelLeaveRequest:output_type -> hr.service.v1.CancelLeaveRequestResponse
-	19, // 45: hr.service.v1.HrLeaveService.GetCalendarEvents:output_type -> hr.service.v1.GetCalendarEventsResponse
-	37, // [37:46] is the sub-list for method output_type
-	28, // [28:37] is the sub-list for method input_type
-	28, // [28:28] is the sub-list for extension type_name
-	28, // [28:28] is the sub-list for extension extendee
-	0,  // [0:28] is the sub-list for field type_name
+	1,  // 13: hr.service.v1.ListLeaveRequestsResponse.items:type_name -> hr.service.v1.LeaveRequest
+	1,  // 14: hr.service.v1.UpdateLeaveRequestRequest.data:type_name -> hr.service.v1.LeaveRequest
+	22, // 15: hr.service.v1.UpdateLeaveRequestRequest.update_mask:type_name -> google.protobuf.FieldMask
+	1,  // 16: hr.service.v1.UpdateLeaveRequestResponse.leave_request:type_name -> hr.service.v1.LeaveRequest
+	1,  // 17: hr.service.v1.ApproveLeaveRequestResponse.leave_request:type_name -> hr.service.v1.LeaveRequest
+	1,  // 18: hr.service.v1.RejectLeaveRequestResponse.leave_request:type_name -> hr.service.v1.LeaveRequest
+	1,  // 19: hr.service.v1.CancelLeaveRequestResponse.leave_request:type_name -> hr.service.v1.LeaveRequest
+	20, // 20: hr.service.v1.CalendarEvent.start_date:type_name -> google.protobuf.Timestamp
+	20, // 21: hr.service.v1.CalendarEvent.end_date:type_name -> google.protobuf.Timestamp
+	0,  // 22: hr.service.v1.CalendarEvent.status:type_name -> hr.service.v1.LeaveRequestStatus
+	17, // 23: hr.service.v1.GetCalendarEventsResponse.events:type_name -> hr.service.v1.CalendarEvent
+	2,  // 24: hr.service.v1.HrLeaveService.CreateLeaveRequest:input_type -> hr.service.v1.CreateLeaveRequestRequest
+	4,  // 25: hr.service.v1.HrLeaveService.GetLeaveRequest:input_type -> hr.service.v1.GetLeaveRequestRequest
+	6,  // 26: hr.service.v1.HrLeaveService.ListLeaveRequests:input_type -> hr.service.v1.ListLeaveRequestsRequest
+	8,  // 27: hr.service.v1.HrLeaveService.UpdateLeaveRequest:input_type -> hr.service.v1.UpdateLeaveRequestRequest
+	10, // 28: hr.service.v1.HrLeaveService.DeleteLeaveRequest:input_type -> hr.service.v1.DeleteLeaveRequestRequest
+	11, // 29: hr.service.v1.HrLeaveService.ApproveLeaveRequest:input_type -> hr.service.v1.ApproveLeaveRequestRequest
+	13, // 30: hr.service.v1.HrLeaveService.RejectLeaveRequest:input_type -> hr.service.v1.RejectLeaveRequestRequest
+	15, // 31: hr.service.v1.HrLeaveService.CancelLeaveRequest:input_type -> hr.service.v1.CancelLeaveRequestRequest
+	18, // 32: hr.service.v1.HrLeaveService.GetCalendarEvents:input_type -> hr.service.v1.GetCalendarEventsRequest
+	3,  // 33: hr.service.v1.HrLeaveService.CreateLeaveRequest:output_type -> hr.service.v1.CreateLeaveRequestResponse
+	5,  // 34: hr.service.v1.HrLeaveService.GetLeaveRequest:output_type -> hr.service.v1.GetLeaveRequestResponse
+	7,  // 35: hr.service.v1.HrLeaveService.ListLeaveRequests:output_type -> hr.service.v1.ListLeaveRequestsResponse
+	9,  // 36: hr.service.v1.HrLeaveService.UpdateLeaveRequest:output_type -> hr.service.v1.UpdateLeaveRequestResponse
+	23, // 37: hr.service.v1.HrLeaveService.DeleteLeaveRequest:output_type -> google.protobuf.Empty
+	12, // 38: hr.service.v1.HrLeaveService.ApproveLeaveRequest:output_type -> hr.service.v1.ApproveLeaveRequestResponse
+	14, // 39: hr.service.v1.HrLeaveService.RejectLeaveRequest:output_type -> hr.service.v1.RejectLeaveRequestResponse
+	16, // 40: hr.service.v1.HrLeaveService.CancelLeaveRequest:output_type -> hr.service.v1.CancelLeaveRequestResponse
+	19, // 41: hr.service.v1.HrLeaveService.GetCalendarEvents:output_type -> hr.service.v1.GetCalendarEventsResponse
+	33, // [33:42] is the sub-list for method output_type
+	24, // [24:33] is the sub-list for method input_type
+	24, // [24:24] is the sub-list for extension type_name
+	24, // [24:24] is the sub-list for extension extendee
+	0,  // [0:24] is the sub-list for field type_name
 }
 
 func init() { file_hr_service_v1_leave_proto_init() }

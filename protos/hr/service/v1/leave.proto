@@ -111,8 +111,8 @@ message ListLeaveRequestsRequest {
   optional uint32 user_id = 10 [json_name = "userId"];
   optional string absence_type_id = 11 [json_name = "absenceTypeId"];
   optional LeaveRequestStatus status = 12 [json_name = "status"];
-  optional google.protobuf.Timestamp start_date = 13 [json_name = "startDate"];
-  optional google.protobuf.Timestamp end_date = 14 [json_name = "endDate"];
+  optional string start_date = 13 [json_name = "startDate"];
+  optional string end_date = 14 [json_name = "endDate"];
 }
 
 message ListLeaveRequestsResponse {
@@ -201,8 +201,8 @@ message CalendarEvent {
 
 message GetCalendarEventsRequest {
   optional uint32 tenant_id = 1 [json_name = "tenantId"];
-  optional google.protobuf.Timestamp start_date = 2 [json_name = "startDate"];
-  optional google.protobuf.Timestamp end_date = 3 [json_name = "endDate"];
+  optional string start_date = 2 [json_name = "startDate"];
+  optional string end_date = 3 [json_name = "endDate"];
   optional string org_unit_name = 4 [json_name = "orgUnitName"];
   optional uint32 user_id = 5 [json_name = "userId"];
 }
