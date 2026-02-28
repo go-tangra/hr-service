@@ -7,6 +7,7 @@ import { $t } from 'shell/locales';
 import { useHrLeaveStore } from '../../stores/hr-leave.state';
 import { useHrAbsenceTypeStore } from '../../stores/hr-absence-type.state';
 import type { CalendarEvent, AbsenceType } from '../../api/services';
+import { toTimestamp, fromTimestamp } from '../../api/services';
 import { adminApi } from '../../api/client';
 import RequestDrawer from '../request/request-drawer.vue';
 
@@ -192,8 +193,8 @@ async function loadEvents() {
     const end = new Date(viewStart.value);
     end.setDate(end.getDate() + numDays.value);
     const resp = await leaveStore.getCalendarEvents({
-      startDate: startStr,
-      endDate: toISODate(end),
+      startDate: toTimestamp(startStr),
+      endDate: toTimestamp(toISODate(end)),
       orgUnitName: selectedOrgUnit.value,
     });
     events.value = resp.events || [];
@@ -390,7 +391,7 @@ function onGlobalMouseUp() {
 
 async function updateRequestDates(id: string, startDate: string, endDate: string) {
   try {
-    await leaveStore.updateLeaveRequest(id, { startDate, endDate }, ['start_date', 'end_date']);
+    await leaveStore.updateLeaveRequest(id, { startDate: toTimestamp(startDate), endDate: toTimestamp(endDate) }, ['start_date', 'end_date']);
     loadEvents();
   } catch { /* noop */ }
 }
@@ -689,7 +690,7 @@ onUnmounted(() => {
           <span class="tl-tooltip-dot" :style="{ backgroundColor: hoveredBar.color || '#4096ff' }" />
           {{ hoveredBar.absenceTypeName }}
         </div>
-        <div class="tl-tooltip-dates">{{ hoveredBar.startDate }} → {{ hoveredBar.endDate }}</div>
+        <div class="tl-tooltip-dates">{{ fromTimestamp(hoveredBar.startDate) }} → {{ fromTimestamp(hoveredBar.endDate) }}</div>
         <div class="tl-tooltip-meta">
           <span>{{ hoveredBar.days }} {{ $t('hr.page.request.days') }}</span>
           <Tag

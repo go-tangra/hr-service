@@ -19,6 +19,7 @@ import {
 } from 'ant-design-vue';
 
 import type { LeaveRequest, AbsenceType } from '../../api/services';
+import { toTimestamp, fromTimestamp } from '../../api/services';
 import { $t } from 'shell/locales';
 import { useUserStore } from 'shell/vben/stores';
 import { useHrLeaveStore } from '../../stores/hr-leave.state';
@@ -124,8 +125,8 @@ async function handleSubmit() {
         userName: formState.value.userName || undefined,
         orgUnitName: formState.value.orgUnitName || undefined,
         absenceTypeId: formState.value.absenceTypeId,
-        startDate: formState.value.startDate,
-        endDate: formState.value.endDate,
+        startDate: toTimestamp(formState.value.startDate),
+        endDate: toTimestamp(formState.value.endDate),
         reason: formState.value.reason || undefined,
         notes: formState.value.notes || undefined,
       });
@@ -193,8 +194,8 @@ const [Modal, modalApi] = useVbenModal({
             onUserSelect(data.value.row.userId);
           }
           if (data.value.row.absenceTypeId) formState.value.absenceTypeId = data.value.row.absenceTypeId;
-          if (data.value.row.startDate) formState.value.startDate = data.value.row.startDate;
-          if (data.value.row.endDate) formState.value.endDate = data.value.row.endDate;
+          if (data.value.row.startDate) formState.value.startDate = fromTimestamp(data.value.row.startDate);
+          if (data.value.row.endDate) formState.value.endDate = fromTimestamp(data.value.row.endDate);
         }
         // Default to current logged-in user if not pre-filled
         if (!formState.value.userId && userStore.userInfo) {
@@ -207,8 +208,8 @@ const [Modal, modalApi] = useVbenModal({
           userName: data.value.row.userName ?? '',
           orgUnitName: data.value.row.orgUnitName ?? '',
           absenceTypeId: data.value.row.absenceTypeId ?? '',
-          startDate: data.value.row.startDate ?? '',
-          endDate: data.value.row.endDate ?? '',
+          startDate: fromTimestamp(data.value.row.startDate),
+          endDate: fromTimestamp(data.value.row.endDate),
           reason: data.value.row.reason ?? '',
           notes: data.value.row.notes ?? '',
         };
@@ -232,10 +233,10 @@ const request = computed(() => data.value?.row);
           {{ request.absenceTypeName || '-' }}
         </DescriptionsItem>
         <DescriptionsItem :label="$t('hr.page.request.startDate')">
-          {{ request.startDate || '-' }}
+          {{ fromTimestamp(request.startDate) || '-' }}
         </DescriptionsItem>
         <DescriptionsItem :label="$t('hr.page.request.endDate')">
-          {{ request.endDate || '-' }}
+          {{ fromTimestamp(request.endDate) || '-' }}
         </DescriptionsItem>
         <DescriptionsItem :label="$t('hr.page.request.days')">
           {{ request.days || '-' }}

@@ -9,6 +9,7 @@ import { notification, Space, Button, Tag } from 'ant-design-vue';
 import { useVbenVxeGrid } from 'shell/adapter/vxe-table';
 import type { VxeGridProps } from 'shell/adapter/vxe-table';
 import type { LeaveRequest } from '../../api/services';
+import { fromTimestamp } from '../../api/services';
 import { $t } from 'shell/locales';
 import { useHrLeaveStore } from '../../stores/hr-leave.state';
 
@@ -113,11 +114,13 @@ const gridOptions: VxeGridProps<LeaveRequest> = {
       title: $t('hr.page.request.startDate'),
       field: 'startDate',
       width: 120,
+      formatter: ({ cellValue }: { cellValue: string }) => fromTimestamp(cellValue),
     },
     {
       title: $t('hr.page.request.endDate'),
       field: 'endDate',
       width: 120,
+      formatter: ({ cellValue }: { cellValue: string }) => fromTimestamp(cellValue),
     },
     {
       title: $t('hr.page.request.days'),

@@ -151,6 +151,19 @@ export interface GetUserBalanceResponse {
 
 // ==================== Helper ====================
 
+/** Convert a YYYY-MM-DD date string to RFC 3339 timestamp for protobuf Timestamp fields */
+export function toTimestamp(date?: string): string | undefined {
+  if (!date) return undefined;
+  if (date.includes('T')) return date;
+  return `${date}T00:00:00Z`;
+}
+
+/** Extract YYYY-MM-DD from an RFC 3339 timestamp (for form inputs) */
+export function fromTimestamp(ts?: string): string {
+  if (!ts) return '';
+  return ts.split('T')[0] || '';
+}
+
 function buildQuery(params: Record<string, unknown>): string {
   const searchParams = new URLSearchParams();
   for (const [key, value] of Object.entries(params)) {
