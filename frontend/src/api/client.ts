@@ -74,7 +74,7 @@ export const adminApi = {
             .map(([k, v]) => [k, String(v)]),
         ).toString()
       : '';
-    return request<T>('GET', `${path}${query}`, undefined, { baseUrl: '/admin/v1' });
+    return request<T>('GET', `${path}${query}`, undefined, { baseUrl: '/admin/admin/v1' });
   },
 };
 
