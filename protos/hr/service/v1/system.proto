@@ -1,0 +1,45 @@
+syntax = "proto3";
+
+package hr.service.v1;
+
+import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
+
+// HealthCheckRequest for health checks
+message HealthCheckRequest {}
+
+message HealthCheckResponse {
+  string status = 1 [json_name = "status"];
+  string version = 2 [json_name = "version"];
+  google.protobuf.Timestamp timestamp = 3 [json_name = "timestamp"];
+}
+
+// GetStatsRequest retrieves HR module statistics
+message GetStatsRequest {
+  optional uint32 tenant_id = 1 [json_name = "tenantId"];
+}
+
+message GetStatsResponse {
+  int64 total_absence_types = 2 [json_name = "totalAbsenceTypes"];
+  int64 pending_requests = 3 [json_name = "pendingRequests"];
+  int64 approved_requests = 4 [json_name = "approvedRequests"];
+  int64 rejected_requests = 5 [json_name = "rejectedRequests"];
+  int64 total_requests = 6 [json_name = "totalRequests"];
+}
+
+// HrSystemService provides system-level operations
+service HrSystemService {
+  // Health check
+  rpc HealthCheck(HealthCheckRequest) returns (HealthCheckResponse) {
+    option (google.api.http) = {
+      get: "/v1/health"
+    };
+  }
+
+  // Get HR statistics
+  rpc GetStats(GetStatsRequest) returns (GetStatsResponse) {
+    option (google.api.http) = {
+      get: "/v1/stats"
+    };
+  }
+}

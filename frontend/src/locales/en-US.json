@@ -1,0 +1,109 @@
+{
+  "menu": {
+    "moduleName": "Human Resources",
+    "calendar": "Calendar",
+    "requests": "Leave Requests",
+    "absenceTypes": "Absence Types"
+  },
+  "page": {
+    "calendar": {
+      "title": "Leave Calendar",
+      "newRequest": "New Request",
+      "filterOrgUnit": "Filter by Org Unit",
+      "filterUser": "Filter by User",
+      "allUsers": "All Users",
+      "pending": "Pending",
+      "approved": "Approved",
+      "today": "Today",
+      "viewWeek": "Week",
+      "view2Weeks": "2 Weeks",
+      "viewMonth": "Month",
+      "users": "Users",
+      "dragHint": "Drag across days to create a leave request",
+      "noUsers": "No users found.",
+      "rejected": "Rejected",
+      "cancelled": "Cancelled"
+    },
+    "request": {
+      "title": "Leave Requests",
+      "create": "Create Request",
+      "edit": "Edit Request",
+      "view": "Request Details",
+      "userId": "User",
+      "userName": "User",
+      "absenceTypeId": "Absence Type",
+      "startDate": "Start Date",
+      "endDate": "End Date",
+      "days": "Days",
+      "status": "Status",
+      "reason": "Reason",
+      "reviewNotes": "Review Notes",
+      "reviewedBy": "Reviewed By",
+      "reviewedAt": "Reviewed At",
+      "notes": "Notes",
+      "approve": "Approve",
+      "reject": "Reject",
+      "cancel": "Cancel Request",
+      "approveConfirm": "Are you sure you want to approve this request?",
+      "rejectConfirm": "Are you sure you want to reject this request?",
+      "cancelConfirm": "Are you sure you want to cancel this request?",
+      "createSuccess": "Leave request created successfully",
+      "updateSuccess": "Leave request updated successfully",
+      "deleteSuccess": "Leave request deleted successfully",
+      "approveSuccess": "Leave request approved successfully",
+      "rejectSuccess": "Leave request rejected successfully",
+      "cancelSuccess": "Leave request cancelled successfully",
+      "confirmDelete": "Are you sure you want to delete this request?",
+      "remainingBalance": "Remaining Balance",
+      "absenceTypeName": "Absence Type"
+    },
+    "absenceType": {
+      "title": "Absence Types",
+      "create": "Create Absence Type",
+      "edit": "Edit Absence Type",
+      "view": "Absence Type Details",
+      "name": "Name",
+      "description": "Description",
+      "color": "Color",
+      "icon": "Icon",
+      "deductsFromAllowance": "Deducts from Allowance",
+      "requiresApproval": "Requires Approval",
+      "isActive": "Active",
+      "sortOrder": "Sort Order",
+      "metadata": "Metadata",
+      "createSuccess": "Absence type created successfully",
+      "updateSuccess": "Absence type updated successfully",
+      "deleteSuccess": "Absence type deleted successfully",
+      "confirmDelete": "Are you sure you want to delete this absence type?"
+    },
+    "allowance": {
+      "title": "Leave Allowances",
+      "create": "Create Allowance",
+      "edit": "Edit Allowance",
+      "userId": "User",
+      "absenceTypeId": "Absence Type",
+      "year": "Year",
+      "totalDays": "Total Days",
+      "usedDays": "Used Days",
+      "carriedOver": "Carried Over",
+      "notes": "Notes",
+      "createSuccess": "Allowance created successfully",
+      "updateSuccess": "Allowance updated successfully",
+      "deleteSuccess": "Allowance deleted successfully",
+      "confirmDelete": "Are you sure you want to delete this allowance?"
+    },
+    "system": {
+      "pendingRequests": "Pending Requests",
+      "approvedThisMonth": "Approved This Month",
+      "activeAbsenceTypes": "Active Absence Types"
+    }
+  },
+  "enum": {
+    "leaveRequestStatus": {
+      "pending": "Pending",
+      "approved": "Approved",
+      "rejected": "Rejected",
+      "cancelled": "Cancelled"
+    }
+  }
+}

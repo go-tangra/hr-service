@@ -1,0 +1,97 @@
+##################################
+# Stage 0: Build frontend module
+##################################
+
+FROM node:20-alpine AS frontend-builder
+
+RUN npm install -g pnpm@9
+
+WORKDIR /frontend
+COPY frontend/package.json frontend/pnpm-lock.yaml* ./
+RUN pnpm install --frozen-lockfile || pnpm install
+COPY frontend/ .
+RUN pnpm build
+
+##################################
+# Stage 1: Build Go executable
+##################################
+
+FROM golang:1.23-alpine AS builder
+
+ARG APP_VERSION=1.0.0
+
+# Enable toolchain auto-download for newer Go versions
+ENV GOTOOLCHAIN=auto
+
+# Install build dependencies
+RUN apk add --no-cache git make curl
+
+# Install buf for proto descriptor generation
+RUN curl -sSL "https://github.com/bufbuild/buf/releases/latest/download/buf-$(uname -s)-$(uname -m)" -o /usr/local/bin/buf && \
+    chmod +x /usr/local/bin/buf
+
+# Set working directory
+WORKDIR /src
+
+# Copy go mod files first for better caching
+COPY go.mod go.sum ./
+RUN go mod download
+
+# Copy the entire source code
+COPY . .
+
+# Regenerate proto descriptor (ensures embedded descriptor.bin is always up to date)
+RUN buf build -o cmd/server/assets/descriptor.bin
+
+# Copy frontend dist into assets for go:embed
+COPY --from=frontend-builder /frontend/dist cmd/server/assets/frontend-dist/
+
+# Build the server
+RUN CGO_ENABLED=0 \
+    GOOS=linux \
+    GOARCH=amd64 \
+    go build -ldflags "-X main.version=${APP_VERSION} -s -w" \
+    -o /src/bin/hr-server \
+    ./cmd/server
+
+##################################
+# Stage 2: Create runtime image
+##################################
+
+FROM alpine:3.20
+
+ARG APP_VERSION=1.0.0
+
+# Install runtime dependencies
+RUN apk --no-cache add ca-certificates tzdata
+
+# Set timezone
+ENV TZ=UTC
+
+# Set working directory
+WORKDIR /app
+
+# Copy executable from builder
+COPY --from=builder /src/bin/hr-server /app/bin/hr-server
+
+# Copy configuration files
+COPY --from=builder /src/configs/ /app/configs/
+
+# Create non-root user
+RUN addgroup -g 1000 hr && \
+    adduser -D -u 1000 -G hr hr && \
+    chown -R hr:hr /app
+
+# Switch to non-root user
+USER hr:hr
+
+# Expose gRPC and HTTP ports
+EXPOSE 10200 10201
+
+# Set default command
+CMD ["/app/bin/hr-server", "-c", "/app/configs"]
+
+# Labels
+LABEL org.opencontainers.image.title="HR Service" \
+      org.opencontainers.image.description="Human Resources / Vacation Planning Service" \
+      org.opencontainers.image.version="${APP_VERSION}"
