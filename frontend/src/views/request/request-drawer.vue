@@ -22,7 +22,7 @@ import type { LeaveRequest, AbsenceType } from '../../api/services';
 import { $t } from 'shell/locales';
 import { useHrLeaveStore } from '../../stores/hr-leave.state';
 import { useHrAbsenceTypeStore } from '../../stores/hr-absence-type.state';
-import { requestClient } from 'shell/api/request';
+import { adminApi } from '../../api/client';
 
 const leaveStore = useHrLeaveStore();
 const absenceTypeStore = useHrAbsenceTypeStore();
@@ -104,7 +104,7 @@ async function loadOptions() {
   try {
     const [typesResp, usersResp] = await Promise.all([
       absenceTypeStore.listAbsenceTypes(undefined, null),
-      requestClient.get<{ items: PortalUser[] }>('/admin/v1/users', { params: { noPaging: true } }),
+      adminApi.get<{ items: PortalUser[] }>('/users', { noPaging: true }),
     ]);
     absenceTypes.value = typesResp.items || [];
     users.value = usersResp.items || [];

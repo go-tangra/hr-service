@@ -24,9 +24,10 @@ async function request<T>(
   method: string,
   path: string,
   body?: unknown,
-  options?: RequestOptions,
+  options?: RequestOptions & { baseUrl?: string },
 ): Promise<T> {
-  const url = `${MODULE_BASE_URL}${path}`;
+  const base = options?.baseUrl ?? MODULE_BASE_URL;
+  const url = `${base}${path}`;
 
   const response = await fetch(url, {
     method,
@@ -61,6 +62,20 @@ export const hrApi = {
 
   delete: <T>(path: string, options?: RequestOptions) =>
     request<T>('DELETE', path, undefined, options),
+};
+
+/** Client for admin/portal API calls (e.g. /admin/v1/users) */
+export const adminApi = {
+  get: <T>(path: string, params?: Record<string, unknown>) => {
+    const query = params
+      ? '?' + new URLSearchParams(
+          Object.entries(params)
+            .filter(([, v]) => v != null)
+            .map(([k, v]) => [k, String(v)]),
+        ).toString()
+      : '';
+    return request<T>('GET', `${path}${query}`, undefined, { baseUrl: '/admin/v1' });
+  },
 };
 
 export default hrApi;

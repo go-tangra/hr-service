@@ -6,7 +6,7 @@ import { $t } from 'shell/locales';
 import { useHrLeaveStore } from '../../stores/hr-leave.state';
 import { useHrAbsenceTypeStore } from '../../stores/hr-absence-type.state';
 import type { CalendarEvent, AbsenceType } from '../../api/services';
-import { requestClient } from 'shell/api/request';
+import { adminApi } from '../../api/client';
 import RequestDrawer from '../request/request-drawer.vue';
 
 type ViewMode = 'week' | '2weeks' | 'month';
@@ -162,7 +162,7 @@ function goToday() {
 // --- Data loading ---
 async function loadUsers() {
   try {
-    const resp = await requestClient.get<{ items: PortalUser[] }>('/admin/v1/users', { params: { noPaging: true } });
+    const resp = await adminApi.get<{ items: PortalUser[] }>('/users', { noPaging: true });
     users.value = resp.items || [];
     const unitSet = new Set<string>();
     for (const user of users.value) {
