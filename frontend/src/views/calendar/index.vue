@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
+import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue';
 import { Button, Select, SelectOption, Tag, Tooltip } from 'ant-design-vue';
 import { Page, useVbenModal } from 'shell/vben/common-ui';
 import { useUserStore } from 'shell/vben/stores';
@@ -34,6 +34,9 @@ const events = ref<CalendarEvent[]>([]);
 const selectedOrgUnit = ref<string>();
 const orgUnits = ref<string[]>([]);
 const collapsedOrgUnits = ref<Set<string>>(new Set());
+
+// Container ref for scroll-to-today
+const containerRef = ref<HTMLElement | null>(null);
 
 // Drag state
 const isDragging = ref(false);
@@ -153,6 +156,15 @@ function navigate(dir: number) {
 
 function goToday() {
   currentDate.value = new Date();
+  nextTick(() => scrollToToday());
+}
+
+function scrollToToday() {
+  const el = containerRef.value;
+  if (!el) return;
+  const todayIdx = days.value.findIndex((d) => d.isToday);
+  if (todayIdx < 0) return;
+  el.scrollLeft = Math.max(0, todayIdx * dayWidth.value - 2 * dayWidth.value);
 }
 
 // --- Data loading ---
@@ -390,13 +402,17 @@ const viewOptions = computed(() => [
 ]);
 
 // --- Lifecycle ---
-watch([viewMode, currentDate, selectedOrgUnit], () => loadEvents());
+watch([viewMode, currentDate, selectedOrgUnit], () => {
+  loadEvents();
+  nextTick(() => scrollToToday());
+});
 
 onMounted(() => {
   loadUsers();
   loadAbsenceTypes();
   loadEvents();
   document.addEventListener('mouseup', onGlobalMouseUp);
+  nextTick(() => scrollToToday());
 });
 
 onUnmounted(() => {
@@ -460,7 +476,7 @@ onUnmounted(() => {
     </div>
 
     <!-- Timeline -->
-    <div class="tl-container" :class="{ 'is-dragging': isDragging }">
+    <div ref="containerRef" class="tl-container" :class="{ 'is-dragging': isDragging }">
       <div
         class="tl-scroll"
         :style="{ minWidth: `${EMP_COL_WIDTH + numDays * dayWidth}px` }"
