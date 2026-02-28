@@ -783,6 +783,9 @@ function stringToColor(str: string): string {
 .tl-header-months {
   z-index: 21;
 }
+.tl-header-days {
+  top: 32px;
+}
 .tl-header-corner {
   position: sticky;
   left: 0;
