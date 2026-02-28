@@ -2,6 +2,7 @@
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
 import { Button, Select, SelectOption, Tag, Tooltip } from 'ant-design-vue';
 import { Page, useVbenModal } from 'shell/vben/common-ui';
+import { useUserStore } from 'shell/vben/stores';
 import { $t } from 'shell/locales';
 import { useHrLeaveStore } from '../../stores/hr-leave.state';
 import { useHrAbsenceTypeStore } from '../../stores/hr-absence-type.state';
@@ -20,6 +21,8 @@ interface PortalUser {
 
 const leaveStore = useHrLeaveStore();
 const absenceTypeStore = useHrAbsenceTypeStore();
+const userStore = useUserStore();
+const currentUserId = computed(() => userStore.userInfo?.id ?? 0);
 
 // --- State ---
 const viewMode = ref<ViewMode>('month');
@@ -295,6 +298,8 @@ const todayMarkerLeft = computed(() => {
 // --- Drag-to-create ---
 function onCellMouseDown(userId: number, dayIndex: number, e: MouseEvent) {
   if (e.button !== 0 || isResizing.value) return;
+  // Only allow drag-to-create on the current user's own row
+  if (userId !== currentUserId.value) return;
   isDragging.value = true;
   dragUserId.value = userId;
   dragStartCol.value = dayIndex;
@@ -419,8 +424,7 @@ function openViewDrawer(evt: CalendarEvent) {
 }
 
 function handleNewRequest() {
-  requestDrawerApi.setData({ row: {}, mode: 'create' });
-  requestDrawerApi.open();
+  openCreateDrawer(currentUserId.value);
 }
 
 // --- Bar tooltip ---
@@ -600,6 +604,7 @@ onUnmounted(() => {
                   weekend: day.isWeekend,
                   today: day.isToday,
                   'drag-highlight': isDragHighlighted(row.user.id, di),
+                  'own-row': row.user.id === currentUserId,
                 }"
                 :style="{ width: `${dayWidth}px`, minWidth: `${dayWidth}px` }"
                 @mousedown="onCellMouseDown(row.user.id, di, $event)"
@@ -635,9 +640,9 @@ onUnmounted(() => {
                 @mouseenter="onBarMouseEnter(bar.event, $event)"
                 @mouseleave="onBarMouseLeave"
               >
-                <!-- Resize handles -->
+                <!-- Resize handles (own pending events only) -->
                 <div
-                  v-if="bar.isPending"
+                  v-if="bar.isPending && bar.event.userId === currentUserId"
                   class="tl-bar-handle tl-bar-handle-left"
                   @mousedown="onResizeStart(bar.event, 'left', $event)"
                 />
@@ -646,7 +651,7 @@ onUnmounted(() => {
                   <template v-if="bar.width > 120"> · {{ bar.event.days }}d</template>
                 </span>
                 <div
-                  v-if="bar.isPending"
+                  v-if="bar.isPending && bar.event.userId === currentUserId"
                   class="tl-bar-handle tl-bar-handle-right"
                   @mousedown="onResizeStart(bar.event, 'right', $event)"
                 />
@@ -1044,8 +1049,11 @@ function stringToColor(str: string): string {
   height: 52px;
   border-right: 1px solid var(--ant-color-border-secondary, #f0f0f0);
   flex-shrink: 0;
-  cursor: crosshair;
+  cursor: default;
   transition: background 0.05s;
+}
+.tl-cell.own-row {
+  cursor: crosshair;
 }
 .tl-cell.weekend {
   background: rgba(0, 0, 0, 0.018);

@@ -20,12 +20,14 @@ import {
 
 import type { LeaveRequest, AbsenceType } from '../../api/services';
 import { $t } from 'shell/locales';
+import { useUserStore } from 'shell/vben/stores';
 import { useHrLeaveStore } from '../../stores/hr-leave.state';
 import { useHrAbsenceTypeStore } from '../../stores/hr-absence-type.state';
 import { adminApi } from '../../api/client';
 
 const leaveStore = useHrLeaveStore();
 const absenceTypeStore = useHrAbsenceTypeStore();
+const userStore = useUserStore();
 
 interface PortalUser {
   id: number;
@@ -193,6 +195,11 @@ const [Modal, modalApi] = useVbenModal({
           if (data.value.row.absenceTypeId) formState.value.absenceTypeId = data.value.row.absenceTypeId;
           if (data.value.row.startDate) formState.value.startDate = data.value.row.startDate;
           if (data.value.row.endDate) formState.value.endDate = data.value.row.endDate;
+        }
+        // Default to current logged-in user if not pre-filled
+        if (!formState.value.userId && userStore.userInfo) {
+          formState.value.userId = userStore.userInfo.id;
+          formState.value.userName = userStore.userInfo.realname || userStore.userInfo.username || '';
         }
       } else if (data.value?.row) {
         formState.value = {
