@@ -41,14 +41,6 @@ const dragUserId = ref(0);
 const dragStartCol = ref(-1);
 const dragCurrentCol = ref(-1);
 
-// Resize state
-const isResizing = ref(false);
-const resizeEvent = ref<CalendarEvent | null>(null);
-const resizeEdge = ref<'left' | 'right'>('right');
-const resizeOrigStart = ref(0);
-const resizeOrigEnd = ref(0);
-const resizeCurrent = ref(0);
-
 // Tooltip state
 const hoveredBar = ref<CalendarEvent | null>(null);
 const tooltipPos = ref({ x: 0, y: 0 });
@@ -258,8 +250,6 @@ interface BarInfo {
   left: number;
   width: number;
   isPending: boolean;
-  startIdx: number;
-  endIdx: number;
 }
 
 const barsByUser = computed(() => {
@@ -284,7 +274,7 @@ const barsByUser = computed(() => {
     const isPending = evt.status === 'LEAVE_REQUEST_STATUS_PENDING';
 
     if (!map.has(evt.userId)) map.set(evt.userId, []);
-    map.get(evt.userId)!.push({ event: evt, left, width, isPending, startIdx, endIdx });
+    map.get(evt.userId)!.push({ event: evt, left, width, isPending });
   }
   return map;
 });
@@ -298,7 +288,7 @@ const todayMarkerLeft = computed(() => {
 
 // --- Drag-to-create ---
 function onCellMouseDown(userId: number, dayIndex: number, e: MouseEvent) {
-  if (e.button !== 0 || isResizing.value) return;
+  if (e.button !== 0) return;
   // Only allow drag-to-create on the current user's own row
   if (userId !== currentUserId.value) return;
   isDragging.value = true;
@@ -310,7 +300,6 @@ function onCellMouseDown(userId: number, dayIndex: number, e: MouseEvent) {
 
 function onCellMouseEnter(dayIndex: number) {
   if (isDragging.value) dragCurrentCol.value = dayIndex;
-  if (isResizing.value) resizeCurrent.value = dayIndex;
 }
 
 function isDragHighlighted(userId: number, dayIndex: number): boolean {
@@ -330,38 +319,6 @@ function dragSelectionStyle(userId: number): Record<string, string> | null {
   };
 }
 
-// --- Bar resize ---
-function onResizeStart(evt: CalendarEvent, edge: 'left' | 'right', e: MouseEvent) {
-  e.stopPropagation();
-  e.preventDefault();
-  isResizing.value = true;
-  resizeEvent.value = evt;
-  resizeEdge.value = edge;
-  const startIdx = dateToDayIndex(evt.startDate || '');
-  const endIdx = dateToDayIndex(evt.endDate || '');
-  resizeOrigStart.value = Math.max(0, startIdx);
-  resizeOrigEnd.value = Math.min(numDays.value - 1, endIdx);
-  resizeCurrent.value = edge === 'left' ? resizeOrigStart.value : resizeOrigEnd.value;
-}
-
-function resizedBarStyle(userId: number): Record<string, string> | null {
-  if (!isResizing.value || resizeEvent.value?.userId !== userId) return null;
-  const s =
-    resizeEdge.value === 'left'
-      ? Math.min(resizeCurrent.value, resizeOrigEnd.value)
-      : resizeOrigStart.value;
-  const e =
-    resizeEdge.value === 'right'
-      ? Math.max(resizeCurrent.value, resizeOrigStart.value)
-      : resizeOrigEnd.value;
-  return {
-    left: `${s * dayWidth.value}px`,
-    width: `${(e - s + 1) * dayWidth.value}px`,
-    backgroundColor: resizeEvent.value?.color || '#4096ff',
-    opacity: '0.5',
-  };
-}
-
 // --- Mouse up handler ---
 function onGlobalMouseUp() {
   if (isDragging.value) {
@@ -372,28 +329,6 @@ function onGlobalMouseUp() {
       openCreateDrawer(dragUserId.value, days.value[s]!.iso, days.value[e]!.iso);
     }
   }
-  if (isResizing.value && resizeEvent.value) {
-    const s =
-      resizeEdge.value === 'left'
-        ? Math.min(resizeCurrent.value, resizeOrigEnd.value)
-        : resizeOrigStart.value;
-    const e =
-      resizeEdge.value === 'right'
-        ? Math.max(resizeCurrent.value, resizeOrigStart.value)
-        : resizeOrigEnd.value;
-    if (days.value[s] && days.value[e]) {
-      updateRequestDates(resizeEvent.value.id, days.value[s]!.iso, days.value[e]!.iso);
-    }
-    isResizing.value = false;
-    resizeEvent.value = null;
-  }
-}
-
-async function updateRequestDates(id: string, startDate: string, endDate: string) {
-  try {
-    await leaveStore.updateLeaveRequest(id, { startDate: toTimestamp(startDate), endDate: toTimestamp(endDate) }, ['start_date', 'end_date']);
-    loadEvents();
-  } catch { /* noop */ }
 }
 
 // --- Request drawer ---
@@ -525,7 +460,7 @@ onUnmounted(() => {
     </div>
 
     <!-- Timeline -->
-    <div class="tl-container" :class="{ 'is-dragging': isDragging || isResizing }">
+    <div class="tl-container" :class="{ 'is-dragging': isDragging }">
       <div
         class="tl-scroll"
         :style="{ minWidth: `${EMP_COL_WIDTH + numDays * dayWidth}px` }"
@@ -619,13 +554,6 @@ onUnmounted(() => {
                 :style="dragSelectionStyle(row.user.id)!"
               />
 
-              <!-- Resize ghost -->
-              <div
-                v-if="resizedBarStyle(row.user.id)"
-                class="tl-resize-ghost"
-                :style="resizedBarStyle(row.user.id)!"
-              />
-
               <!-- Leave request bars -->
               <div
                 v-for="bar in barsByUser.get(row.user.id) || []"
@@ -641,21 +569,10 @@ onUnmounted(() => {
                 @mouseenter="onBarMouseEnter(bar.event, $event)"
                 @mouseleave="onBarMouseLeave"
               >
-                <!-- Resize handles (own pending events only) -->
-                <div
-                  v-if="bar.isPending && bar.event.userId === currentUserId"
-                  class="tl-bar-handle tl-bar-handle-left"
-                  @mousedown="onResizeStart(bar.event, 'left', $event)"
-                />
                 <span class="tl-bar-label">
                   {{ bar.event.absenceTypeName }}
                   <template v-if="bar.width > 120"> · {{ bar.event.days }}d</template>
                 </span>
-                <div
-                  v-if="bar.isPending && bar.event.userId === currentUserId"
-                  class="tl-bar-handle tl-bar-handle-right"
-                  @mousedown="onResizeStart(bar.event, 'right', $event)"
-                />
               </div>
 
               <!-- Today marker line -->
@@ -1078,16 +995,6 @@ function stringToColor(str: string): string {
   z-index: 5;
 }
 
-/* ===== Resize ghost ===== */
-.tl-resize-ghost {
-  position: absolute;
-  top: 8px;
-  height: 36px;
-  border-radius: 8px;
-  pointer-events: none;
-  z-index: 4;
-}
-
 /* ===== Leave bars ===== */
 .tl-bar {
   position: absolute;
@@ -1143,45 +1050,6 @@ function stringToColor(str: string): string {
   text-overflow: ellipsis;
   padding: 0 8px;
   letter-spacing: 0.01em;
-}
-
-/* ===== Resize handles ===== */
-.tl-bar-handle {
-  position: absolute;
-  top: 0;
-  width: 8px;
-  height: 100%;
-  cursor: col-resize;
-  z-index: 2;
-}
-.tl-bar-handle::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 3px;
-  height: 14px;
-  border-radius: 2px;
-  background: currentColor;
-  opacity: 0;
-  transition: opacity 0.15s;
-}
-.tl-bar:hover .tl-bar-handle::after {
-  opacity: 0.4;
-}
-.tl-bar-handle-left {
-  left: 0;
-  border-radius: 8px 0 0 8px;
-}
-.tl-bar-handle-left::after {
-  left: 2px;
-}
-.tl-bar-handle-right {
-  right: 0;
-  border-radius: 0 8px 8px 0;
-}
-.tl-bar-handle-right::after {
-  right: 2px;
 }
 
 /* ===== Today marker line ===== */
