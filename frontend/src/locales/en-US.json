@@ -71,6 +71,8 @@
       "isActive": "Active",
       "sortOrder": "Sort Order",
       "metadata": "Metadata",
+      "requiresSigning": "Signing Required",
+      "signingTemplate": "Signing Template",
       "createSuccess": "Absence type created successfully",
       "updateSuccess": "Absence type updated successfully",
       "deleteSuccess": "Absence type deleted successfully",

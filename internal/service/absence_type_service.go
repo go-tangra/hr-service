@@ -54,6 +54,12 @@ func (s *AbsenceTypeService) CreateAbsenceType(ctx context.Context, req *hrV1.Cr
 	if req.Metadata != nil {
 		opts = append(opts, func(c *ent.AbsenceTypeCreate) { c.SetMetadata(req.Metadata.AsMap()) })
 	}
+	if req.RequiresSigning != nil {
+		opts = append(opts, func(c *ent.AbsenceTypeCreate) { c.SetRequiresSigning(*req.RequiresSigning) })
+	}
+	if req.SigningTemplateId != nil {
+		opts = append(opts, func(c *ent.AbsenceTypeCreate) { c.SetSigningTemplateID(*req.SigningTemplateId) })
+	}
 
 	entity, err := s.absenceTypeRepo.Create(ctx, req.GetTenantId(), req.GetName(), opts...)
 	if err != nil {
@@ -139,6 +145,12 @@ func (s *AbsenceTypeService) UpdateAbsenceType(ctx context.Context, req *hrV1.Up
 		if req.Data.Metadata != nil {
 			updates["metadata"] = req.Data.Metadata.AsMap()
 		}
+		if req.Data.RequiresSigning != nil {
+			updates["requires_signing"] = *req.Data.RequiresSigning
+		}
+		if req.Data.SigningTemplateId != nil {
+			updates["signing_template_id"] = *req.Data.SigningTemplateId
+		}
 	}
 
 	entity, err := s.absenceTypeRepo.Update(ctx, req.GetId(), updates)
@@ -177,6 +189,8 @@ func absenceTypeToProto(e *ent.AbsenceType) *hrV1.AbsenceType {
 		IsActive:              ptrBool(e.IsActive),
 		SortOrder:             &sortOrder,
 		Metadata:              mapToStruct(e.Metadata),
+		RequiresSigning:       ptrBool(e.RequiresSigning),
+		SigningTemplateId:     ptrString(e.SigningTemplateID),
 		CreatedBy:             e.CreateBy,
 		UpdatedBy:             e.UpdateBy,
 	}

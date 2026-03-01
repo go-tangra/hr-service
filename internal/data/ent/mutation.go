@@ -58,6 +58,8 @@ type AbsenceTypeMutation struct {
 	sort_order              *int
 	addsort_order           *int
 	metadata                *map[string]interface{}
+	requires_signing        *bool
+	signing_template_id     *string
 	clearedFields           map[string]struct{}
 	leave_allowances        map[string]struct{}
 	removedleave_allowances map[string]struct{}
@@ -927,6 +929,91 @@ func (m *AbsenceTypeMutation) ResetMetadata() {
 	delete(m.clearedFields, absencetype.FieldMetadata)
 }
 
+// SetRequiresSigning sets the "requires_signing" field.
+func (m *AbsenceTypeMutation) SetRequiresSigning(b bool) {
+	m.requires_signing = &b
+}
+
+// RequiresSigning returns the value of the "requires_signing" field in the mutation.
+func (m *AbsenceTypeMutation) RequiresSigning() (r bool, exists bool) {
+	v := m.requires_signing
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldRequiresSigning returns the old "requires_signing" field's value of the AbsenceType entity.
+// If the AbsenceType object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *AbsenceTypeMutation) OldRequiresSigning(ctx context.Context) (v bool, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldRequiresSigning is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldRequiresSigning requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldRequiresSigning: %w", err)
+	}
+	return oldValue.RequiresSigning, nil
+}
+
+// ResetRequiresSigning resets all changes to the "requires_signing" field.
+func (m *AbsenceTypeMutation) ResetRequiresSigning() {
+	m.requires_signing = nil
+}
+
+// SetSigningTemplateID sets the "signing_template_id" field.
+func (m *AbsenceTypeMutation) SetSigningTemplateID(s string) {
+	m.signing_template_id = &s
+}
+
+// SigningTemplateID returns the value of the "signing_template_id" field in the mutation.
+func (m *AbsenceTypeMutation) SigningTemplateID() (r string, exists bool) {
+	v := m.signing_template_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldSigningTemplateID returns the old "signing_template_id" field's value of the AbsenceType entity.
+// If the AbsenceType object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *AbsenceTypeMutation) OldSigningTemplateID(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldSigningTemplateID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldSigningTemplateID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldSigningTemplateID: %w", err)
+	}
+	return oldValue.SigningTemplateID, nil
+}
+
+// ClearSigningTemplateID clears the value of the "signing_template_id" field.
+func (m *AbsenceTypeMutation) ClearSigningTemplateID() {
+	m.signing_template_id = nil
+	m.clearedFields[absencetype.FieldSigningTemplateID] = struct{}{}
+}
+
+// SigningTemplateIDCleared returns if the "signing_template_id" field was cleared in this mutation.
+func (m *AbsenceTypeMutation) SigningTemplateIDCleared() bool {
+	_, ok := m.clearedFields[absencetype.FieldSigningTemplateID]
+	return ok
+}
+
+// ResetSigningTemplateID resets all changes to the "signing_template_id" field.
+func (m *AbsenceTypeMutation) ResetSigningTemplateID() {
+	m.signing_template_id = nil
+	delete(m.clearedFields, absencetype.FieldSigningTemplateID)
+}
+
 // AddLeaveAllowanceIDs adds the "leave_allowances" edge to the LeaveAllowance entity by ids.
 func (m *AbsenceTypeMutation) AddLeaveAllowanceIDs(ids ...string) {
 	if m.leave_allowances == nil {
@@ -1069,7 +1156,7 @@ func (m *AbsenceTypeMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *AbsenceTypeMutation) Fields() []string {
-	fields := make([]string, 0, 15)
+	fields := make([]string, 0, 17)
 	if m.create_by != nil {
 		fields = append(fields, absencetype.FieldCreateBy)
 	}
@@ -1115,6 +1202,12 @@ func (m *AbsenceTypeMutation) Fields() []string {
 	if m.metadata != nil {
 		fields = append(fields, absencetype.FieldMetadata)
 	}
+	if m.requires_signing != nil {
+		fields = append(fields, absencetype.FieldRequiresSigning)
+	}
+	if m.signing_template_id != nil {
+		fields = append(fields, absencetype.FieldSigningTemplateID)
+	}
 	return fields
 }
 
@@ -1153,6 +1246,10 @@ func (m *AbsenceTypeMutation) Field(name string) (ent.Value, bool) {
 		return m.SortOrder()
 	case absencetype.FieldMetadata:
 		return m.Metadata()
+	case absencetype.FieldRequiresSigning:
+		return m.RequiresSigning()
+	case absencetype.FieldSigningTemplateID:
+		return m.SigningTemplateID()
 	}
 	return nil, false
 }
@@ -1192,6 +1289,10 @@ func (m *AbsenceTypeMutation) OldField(ctx context.Context, name string) (ent.Va
 		return m.OldSortOrder(ctx)
 	case absencetype.FieldMetadata:
 		return m.OldMetadata(ctx)
+	case absencetype.FieldRequiresSigning:
+		return m.OldRequiresSigning(ctx)
+	case absencetype.FieldSigningTemplateID:
+		return m.OldSigningTemplateID(ctx)
 	}
 	return nil, fmt.Errorf("unknown AbsenceType field %s", name)
 }
@@ -1306,6 +1407,20 @@ func (m *AbsenceTypeMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetMetadata(v)
 		return nil
+	case absencetype.FieldRequiresSigning:
+		v, ok := value.(bool)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetRequiresSigning(v)
+		return nil
+	case absencetype.FieldSigningTemplateID:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetSigningTemplateID(v)
+		return nil
 	}
 	return fmt.Errorf("unknown AbsenceType field %s", name)
 }
@@ -1417,6 +1532,9 @@ func (m *AbsenceTypeMutation) ClearedFields() []string {
 	if m.FieldCleared(absencetype.FieldMetadata) {
 		fields = append(fields, absencetype.FieldMetadata)
 	}
+	if m.FieldCleared(absencetype.FieldSigningTemplateID) {
+		fields = append(fields, absencetype.FieldSigningTemplateID)
+	}
 	return fields
 }
 
@@ -1460,6 +1578,9 @@ func (m *AbsenceTypeMutation) ClearField(name string) error {
 		return nil
 	case absencetype.FieldMetadata:
 		m.ClearMetadata()
+		return nil
+	case absencetype.FieldSigningTemplateID:
+		m.ClearSigningTemplateID()
 		return nil
 	}
 	return fmt.Errorf("unknown AbsenceType nullable field %s", name)
@@ -1513,6 +1634,12 @@ func (m *AbsenceTypeMutation) ResetField(name string) error {
 		return nil
 	case absencetype.FieldMetadata:
 		m.ResetMetadata()
+		return nil
+	case absencetype.FieldRequiresSigning:
+		m.ResetRequiresSigning()
+		return nil
+	case absencetype.FieldSigningTemplateID:
+		m.ResetSigningTemplateID()
 		return nil
 	}
 	return fmt.Errorf("unknown AbsenceType field %s", name)

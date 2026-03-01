@@ -79,6 +79,10 @@ func init() {
 	absencetypeDescSortOrder := absencetypeFields[8].Descriptor()
 	// absencetype.DefaultSortOrder holds the default value on creation for the sort_order field.
 	absencetype.DefaultSortOrder = absencetypeDescSortOrder.Default.(int)
+	// absencetypeDescRequiresSigning is the schema descriptor for requires_signing field.
+	absencetypeDescRequiresSigning := absencetypeFields[10].Descriptor()
+	// absencetype.DefaultRequiresSigning holds the default value on creation for the requires_signing field.
+	absencetype.DefaultRequiresSigning = absencetypeDescRequiresSigning.Default.(bool)
 	// absencetypeDescID is the schema descriptor for id field.
 	absencetypeDescID := absencetypeFields[0].Descriptor()
 	// absencetype.IDValidator is a validator for the "id" field. It is called by the builders before save.

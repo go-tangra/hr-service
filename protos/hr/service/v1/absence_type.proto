@@ -23,6 +23,8 @@ message AbsenceType {
   optional bool is_active = 9 [json_name = "isActive"];
   optional int32 sort_order = 10 [json_name = "sortOrder"];
   google.protobuf.Struct metadata = 11 [json_name = "metadata"];
+  optional bool requires_signing = 12 [json_name = "requiresSigning"];
+  optional string signing_template_id = 13 [json_name = "signingTemplateId"];
 
   optional google.protobuf.Timestamp created_at = 20 [json_name = "createdAt"];
   optional google.protobuf.Timestamp updated_at = 21 [json_name = "updatedAt"];
@@ -51,6 +53,8 @@ message CreateAbsenceTypeRequest {
   optional bool is_active = 8 [json_name = "isActive"];
   optional int32 sort_order = 9 [json_name = "sortOrder"];
   google.protobuf.Struct metadata = 10 [json_name = "metadata"];
+  optional bool requires_signing = 11 [json_name = "requiresSigning"];
+  optional string signing_template_id = 12 [json_name = "signingTemplateId"];
 }
 
 message CreateAbsenceTypeResponse {

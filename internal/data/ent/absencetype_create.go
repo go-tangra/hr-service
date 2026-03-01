@@ -219,6 +219,34 @@ func (_c *AbsenceTypeCreate) SetMetadata(v map[string]interface{}) *AbsenceTypeC
 	return _c
 }
 
+// SetRequiresSigning sets the "requires_signing" field.
+func (_c *AbsenceTypeCreate) SetRequiresSigning(v bool) *AbsenceTypeCreate {
+	_c.mutation.SetRequiresSigning(v)
+	return _c
+}
+
+// SetNillableRequiresSigning sets the "requires_signing" field if the given value is not nil.
+func (_c *AbsenceTypeCreate) SetNillableRequiresSigning(v *bool) *AbsenceTypeCreate {
+	if v != nil {
+		_c.SetRequiresSigning(*v)
+	}
+	return _c
+}
+
+// SetSigningTemplateID sets the "signing_template_id" field.
+func (_c *AbsenceTypeCreate) SetSigningTemplateID(v string) *AbsenceTypeCreate {
+	_c.mutation.SetSigningTemplateID(v)
+	return _c
+}
+
+// SetNillableSigningTemplateID sets the "signing_template_id" field if the given value is not nil.
+func (_c *AbsenceTypeCreate) SetNillableSigningTemplateID(v *string) *AbsenceTypeCreate {
+	if v != nil {
+		_c.SetSigningTemplateID(*v)
+	}
+	return _c
+}
+
 // SetID sets the "id" field.
 func (_c *AbsenceTypeCreate) SetID(v string) *AbsenceTypeCreate {
 	_c.mutation.SetID(v)
@@ -312,6 +340,10 @@ func (_c *AbsenceTypeCreate) defaults() error {
 		v := absencetype.DefaultSortOrder
 		_c.mutation.SetSortOrder(v)
 	}
+	if _, ok := _c.mutation.RequiresSigning(); !ok {
+		v := absencetype.DefaultRequiresSigning
+		_c.mutation.SetRequiresSigning(v)
+	}
 	return nil
 }
 
@@ -346,6 +378,9 @@ func (_c *AbsenceTypeCreate) check() error {
 	}
 	if _, ok := _c.mutation.SortOrder(); !ok {
 		return &ValidationError{Name: "sort_order", err: errors.New(`ent: missing required field "AbsenceType.sort_order"`)}
+	}
+	if _, ok := _c.mutation.RequiresSigning(); !ok {
+		return &ValidationError{Name: "requires_signing", err: errors.New(`ent: missing required field "AbsenceType.requires_signing"`)}
 	}
 	if v, ok := _c.mutation.ID(); ok {
 		if err := absencetype.IDValidator(v); err != nil {
@@ -447,6 +482,14 @@ func (_c *AbsenceTypeCreate) createSpec() (*AbsenceType, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.Metadata(); ok {
 		_spec.SetField(absencetype.FieldMetadata, field.TypeJSON, value)
 		_node.Metadata = value
+	}
+	if value, ok := _c.mutation.RequiresSigning(); ok {
+		_spec.SetField(absencetype.FieldRequiresSigning, field.TypeBool, value)
+		_node.RequiresSigning = value
+	}
+	if value, ok := _c.mutation.SigningTemplateID(); ok {
+		_spec.SetField(absencetype.FieldSigningTemplateID, field.TypeString, value)
+		_node.SigningTemplateID = value
 	}
 	if nodes := _c.mutation.LeaveAllowancesIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
@@ -751,6 +794,36 @@ func (u *AbsenceTypeUpsert) UpdateMetadata() *AbsenceTypeUpsert {
 // ClearMetadata clears the value of the "metadata" field.
 func (u *AbsenceTypeUpsert) ClearMetadata() *AbsenceTypeUpsert {
 	u.SetNull(absencetype.FieldMetadata)
+	return u
+}
+
+// SetRequiresSigning sets the "requires_signing" field.
+func (u *AbsenceTypeUpsert) SetRequiresSigning(v bool) *AbsenceTypeUpsert {
+	u.Set(absencetype.FieldRequiresSigning, v)
+	return u
+}
+
+// UpdateRequiresSigning sets the "requires_signing" field to the value that was provided on create.
+func (u *AbsenceTypeUpsert) UpdateRequiresSigning() *AbsenceTypeUpsert {
+	u.SetExcluded(absencetype.FieldRequiresSigning)
+	return u
+}
+
+// SetSigningTemplateID sets the "signing_template_id" field.
+func (u *AbsenceTypeUpsert) SetSigningTemplateID(v string) *AbsenceTypeUpsert {
+	u.Set(absencetype.FieldSigningTemplateID, v)
+	return u
+}
+
+// UpdateSigningTemplateID sets the "signing_template_id" field to the value that was provided on create.
+func (u *AbsenceTypeUpsert) UpdateSigningTemplateID() *AbsenceTypeUpsert {
+	u.SetExcluded(absencetype.FieldSigningTemplateID)
+	return u
+}
+
+// ClearSigningTemplateID clears the value of the "signing_template_id" field.
+func (u *AbsenceTypeUpsert) ClearSigningTemplateID() *AbsenceTypeUpsert {
+	u.SetNull(absencetype.FieldSigningTemplateID)
 	return u
 }
 
@@ -1064,6 +1137,41 @@ func (u *AbsenceTypeUpsertOne) UpdateMetadata() *AbsenceTypeUpsertOne {
 func (u *AbsenceTypeUpsertOne) ClearMetadata() *AbsenceTypeUpsertOne {
 	return u.Update(func(s *AbsenceTypeUpsert) {
 		s.ClearMetadata()
+	})
+}
+
+// SetRequiresSigning sets the "requires_signing" field.
+func (u *AbsenceTypeUpsertOne) SetRequiresSigning(v bool) *AbsenceTypeUpsertOne {
+	return u.Update(func(s *AbsenceTypeUpsert) {
+		s.SetRequiresSigning(v)
+	})
+}
+
+// UpdateRequiresSigning sets the "requires_signing" field to the value that was provided on create.
+func (u *AbsenceTypeUpsertOne) UpdateRequiresSigning() *AbsenceTypeUpsertOne {
+	return u.Update(func(s *AbsenceTypeUpsert) {
+		s.UpdateRequiresSigning()
+	})
+}
+
+// SetSigningTemplateID sets the "signing_template_id" field.
+func (u *AbsenceTypeUpsertOne) SetSigningTemplateID(v string) *AbsenceTypeUpsertOne {
+	return u.Update(func(s *AbsenceTypeUpsert) {
+		s.SetSigningTemplateID(v)
+	})
+}
+
+// UpdateSigningTemplateID sets the "signing_template_id" field to the value that was provided on create.
+func (u *AbsenceTypeUpsertOne) UpdateSigningTemplateID() *AbsenceTypeUpsertOne {
+	return u.Update(func(s *AbsenceTypeUpsert) {
+		s.UpdateSigningTemplateID()
+	})
+}
+
+// ClearSigningTemplateID clears the value of the "signing_template_id" field.
+func (u *AbsenceTypeUpsertOne) ClearSigningTemplateID() *AbsenceTypeUpsertOne {
+	return u.Update(func(s *AbsenceTypeUpsert) {
+		s.ClearSigningTemplateID()
 	})
 }
 
@@ -1544,6 +1652,41 @@ func (u *AbsenceTypeUpsertBulk) UpdateMetadata() *AbsenceTypeUpsertBulk {
 func (u *AbsenceTypeUpsertBulk) ClearMetadata() *AbsenceTypeUpsertBulk {
 	return u.Update(func(s *AbsenceTypeUpsert) {
 		s.ClearMetadata()
+	})
+}
+
+// SetRequiresSigning sets the "requires_signing" field.
+func (u *AbsenceTypeUpsertBulk) SetRequiresSigning(v bool) *AbsenceTypeUpsertBulk {
+	return u.Update(func(s *AbsenceTypeUpsert) {
+		s.SetRequiresSigning(v)
+	})
+}
+
+// UpdateRequiresSigning sets the "requires_signing" field to the value that was provided on create.
+func (u *AbsenceTypeUpsertBulk) UpdateRequiresSigning() *AbsenceTypeUpsertBulk {
+	return u.Update(func(s *AbsenceTypeUpsert) {
+		s.UpdateRequiresSigning()
+	})
+}
+
+// SetSigningTemplateID sets the "signing_template_id" field.
+func (u *AbsenceTypeUpsertBulk) SetSigningTemplateID(v string) *AbsenceTypeUpsertBulk {
+	return u.Update(func(s *AbsenceTypeUpsert) {
+		s.SetSigningTemplateID(v)
+	})
+}
+
+// UpdateSigningTemplateID sets the "signing_template_id" field to the value that was provided on create.
+func (u *AbsenceTypeUpsertBulk) UpdateSigningTemplateID() *AbsenceTypeUpsertBulk {
+	return u.Update(func(s *AbsenceTypeUpsert) {
+		s.UpdateSigningTemplateID()
+	})
+}
+
+// ClearSigningTemplateID clears the value of the "signing_template_id" field.
+func (u *AbsenceTypeUpsertBulk) ClearSigningTemplateID() *AbsenceTypeUpsertBulk {
+	return u.Update(func(s *AbsenceTypeUpsert) {
+		s.ClearSigningTemplateID()
 	})
 }
 

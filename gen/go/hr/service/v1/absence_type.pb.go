@@ -41,6 +41,8 @@ type AbsenceType struct {
 	IsActive             *bool                  `protobuf:"varint,9,opt,name=is_active,json=isActive,proto3,oneof" json:"is_active,omitempty"`
 	SortOrder            *int32                 `protobuf:"varint,10,opt,name=sort_order,json=sortOrder,proto3,oneof" json:"sort_order,omitempty"`
 	Metadata             *structpb.Struct       `protobuf:"bytes,11,opt,name=metadata,proto3" json:"metadata,omitempty"`
+	RequiresSigning      *bool                  `protobuf:"varint,12,opt,name=requires_signing,json=requiresSigning,proto3,oneof" json:"requires_signing,omitempty"`
+	SigningTemplateId    *string                `protobuf:"bytes,13,opt,name=signing_template_id,json=signingTemplateId,proto3,oneof" json:"signing_template_id,omitempty"`
 	CreatedAt            *timestamppb.Timestamp `protobuf:"bytes,20,opt,name=created_at,json=createdAt,proto3,oneof" json:"created_at,omitempty"`
 	UpdatedAt            *timestamppb.Timestamp `protobuf:"bytes,21,opt,name=updated_at,json=updatedAt,proto3,oneof" json:"updated_at,omitempty"`
 	CreatedBy            *uint32                `protobuf:"varint,22,opt,name=created_by,json=createdBy,proto3,oneof" json:"created_by,omitempty"`
@@ -156,6 +158,20 @@ func (x *AbsenceType) GetMetadata() *structpb.Struct {
 	return nil
 }
 
+func (x *AbsenceType) GetRequiresSigning() bool {
+	if x != nil && x.RequiresSigning != nil {
+		return *x.RequiresSigning
+	}
+	return false
+}
+
+func (x *AbsenceType) GetSigningTemplateId() string {
+	if x != nil && x.SigningTemplateId != nil {
+		return *x.SigningTemplateId
+	}
+	return ""
+}
+
 func (x *AbsenceType) GetCreatedAt() *timestamppb.Timestamp {
 	if x != nil {
 		return x.CreatedAt
@@ -196,6 +212,8 @@ type CreateAbsenceTypeRequest struct {
 	IsActive             *bool                  `protobuf:"varint,8,opt,name=is_active,json=isActive,proto3,oneof" json:"is_active,omitempty"`
 	SortOrder            *int32                 `protobuf:"varint,9,opt,name=sort_order,json=sortOrder,proto3,oneof" json:"sort_order,omitempty"`
 	Metadata             *structpb.Struct       `protobuf:"bytes,10,opt,name=metadata,proto3" json:"metadata,omitempty"`
+	RequiresSigning      *bool                  `protobuf:"varint,11,opt,name=requires_signing,json=requiresSigning,proto3,oneof" json:"requires_signing,omitempty"`
+	SigningTemplateId    *string                `protobuf:"bytes,12,opt,name=signing_template_id,json=signingTemplateId,proto3,oneof" json:"signing_template_id,omitempty"`
 	unknownFields        protoimpl.UnknownFields
 	sizeCache            protoimpl.SizeCache
 }
@@ -298,6 +316,20 @@ func (x *CreateAbsenceTypeRequest) GetMetadata() *structpb.Struct {
 		return x.Metadata
 	}
 	return nil
+}
+
+func (x *CreateAbsenceTypeRequest) GetRequiresSigning() bool {
+	if x != nil && x.RequiresSigning != nil {
+		return *x.RequiresSigning
+	}
+	return false
+}
+
+func (x *CreateAbsenceTypeRequest) GetSigningTemplateId() string {
+	if x != nil && x.SigningTemplateId != nil {
+		return *x.SigningTemplateId
+	}
+	return ""
 }
 
 type CreateAbsenceTypeResponse struct {
@@ -712,7 +744,7 @@ var File_hr_service_v1_absence_type_proto protoreflect.FileDescriptor
 
 const file_hr_service_v1_absence_type_proto_rawDesc = "" +
 	"\n" +
-	" hr/service/v1/absence_type.proto\x12\rhr.service.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a\x1cgoogle/protobuf/struct.proto\"\xb3\x06\n" +
+	" hr/service/v1/absence_type.proto\x12\rhr.service.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a\x1cgoogle/protobuf/struct.proto\"\xc5\a\n" +
 	"\vAbsenceType\x12\x13\n" +
 	"\x02id\x18\x01 \x01(\tH\x00R\x02id\x88\x01\x01\x12 \n" +
 	"\ttenant_id\x18\x02 \x01(\rH\x01R\btenantId\x88\x01\x01\x12\x17\n" +
@@ -726,16 +758,18 @@ const file_hr_service_v1_absence_type_proto_rawDesc = "" +
 	"\n" +
 	"sort_order\x18\n" +
 	" \x01(\x05H\tR\tsortOrder\x88\x01\x01\x123\n" +
-	"\bmetadata\x18\v \x01(\v2\x17.google.protobuf.StructR\bmetadata\x12>\n" +
+	"\bmetadata\x18\v \x01(\v2\x17.google.protobuf.StructR\bmetadata\x12.\n" +
+	"\x10requires_signing\x18\f \x01(\bH\n" +
+	"R\x0frequiresSigning\x88\x01\x01\x123\n" +
+	"\x13signing_template_id\x18\r \x01(\tH\vR\x11signingTemplateId\x88\x01\x01\x12>\n" +
 	"\n" +
-	"created_at\x18\x14 \x01(\v2\x1a.google.protobuf.TimestampH\n" +
-	"R\tcreatedAt\x88\x01\x01\x12>\n" +
+	"created_at\x18\x14 \x01(\v2\x1a.google.protobuf.TimestampH\fR\tcreatedAt\x88\x01\x01\x12>\n" +
 	"\n" +
-	"updated_at\x18\x15 \x01(\v2\x1a.google.protobuf.TimestampH\vR\tupdatedAt\x88\x01\x01\x12\"\n" +
+	"updated_at\x18\x15 \x01(\v2\x1a.google.protobuf.TimestampH\rR\tupdatedAt\x88\x01\x01\x12\"\n" +
 	"\n" +
-	"created_by\x18\x16 \x01(\rH\fR\tcreatedBy\x88\x01\x01\x12\"\n" +
+	"created_by\x18\x16 \x01(\rH\x0eR\tcreatedBy\x88\x01\x01\x12\"\n" +
 	"\n" +
-	"updated_by\x18\x17 \x01(\rH\rR\tupdatedBy\x88\x01\x01B\x05\n" +
+	"updated_by\x18\x17 \x01(\rH\x0fR\tupdatedBy\x88\x01\x01B\x05\n" +
 	"\x03_idB\f\n" +
 	"\n" +
 	"_tenant_idB\a\n" +
@@ -747,11 +781,13 @@ const file_hr_service_v1_absence_type_proto_rawDesc = "" +
 	"\x12_requires_approvalB\f\n" +
 	"\n" +
 	"_is_activeB\r\n" +
-	"\v_sort_orderB\r\n" +
+	"\v_sort_orderB\x13\n" +
+	"\x11_requires_signingB\x16\n" +
+	"\x14_signing_template_idB\r\n" +
 	"\v_created_atB\r\n" +
 	"\v_updated_atB\r\n" +
 	"\v_created_byB\r\n" +
-	"\v_updated_by\"\xb4\x04\n" +
+	"\v_updated_by\"\xc6\x05\n" +
 	"\x18CreateAbsenceTypeRequest\x12%\n" +
 	"\ttenant_id\x18\x01 \x01(\rB\x03\xe0A\x02H\x00R\btenantId\x88\x01\x01\x12&\n" +
 	"\x04name\x18\x02 \x01(\tB\r\xe0A\x02\xbaH\ar\x05\x10\x01\x18\xff\x01H\x01R\x04name\x88\x01\x01\x12%\n" +
@@ -764,7 +800,10 @@ const file_hr_service_v1_absence_type_proto_rawDesc = "" +
 	"\n" +
 	"sort_order\x18\t \x01(\x05H\bR\tsortOrder\x88\x01\x01\x123\n" +
 	"\bmetadata\x18\n" +
-	" \x01(\v2\x17.google.protobuf.StructR\bmetadataB\f\n" +
+	" \x01(\v2\x17.google.protobuf.StructR\bmetadata\x12.\n" +
+	"\x10requires_signing\x18\v \x01(\bH\tR\x0frequiresSigning\x88\x01\x01\x123\n" +
+	"\x13signing_template_id\x18\f \x01(\tH\n" +
+	"R\x11signingTemplateId\x88\x01\x01B\f\n" +
 	"\n" +
 	"_tenant_idB\a\n" +
 	"\x05_nameB\x0e\n" +
@@ -775,7 +814,9 @@ const file_hr_service_v1_absence_type_proto_rawDesc = "" +
 	"\x12_requires_approvalB\f\n" +
 	"\n" +
 	"_is_activeB\r\n" +
-	"\v_sort_order\"Z\n" +
+	"\v_sort_orderB\x13\n" +
+	"\x11_requires_signingB\x16\n" +
+	"\x14_signing_template_id\"Z\n" +
 	"\x19CreateAbsenceTypeResponse\x12=\n" +
 	"\fabsence_type\x18\x01 \x01(\v2\x1a.hr.service.v1.AbsenceTypeR\vabsenceType\"3\n" +
 	"\x15GetAbsenceTypeRequest\x12\x1a\n" +

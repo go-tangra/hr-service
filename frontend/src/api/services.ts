@@ -36,6 +36,8 @@ export interface AbsenceType {
   isActive?: boolean;
   sortOrder?: number;
   metadata?: Record<string, unknown>;
+  requiresSigning?: boolean;
+  signingTemplateId?: string;
   createdAt?: string;
   updatedAt?: string;
   createdBy?: number;

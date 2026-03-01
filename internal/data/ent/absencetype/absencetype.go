@@ -43,6 +43,10 @@ const (
 	FieldSortOrder = "sort_order"
 	// FieldMetadata holds the string denoting the metadata field in the database.
 	FieldMetadata = "metadata"
+	// FieldRequiresSigning holds the string denoting the requires_signing field in the database.
+	FieldRequiresSigning = "requires_signing"
+	// FieldSigningTemplateID holds the string denoting the signing_template_id field in the database.
+	FieldSigningTemplateID = "signing_template_id"
 	// EdgeLeaveAllowances holds the string denoting the leave_allowances edge name in mutations.
 	EdgeLeaveAllowances = "leave_allowances"
 	// EdgeLeaveRequests holds the string denoting the leave_requests edge name in mutations.
@@ -83,6 +87,8 @@ var Columns = []string{
 	FieldIsActive,
 	FieldSortOrder,
 	FieldMetadata,
+	FieldRequiresSigning,
+	FieldSigningTemplateID,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -119,6 +125,8 @@ var (
 	DefaultIsActive bool
 	// DefaultSortOrder holds the default value on creation for the "sort_order" field.
 	DefaultSortOrder int
+	// DefaultRequiresSigning holds the default value on creation for the "requires_signing" field.
+	DefaultRequiresSigning bool
 	// IDValidator is a validator for the "id" field. It is called by the builders before save.
 	IDValidator func(string) error
 )
@@ -199,6 +207,16 @@ func ByIsActive(opts ...sql.OrderTermOption) OrderOption {
 // BySortOrder orders the results by the sort_order field.
 func BySortOrder(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldSortOrder, opts...).ToFunc()
+}
+
+// ByRequiresSigning orders the results by the requires_signing field.
+func ByRequiresSigning(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldRequiresSigning, opts...).ToFunc()
+}
+
+// BySigningTemplateID orders the results by the signing_template_id field.
+func BySigningTemplateID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldSigningTemplateID, opts...).ToFunc()
 }
 
 // ByLeaveAllowancesCount orders the results by leave_allowances count.

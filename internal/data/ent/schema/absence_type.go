@@ -68,6 +68,14 @@ func (AbsenceType) Fields() []ent.Field {
 		field.JSON("metadata", map[string]interface{}{}).
 			Optional().
 			Comment("Custom metadata (JSON)"),
+
+		field.Bool("requires_signing").
+			Default(false).
+			Comment("Whether this type requires document signing"),
+
+		field.String("signing_template_id").
+			Optional().
+			Comment("Paperless signing template ID"),
 	}
 }
 

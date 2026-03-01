@@ -274,6 +274,40 @@ func (_u *AbsenceTypeUpdate) ClearMetadata() *AbsenceTypeUpdate {
 	return _u
 }
 
+// SetRequiresSigning sets the "requires_signing" field.
+func (_u *AbsenceTypeUpdate) SetRequiresSigning(v bool) *AbsenceTypeUpdate {
+	_u.mutation.SetRequiresSigning(v)
+	return _u
+}
+
+// SetNillableRequiresSigning sets the "requires_signing" field if the given value is not nil.
+func (_u *AbsenceTypeUpdate) SetNillableRequiresSigning(v *bool) *AbsenceTypeUpdate {
+	if v != nil {
+		_u.SetRequiresSigning(*v)
+	}
+	return _u
+}
+
+// SetSigningTemplateID sets the "signing_template_id" field.
+func (_u *AbsenceTypeUpdate) SetSigningTemplateID(v string) *AbsenceTypeUpdate {
+	_u.mutation.SetSigningTemplateID(v)
+	return _u
+}
+
+// SetNillableSigningTemplateID sets the "signing_template_id" field if the given value is not nil.
+func (_u *AbsenceTypeUpdate) SetNillableSigningTemplateID(v *string) *AbsenceTypeUpdate {
+	if v != nil {
+		_u.SetSigningTemplateID(*v)
+	}
+	return _u
+}
+
+// ClearSigningTemplateID clears the value of the "signing_template_id" field.
+func (_u *AbsenceTypeUpdate) ClearSigningTemplateID() *AbsenceTypeUpdate {
+	_u.mutation.ClearSigningTemplateID()
+	return _u
+}
+
 // AddLeaveAllowanceIDs adds the "leave_allowances" edge to the LeaveAllowance entity by IDs.
 func (_u *AbsenceTypeUpdate) AddLeaveAllowanceIDs(ids ...string) *AbsenceTypeUpdate {
 	_u.mutation.AddLeaveAllowanceIDs(ids...)
@@ -493,6 +527,15 @@ func (_u *AbsenceTypeUpdate) sqlSave(ctx context.Context) (_node int, err error)
 	}
 	if _u.mutation.MetadataCleared() {
 		_spec.ClearField(absencetype.FieldMetadata, field.TypeJSON)
+	}
+	if value, ok := _u.mutation.RequiresSigning(); ok {
+		_spec.SetField(absencetype.FieldRequiresSigning, field.TypeBool, value)
+	}
+	if value, ok := _u.mutation.SigningTemplateID(); ok {
+		_spec.SetField(absencetype.FieldSigningTemplateID, field.TypeString, value)
+	}
+	if _u.mutation.SigningTemplateIDCleared() {
+		_spec.ClearField(absencetype.FieldSigningTemplateID, field.TypeString)
 	}
 	if _u.mutation.LeaveAllowancesCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -849,6 +892,40 @@ func (_u *AbsenceTypeUpdateOne) ClearMetadata() *AbsenceTypeUpdateOne {
 	return _u
 }
 
+// SetRequiresSigning sets the "requires_signing" field.
+func (_u *AbsenceTypeUpdateOne) SetRequiresSigning(v bool) *AbsenceTypeUpdateOne {
+	_u.mutation.SetRequiresSigning(v)
+	return _u
+}
+
+// SetNillableRequiresSigning sets the "requires_signing" field if the given value is not nil.
+func (_u *AbsenceTypeUpdateOne) SetNillableRequiresSigning(v *bool) *AbsenceTypeUpdateOne {
+	if v != nil {
+		_u.SetRequiresSigning(*v)
+	}
+	return _u
+}
+
+// SetSigningTemplateID sets the "signing_template_id" field.
+func (_u *AbsenceTypeUpdateOne) SetSigningTemplateID(v string) *AbsenceTypeUpdateOne {
+	_u.mutation.SetSigningTemplateID(v)
+	return _u
+}
+
+// SetNillableSigningTemplateID sets the "signing_template_id" field if the given value is not nil.
+func (_u *AbsenceTypeUpdateOne) SetNillableSigningTemplateID(v *string) *AbsenceTypeUpdateOne {
+	if v != nil {
+		_u.SetSigningTemplateID(*v)
+	}
+	return _u
+}
+
+// ClearSigningTemplateID clears the value of the "signing_template_id" field.
+func (_u *AbsenceTypeUpdateOne) ClearSigningTemplateID() *AbsenceTypeUpdateOne {
+	_u.mutation.ClearSigningTemplateID()
+	return _u
+}
+
 // AddLeaveAllowanceIDs adds the "leave_allowances" edge to the LeaveAllowance entity by IDs.
 func (_u *AbsenceTypeUpdateOne) AddLeaveAllowanceIDs(ids ...string) *AbsenceTypeUpdateOne {
 	_u.mutation.AddLeaveAllowanceIDs(ids...)
@@ -1098,6 +1175,15 @@ func (_u *AbsenceTypeUpdateOne) sqlSave(ctx context.Context) (_node *AbsenceType
 	}
 	if _u.mutation.MetadataCleared() {
 		_spec.ClearField(absencetype.FieldMetadata, field.TypeJSON)
+	}
+	if value, ok := _u.mutation.RequiresSigning(); ok {
+		_spec.SetField(absencetype.FieldRequiresSigning, field.TypeBool, value)
+	}
+	if value, ok := _u.mutation.SigningTemplateID(); ok {
+		_spec.SetField(absencetype.FieldSigningTemplateID, field.TypeString, value)
+	}
+	if _u.mutation.SigningTemplateIDCleared() {
+		_spec.ClearField(absencetype.FieldSigningTemplateID, field.TypeString)
 	}
 	if _u.mutation.LeaveAllowancesCleared() {
 		edge := &sqlgraph.EdgeSpec{

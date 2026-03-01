@@ -126,6 +126,14 @@ func (m *AbsenceType) validate(all bool) error {
 		// no validation rules for SortOrder
 	}
 
+	if m.RequiresSigning != nil {
+		// no validation rules for RequiresSigning
+	}
+
+	if m.SigningTemplateId != nil {
+		// no validation rules for SigningTemplateId
+	}
+
 	if m.CreatedAt != nil {
 
 		if all {
@@ -362,6 +370,14 @@ func (m *CreateAbsenceTypeRequest) validate(all bool) error {
 
 	if m.SortOrder != nil {
 		// no validation rules for SortOrder
+	}
+
+	if m.RequiresSigning != nil {
+		// no validation rules for RequiresSigning
+	}
+
+	if m.SigningTemplateId != nil {
+		// no validation rules for SigningTemplateId
 	}
 
 	if len(errors) > 0 {

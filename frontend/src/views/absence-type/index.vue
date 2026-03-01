@@ -96,6 +96,12 @@ const gridOptions: VxeGridProps<AbsenceType> = {
       slots: { default: 'approval' },
     },
     {
+      title: $t('hr.page.absenceType.requiresSigning'),
+      field: 'requiresSigning',
+      width: 150,
+      slots: { default: 'signing' },
+    },
+    {
       title: $t('hr.page.absenceType.isActive'),
       field: 'isActive',
       width: 100,
@@ -184,6 +190,11 @@ async function handleDelete(row: AbsenceType) {
       <template #approval="{ row }">
         <Tag :color="row.requiresApproval ? 'orange' : 'default'">
           {{ row.requiresApproval ? 'Yes' : 'No' }}
+        </Tag>
+      </template>
+      <template #signing="{ row }">
+        <Tag :color="row.requiresSigning ? 'purple' : 'default'">
+          {{ row.requiresSigning ? 'Yes' : 'No' }}
         </Tag>
       </template>
       <template #active="{ row }">

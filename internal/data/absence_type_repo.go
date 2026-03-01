@@ -118,6 +118,12 @@ func (r *AbsenceTypeRepo) Update(ctx context.Context, id string, updates map[str
 	if metadata, ok := updates["metadata"].(map[string]interface{}); ok {
 		update = update.SetMetadata(metadata)
 	}
+	if requiresSigning, ok := updates["requires_signing"].(bool); ok {
+		update = update.SetRequiresSigning(requiresSigning)
+	}
+	if signingTemplateID, ok := updates["signing_template_id"].(string); ok {
+		update = update.SetSigningTemplateID(signingTemplateID)
+	}
 
 	update = update.SetUpdateTime(time.Now())
 

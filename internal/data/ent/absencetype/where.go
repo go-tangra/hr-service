@@ -135,6 +135,16 @@ func SortOrder(v int) predicate.AbsenceType {
 	return predicate.AbsenceType(sql.FieldEQ(FieldSortOrder, v))
 }
 
+// RequiresSigning applies equality check predicate on the "requires_signing" field. It's identical to RequiresSigningEQ.
+func RequiresSigning(v bool) predicate.AbsenceType {
+	return predicate.AbsenceType(sql.FieldEQ(FieldRequiresSigning, v))
+}
+
+// SigningTemplateID applies equality check predicate on the "signing_template_id" field. It's identical to SigningTemplateIDEQ.
+func SigningTemplateID(v string) predicate.AbsenceType {
+	return predicate.AbsenceType(sql.FieldEQ(FieldSigningTemplateID, v))
+}
+
 // CreateByEQ applies the EQ predicate on the "create_by" field.
 func CreateByEQ(v uint32) predicate.AbsenceType {
 	return predicate.AbsenceType(sql.FieldEQ(FieldCreateBy, v))
@@ -803,6 +813,91 @@ func MetadataIsNil() predicate.AbsenceType {
 // MetadataNotNil applies the NotNil predicate on the "metadata" field.
 func MetadataNotNil() predicate.AbsenceType {
 	return predicate.AbsenceType(sql.FieldNotNull(FieldMetadata))
+}
+
+// RequiresSigningEQ applies the EQ predicate on the "requires_signing" field.
+func RequiresSigningEQ(v bool) predicate.AbsenceType {
+	return predicate.AbsenceType(sql.FieldEQ(FieldRequiresSigning, v))
+}
+
+// RequiresSigningNEQ applies the NEQ predicate on the "requires_signing" field.
+func RequiresSigningNEQ(v bool) predicate.AbsenceType {
+	return predicate.AbsenceType(sql.FieldNEQ(FieldRequiresSigning, v))
+}
+
+// SigningTemplateIDEQ applies the EQ predicate on the "signing_template_id" field.
+func SigningTemplateIDEQ(v string) predicate.AbsenceType {
+	return predicate.AbsenceType(sql.FieldEQ(FieldSigningTemplateID, v))
+}
+
+// SigningTemplateIDNEQ applies the NEQ predicate on the "signing_template_id" field.
+func SigningTemplateIDNEQ(v string) predicate.AbsenceType {
+	return predicate.AbsenceType(sql.FieldNEQ(FieldSigningTemplateID, v))
+}
+
+// SigningTemplateIDIn applies the In predicate on the "signing_template_id" field.
+func SigningTemplateIDIn(vs ...string) predicate.AbsenceType {
+	return predicate.AbsenceType(sql.FieldIn(FieldSigningTemplateID, vs...))
+}
+
+// SigningTemplateIDNotIn applies the NotIn predicate on the "signing_template_id" field.
+func SigningTemplateIDNotIn(vs ...string) predicate.AbsenceType {
+	return predicate.AbsenceType(sql.FieldNotIn(FieldSigningTemplateID, vs...))
+}
+
+// SigningTemplateIDGT applies the GT predicate on the "signing_template_id" field.
+func SigningTemplateIDGT(v string) predicate.AbsenceType {
+	return predicate.AbsenceType(sql.FieldGT(FieldSigningTemplateID, v))
+}
+
+// SigningTemplateIDGTE applies the GTE predicate on the "signing_template_id" field.
+func SigningTemplateIDGTE(v string) predicate.AbsenceType {
+	return predicate.AbsenceType(sql.FieldGTE(FieldSigningTemplateID, v))
+}
+
+// SigningTemplateIDLT applies the LT predicate on the "signing_template_id" field.
+func SigningTemplateIDLT(v string) predicate.AbsenceType {
+	return predicate.AbsenceType(sql.FieldLT(FieldSigningTemplateID, v))
+}
+
+// SigningTemplateIDLTE applies the LTE predicate on the "signing_template_id" field.
+func SigningTemplateIDLTE(v string) predicate.AbsenceType {
+	return predicate.AbsenceType(sql.FieldLTE(FieldSigningTemplateID, v))
+}
+
+// SigningTemplateIDContains applies the Contains predicate on the "signing_template_id" field.
+func SigningTemplateIDContains(v string) predicate.AbsenceType {
+	return predicate.AbsenceType(sql.FieldContains(FieldSigningTemplateID, v))
+}
+
+// SigningTemplateIDHasPrefix applies the HasPrefix predicate on the "signing_template_id" field.
+func SigningTemplateIDHasPrefix(v string) predicate.AbsenceType {
+	return predicate.AbsenceType(sql.FieldHasPrefix(FieldSigningTemplateID, v))
+}
+
+// SigningTemplateIDHasSuffix applies the HasSuffix predicate on the "signing_template_id" field.
+func SigningTemplateIDHasSuffix(v string) predicate.AbsenceType {
+	return predicate.AbsenceType(sql.FieldHasSuffix(FieldSigningTemplateID, v))
+}
+
+// SigningTemplateIDIsNil applies the IsNil predicate on the "signing_template_id" field.
+func SigningTemplateIDIsNil() predicate.AbsenceType {
+	return predicate.AbsenceType(sql.FieldIsNull(FieldSigningTemplateID))
+}
+
+// SigningTemplateIDNotNil applies the NotNil predicate on the "signing_template_id" field.
+func SigningTemplateIDNotNil() predicate.AbsenceType {
+	return predicate.AbsenceType(sql.FieldNotNull(FieldSigningTemplateID))
+}
+
+// SigningTemplateIDEqualFold applies the EqualFold predicate on the "signing_template_id" field.
+func SigningTemplateIDEqualFold(v string) predicate.AbsenceType {
+	return predicate.AbsenceType(sql.FieldEqualFold(FieldSigningTemplateID, v))
+}
+
+// SigningTemplateIDContainsFold applies the ContainsFold predicate on the "signing_template_id" field.
+func SigningTemplateIDContainsFold(v string) predicate.AbsenceType {
+	return predicate.AbsenceType(sql.FieldContainsFold(FieldSigningTemplateID, v))
 }
 
 // HasLeaveAllowances applies the HasEdge predicate on the "leave_allowances" edge.

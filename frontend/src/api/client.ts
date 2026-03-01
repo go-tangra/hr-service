@@ -78,4 +78,18 @@ export const adminApi = {
   },
 };
 
+/** Client for paperless module API calls */
+export const paperlessApi = {
+  get: <T>(path: string, params?: Record<string, unknown>) => {
+    const query = params
+      ? '?' + new URLSearchParams(
+          Object.entries(params)
+            .filter(([, v]) => v != null)
+            .map(([k, v]) => [k, String(v)]),
+        ).toString()
+      : '';
+    return request<T>('GET', `${path}${query}`, undefined, { baseUrl: '/admin/v1/modules/paperless/v1' });
+  },
+};
+
 export default hrApi;

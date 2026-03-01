@@ -49,6 +49,10 @@ type AbsenceType struct {
 	SortOrder int `json:"sort_order,omitempty"`
 	// Custom metadata (JSON)
 	Metadata map[string]interface{} `json:"metadata,omitempty"`
+	// Whether this type requires document signing
+	RequiresSigning bool `json:"requires_signing,omitempty"`
+	// Paperless signing template ID
+	SigningTemplateID string `json:"signing_template_id,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the AbsenceTypeQuery when eager-loading is set.
 	Edges        AbsenceTypeEdges `json:"edges"`
@@ -91,11 +95,11 @@ func (*AbsenceType) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case absencetype.FieldMetadata:
 			values[i] = new([]byte)
-		case absencetype.FieldDeductsFromAllowance, absencetype.FieldRequiresApproval, absencetype.FieldIsActive:
+		case absencetype.FieldDeductsFromAllowance, absencetype.FieldRequiresApproval, absencetype.FieldIsActive, absencetype.FieldRequiresSigning:
 			values[i] = new(sql.NullBool)
 		case absencetype.FieldCreateBy, absencetype.FieldUpdateBy, absencetype.FieldTenantID, absencetype.FieldSortOrder:
 			values[i] = new(sql.NullInt64)
-		case absencetype.FieldID, absencetype.FieldName, absencetype.FieldDescription, absencetype.FieldColor, absencetype.FieldIcon:
+		case absencetype.FieldID, absencetype.FieldName, absencetype.FieldDescription, absencetype.FieldColor, absencetype.FieldIcon, absencetype.FieldSigningTemplateID:
 			values[i] = new(sql.NullString)
 		case absencetype.FieldCreateTime, absencetype.FieldUpdateTime, absencetype.FieldDeleteTime:
 			values[i] = new(sql.NullTime)
@@ -218,6 +222,18 @@ func (_m *AbsenceType) assignValues(columns []string, values []any) error {
 					return fmt.Errorf("unmarshal field metadata: %w", err)
 				}
 			}
+		case absencetype.FieldRequiresSigning:
+			if value, ok := values[i].(*sql.NullBool); !ok {
+				return fmt.Errorf("unexpected type %T for field requires_signing", values[i])
+			} else if value.Valid {
+				_m.RequiresSigning = value.Bool
+			}
+		case absencetype.FieldSigningTemplateID:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field signing_template_id", values[i])
+			} else if value.Valid {
+				_m.SigningTemplateID = value.String
+			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
 		}
@@ -320,6 +336,12 @@ func (_m *AbsenceType) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("metadata=")
 	builder.WriteString(fmt.Sprintf("%v", _m.Metadata))
+	builder.WriteString(", ")
+	builder.WriteString("requires_signing=")
+	builder.WriteString(fmt.Sprintf("%v", _m.RequiresSigning))
+	builder.WriteString(", ")
+	builder.WriteString("signing_template_id=")
+	builder.WriteString(_m.SigningTemplateID)
 	builder.WriteByte(')')
 	return builder.String()
 }

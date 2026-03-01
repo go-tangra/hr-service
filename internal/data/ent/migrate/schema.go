@@ -27,6 +27,8 @@ var (
 		{Name: "is_active", Type: field.TypeBool, Comment: "Whether this type is available for new requests", Default: true},
 		{Name: "sort_order", Type: field.TypeInt, Comment: "Display sort order", Default: 0},
 		{Name: "metadata", Type: field.TypeJSON, Nullable: true, Comment: "Custom metadata (JSON)"},
+		{Name: "requires_signing", Type: field.TypeBool, Comment: "Whether this type requires document signing", Default: false},
+		{Name: "signing_template_id", Type: field.TypeString, Nullable: true, Comment: "Paperless signing template ID"},
 	}
 	// HrAbsenceTypesTable holds the schema information for the "hr_absence_types" table.
 	HrAbsenceTypesTable = &schema.Table{

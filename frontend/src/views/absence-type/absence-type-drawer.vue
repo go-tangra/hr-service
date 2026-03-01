@@ -15,19 +15,28 @@ import {
   Descriptions,
   DescriptionsItem,
   Tag,
+  Select,
+  SelectOption,
 } from 'ant-design-vue';
 
 import type { AbsenceType } from '../../api/services';
+import { paperlessApi } from '../../api/client';
 import { $t } from 'shell/locales';
 import { useHrAbsenceTypeStore } from '../../stores/hr-absence-type.state';
 
 const absenceTypeStore = useHrAbsenceTypeStore();
+
+interface SigningTemplate {
+  id: string;
+  name: string;
+}
 
 const data = ref<{
   mode: 'create' | 'edit' | 'view';
   row?: AbsenceType;
 }>();
 const loading = ref(false);
+const signingTemplates = ref<SigningTemplate[]>([]);
 
 const formState = ref({
   name: '',
@@ -39,6 +48,8 @@ const formState = ref({
   isActive: true,
   sortOrder: 0,
   metadata: '',
+  requiresSigning: false,
+  signingTemplateId: '',
 });
 
 const title = computed(() => {
@@ -70,6 +81,8 @@ async function handleSubmit() {
         isActive: formState.value.isActive,
         sortOrder: formState.value.sortOrder,
         metadata: formState.value.metadata ? JSON.parse(formState.value.metadata) : undefined,
+        requiresSigning: formState.value.requiresSigning,
+        signingTemplateId: formState.value.requiresSigning ? formState.value.signingTemplateId || undefined : undefined,
       });
       notification.success({
         message: $t('hr.page.absenceType.createSuccess'),
@@ -87,6 +100,8 @@ async function handleSubmit() {
           isActive: formState.value.isActive,
           sortOrder: formState.value.sortOrder,
           metadata: formState.value.metadata ? JSON.parse(formState.value.metadata) : undefined,
+          requiresSigning: formState.value.requiresSigning,
+          signingTemplateId: formState.value.requiresSigning ? formState.value.signingTemplateId || undefined : undefined,
         },
         [
           'name',
@@ -98,6 +113,8 @@ async function handleSubmit() {
           'isActive',
           'sortOrder',
           'metadata',
+          'requiresSigning',
+          'signingTemplateId',
         ],
       );
       notification.success({
@@ -127,6 +144,8 @@ function resetForm() {
     isActive: true,
     sortOrder: 0,
     metadata: '',
+    requiresSigning: false,
+    signingTemplateId: '',
   };
 }
 
@@ -142,6 +161,14 @@ const [Modal, modalApi] = useVbenModal({
         row?: AbsenceType;
       };
 
+      // Fetch signing templates from paperless module
+      try {
+        const resp = await paperlessApi.get<{ items: SigningTemplate[] }>('/signing/templates', { noPaging: true });
+        signingTemplates.value = resp.items ?? [];
+      } catch {
+        signingTemplates.value = [];
+      }
+
       if (data.value?.mode === 'create') {
         resetForm();
       } else if (data.value?.row) {
@@ -155,6 +182,8 @@ const [Modal, modalApi] = useVbenModal({
           isActive: data.value.row.isActive ?? true,
           sortOrder: data.value.row.sortOrder ?? 0,
           metadata: data.value.row.metadata ? JSON.stringify(data.value.row.metadata, null, 2) : '',
+          requiresSigning: data.value.row.requiresSigning ?? false,
+          signingTemplateId: data.value.row.signingTemplateId ?? '',
         };
       }
     }
@@ -208,6 +237,14 @@ const absenceType = computed(() => data.value?.row);
           <Tag :color="absenceType.isActive ? 'green' : 'red'">
             {{ absenceType.isActive ? 'Yes' : 'No' }}
           </Tag>
+        </DescriptionsItem>
+        <DescriptionsItem :label="$t('hr.page.absenceType.requiresSigning')">
+          <Tag :color="absenceType.requiresSigning ? 'purple' : 'default'">
+            {{ absenceType.requiresSigning ? 'Yes' : 'No' }}
+          </Tag>
+        </DescriptionsItem>
+        <DescriptionsItem v-if="absenceType.requiresSigning" :label="$t('hr.page.absenceType.signingTemplate')">
+          {{ signingTemplates.find(t => t.id === absenceType.signingTemplateId)?.name || absenceType.signingTemplateId || '-' }}
         </DescriptionsItem>
         <DescriptionsItem :label="$t('hr.page.absenceType.sortOrder')">
           {{ absenceType.sortOrder ?? 0 }}
@@ -270,6 +307,32 @@ const absenceType = computed(() => data.value?.row);
             <Switch v-model:checked="formState.isActive" />
           </FormItem>
         </div>
+
+        <div class="flex gap-8">
+          <FormItem :label="$t('hr.page.absenceType.requiresSigning')" name="requiresSigning">
+            <Switch v-model:checked="formState.requiresSigning" />
+          </FormItem>
+        </div>
+
+        <FormItem
+          v-if="formState.requiresSigning"
+          :label="$t('hr.page.absenceType.signingTemplate')"
+          name="signingTemplateId"
+        >
+          <Select
+            v-model:value="formState.signingTemplateId"
+            :placeholder="$t('ui.placeholder.input')"
+            allow-clear
+          >
+            <SelectOption
+              v-for="tpl in signingTemplates"
+              :key="tpl.id"
+              :value="tpl.id"
+            >
+              {{ tpl.name }}
+            </SelectOption>
+          </Select>
+        </FormItem>
 
         <FormItem :label="$t('hr.page.absenceType.sortOrder')" name="sortOrder">
           <InputNumber v-model:value="formState.sortOrder" :min="0" :max="9999" />
