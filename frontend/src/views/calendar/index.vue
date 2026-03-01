@@ -17,6 +17,7 @@ interface PortalUser {
   id: number;
   username?: string;
   realname?: string;
+  avatar?: string;
   orgUnitNames?: string[];
 }
 
@@ -536,7 +537,10 @@ onUnmounted(() => {
           <!-- User row -->
           <div v-else class="tl-emp-row">
             <div class="tl-emp-cell" :style="{ width: `${EMP_COL_WIDTH}px`, minWidth: `${EMP_COL_WIDTH}px` }">
-              <div class="tl-avatar" :style="{ backgroundColor: stringToColor(getUserDisplayName(row.user)) }">
+              <div v-if="row.user.avatar" class="tl-avatar">
+                <img :src="row.user.avatar" :alt="getUserDisplayName(row.user)" />
+              </div>
+              <div v-else class="tl-avatar" :style="{ backgroundColor: stringToColor(getUserDisplayName(row.user)) }">
                 {{ getUserInitials(row.user) }}
               </div>
               <div class="tl-emp-info">
@@ -956,6 +960,13 @@ function stringToColor(str: string): string {
   color: #fff;
   flex-shrink: 0;
   text-transform: uppercase;
+  overflow: hidden;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
 }
 .tl-emp-info {
   overflow: hidden;
