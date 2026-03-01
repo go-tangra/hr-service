@@ -163,8 +163,8 @@ const [Modal, modalApi] = useVbenModal({
 
       // Fetch signing templates from paperless module
       try {
-        const resp = await paperlessApi.get<{ items: SigningTemplate[] }>('/signing/templates', { noPaging: true });
-        signingTemplates.value = resp.items ?? [];
+        const resp = await paperlessApi.get<{ templates: SigningTemplate[] }>('/signing/templates', { noPaging: true });
+        signingTemplates.value = resp.templates ?? [];
       } catch {
         signingTemplates.value = [];
       }
