@@ -89,9 +89,16 @@ func (s *Subscriber) Start() error {
 		channels[i] = fmt.Sprintf("%s.%s", prefix, event)
 	}
 
+	// Verify Redis connectivity before subscribing
+	if err := s.rdb.Ping(s.ctx).Err(); err != nil {
+		s.log.Errorf("Redis ping failed - subscriber may not receive events: %v", err)
+	} else {
+		s.log.Info("Redis connection verified for event subscriber")
+	}
+
 	s.log.Infof("Starting event subscriber for channels: %v", channels)
 
-	pubsub := s.rdb.PSubscribe(s.ctx, channels...)
+	pubsub := s.rdb.Subscribe(s.ctx, channels...)
 
 	s.wg.Add(1)
 	go s.listen(pubsub)
