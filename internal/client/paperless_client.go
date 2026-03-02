@@ -69,11 +69,11 @@ func loadPaperlessClientTLSCredentials(l *log.Helper) (credentials.TransportCred
 	}
 	clientCertPath := os.Getenv("HR_CLIENT_CERT_PATH")
 	if clientCertPath == "" {
-		clientCertPath = "/app/certs/hr/client.crt"
+		clientCertPath = "/app/certs/hr/hr.crt"
 	}
 	clientKeyPath := os.Getenv("HR_CLIENT_KEY_PATH")
 	if clientKeyPath == "" {
-		clientKeyPath = "/app/certs/hr/client.key"
+		clientKeyPath = "/app/certs/hr/hr.key"
 	}
 
 	caCert, err := os.ReadFile(caCertPath)
