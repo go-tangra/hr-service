@@ -44,6 +44,16 @@ const routes: RouteRecordRaw[] = [
         },
         component: () => import('./views/absence-type/index.vue'),
       },
+      {
+        path: 'allowance',
+        name: 'HrAllowances',
+        meta: {
+          icon: 'lucide:calculator',
+          title: 'hr.menu.allowances',
+          authority: ['platform:admin', 'tenant:manager'],
+        },
+        component: () => import('./views/allowance/index.vue'),
+      },
     ],
   },
 ];

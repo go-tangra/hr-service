@@ -43,6 +43,18 @@ menus:
       - platform:admin
       - tenant:manager
 
+  - id: hr-allowances
+    parent_id: hr
+    type: MENU
+    name: Leave Allowances
+    path: allowance
+    component: app/hr/allowance/index.vue
+    icon: lucide:calculator
+    order: 3
+    authority:
+      - platform:admin
+      - tenant:manager
+
   - id: hr-absence-types
     parent_id: hr
     type: MENU

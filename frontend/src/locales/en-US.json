@@ -3,7 +3,8 @@
     "moduleName": "Human Resources",
     "calendar": "Calendar",
     "requests": "Leave Requests",
-    "absenceTypes": "Absence Types"
+    "absenceTypes": "Absence Types",
+    "allowances": "Leave Allowances"
   },
   "page": {
     "calendar": {
@@ -94,7 +95,9 @@
       "createSuccess": "Allowance created successfully",
       "updateSuccess": "Allowance updated successfully",
       "deleteSuccess": "Allowance deleted successfully",
-      "confirmDelete": "Are you sure you want to delete this allowance?"
+      "confirmDelete": "Are you sure you want to delete this allowance?",
+      "view": "Allowance Details",
+      "remaining": "Remaining"
     },
     "system": {
       "pendingRequests": "Pending Requests",

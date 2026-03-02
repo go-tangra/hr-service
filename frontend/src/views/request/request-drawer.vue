@@ -18,16 +18,18 @@ import {
   Tag,
 } from 'ant-design-vue';
 
-import type { LeaveRequest, AbsenceType } from '../../api/services';
+import type { LeaveRequest, AbsenceType, BalanceEntry } from '../../api/services';
 import { toTimestamp, fromTimestamp } from '../../api/services';
 import { $t } from 'shell/locales';
 import { useUserStore } from 'shell/vben/stores';
 import { useHrLeaveStore } from '../../stores/hr-leave.state';
 import { useHrAbsenceTypeStore } from '../../stores/hr-absence-type.state';
+import { useHrAllowanceStore } from '../../stores/hr-allowance.state';
 import { adminApi } from '../../api/client';
 
 const leaveStore = useHrLeaveStore();
 const absenceTypeStore = useHrAbsenceTypeStore();
+const allowanceStore = useHrAllowanceStore();
 const userStore = useUserStore();
 
 interface PortalUser {
@@ -45,6 +47,24 @@ const data = ref<{
 const loading = ref(false);
 const absenceTypes = ref<AbsenceType[]>([]);
 const users = ref<PortalUser[]>([]);
+
+const balanceEntries = ref<BalanceEntry[]>([]);
+
+async function loadUserBalance(userId: number) {
+  try {
+    const resp = await allowanceStore.getUserBalance(userId);
+    balanceEntries.value = resp.entries || [];
+  } catch {
+    balanceEntries.value = [];
+  }
+}
+
+const selectedTypeBalance = computed(() => {
+  if (!formState.value.absenceTypeId) return null;
+  return balanceEntries.value.find(
+    (e) => e.absenceTypeId === formState.value.absenceTypeId,
+  ) || null;
+});
 
 const formState = ref({
   userId: undefined as number | undefined,
@@ -106,6 +126,7 @@ function onUserSelect(userId: number) {
     formState.value.userEmail = user.email || '';
     formState.value.orgUnitName = user.orgUnitNames?.[0] || '';
   }
+  loadUserBalance(userId);
 }
 
 async function loadOptions() {
@@ -207,6 +228,10 @@ const [Modal, modalApi] = useVbenModal({
         if (!formState.value.userId && userStore.userInfo) {
           formState.value.userId = userStore.userInfo.id;
           formState.value.userName = userStore.userInfo.realname || userStore.userInfo.username || '';
+        }
+        // Load balance for the selected/default user
+        if (formState.value.userId) {
+          loadUserBalance(formState.value.userId);
         }
       } else if (data.value?.row) {
         formState.value = {
@@ -315,6 +340,27 @@ const request = computed(() => data.value?.row);
             </SelectOption>
           </Select>
         </FormItem>
+
+        <!-- Balance info panel -->
+        <div
+          v-if="isCreateMode && selectedTypeBalance"
+          class="mb-4 rounded-md border border-solid border-gray-200 bg-gray-50 p-3"
+        >
+          <div class="mb-1 text-xs font-medium text-gray-500">
+            {{ $t('hr.page.request.remainingBalance') }}
+          </div>
+          <div class="flex items-center gap-4 text-sm">
+            <span>{{ $t('hr.page.allowance.totalDays') }}: <b>{{ selectedTypeBalance.totalDays }}</b></span>
+            <span>{{ $t('hr.page.allowance.usedDays') }}: <b>{{ selectedTypeBalance.usedDays }}</b></span>
+            <span>{{ $t('hr.page.allowance.carriedOver') }}: <b>{{ selectedTypeBalance.carriedOver }}</b></span>
+            <span>
+              {{ $t('hr.page.allowance.remaining') }}:
+              <b :style="{ color: selectedTypeBalance.remainingDays <= 0 ? '#f5222d' : '#52c41a' }">
+                {{ selectedTypeBalance.remainingDays }}
+              </b>
+            </span>
+          </div>
+        </div>
 
         <div v-if="isCreateMode" class="flex gap-4">
           <FormItem
