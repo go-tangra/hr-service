@@ -288,6 +288,7 @@ func (s *LeaveService) approveWithSigning(ctx context.Context, existing *ent.Lea
 		{FieldId: "StartDate", Value: existing.StartDate.Format("2006-01-02")},
 		{FieldId: "EndDate", Value: existing.EndDate.Format("2006-01-02")},
 		{FieldId: "TotalDays", Value: fmt.Sprintf("%d", int(existing.Days))},
+		{FieldId: "Today", Value: time.Now().Format("02.01.2006")},
 	}
 
 	requestName := fmt.Sprintf("Leave Request - %s (%s to %s)",
