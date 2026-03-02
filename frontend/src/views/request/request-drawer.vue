@@ -344,12 +344,12 @@ const request = computed(() => data.value?.row);
         <!-- Balance info panel -->
         <div
           v-if="isCreateMode && selectedTypeBalance"
-          class="mb-4 rounded-md border border-solid border-gray-200 bg-gray-50 p-3"
+          class="bg-accent mb-4 rounded-md border border-solid border-border p-3"
         >
-          <div class="mb-1 text-xs font-medium text-gray-500">
+          <div class="text-muted-foreground mb-1 text-xs font-medium">
             {{ $t('hr.page.request.remainingBalance') }}
           </div>
-          <div class="flex items-center gap-4 text-sm">
+          <div class="text-foreground flex items-center gap-4 text-sm">
             <span>{{ $t('hr.page.allowance.totalDays') }}: <b>{{ selectedTypeBalance.totalDays }}</b></span>
             <span>{{ $t('hr.page.allowance.usedDays') }}: <b>{{ selectedTypeBalance.usedDays }}</b></span>
             <span>{{ $t('hr.page.allowance.carriedOver') }}: <b>{{ selectedTypeBalance.carriedOver }}</b></span>
