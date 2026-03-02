@@ -246,12 +246,14 @@ const groupedRows = computed(() => {
     const unitUsers = byOrgUnit.get(unit)!;
     result.push({ type: 'dept', department: unit, count: unitUsers.length });
     if (!collapsedOrgUnits.value.has(unit)) {
-      // Group by position within org unit
+      // Group by position within org unit (users with multiple positions appear in each)
       const byPosition = new Map<string, PortalUser[]>();
       for (const user of unitUsers) {
-        const pos = user.positionNames?.[0] || 'Unassigned';
-        if (!byPosition.has(pos)) byPosition.set(pos, []);
-        byPosition.get(pos)!.push(user);
+        const positions = user.positionNames?.length ? user.positionNames : ['Unassigned'];
+        for (const pos of positions) {
+          if (!byPosition.has(pos)) byPosition.set(pos, []);
+          byPosition.get(pos)!.push(user);
+        }
       }
       const sortedPositions = Array.from(byPosition.keys()).sort();
       for (const pos of sortedPositions) {
