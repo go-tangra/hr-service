@@ -55,7 +55,9 @@
       "cancelSuccess": "Leave request cancelled successfully",
       "confirmDelete": "Are you sure you want to delete this request?",
       "remainingBalance": "Remaining Balance",
-      "absenceTypeName": "Absence Type"
+      "absenceTypeName": "Absence Type",
+      "downloadSigned": "Download Signed Document",
+      "downloadFailed": "Failed to download signed document"
     },
     "absenceType": {
       "title": "Absence Types",

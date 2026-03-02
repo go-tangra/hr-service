@@ -2,9 +2,9 @@
 import { h } from 'vue';
 
 import { Page, useVbenModal, type VbenFormProps } from 'shell/vben/common-ui';
-import { LucideEye, LucideTrash, LucideCheck, LucideX } from 'shell/vben/icons';
+import { LucideEye, LucideTrash, LucideCheck, LucideX, LucideFileDown } from 'shell/vben/icons';
 
-import { notification, Space, Button, Tag } from 'ant-design-vue';
+import { notification, Space, Button, Tag, Tooltip } from 'ant-design-vue';
 
 import { useVbenVxeGrid } from 'shell/adapter/vxe-table';
 import type { VxeGridProps } from 'shell/adapter/vxe-table';
@@ -12,6 +12,7 @@ import type { LeaveRequest } from '../../api/services';
 import { fromTimestamp } from '../../api/services';
 import { $t } from 'shell/locales';
 import { useHrLeaveStore } from '../../stores/hr-leave.state';
+import { paperlessApi } from '../../api/client';
 
 import RequestDrawer from './request-drawer.vue';
 import ReviewModal from './review-modal.vue';
@@ -189,6 +190,18 @@ function handleReject(row: LeaveRequest) {
   reviewModalApi.open();
 }
 
+async function handleDownloadSigned(row: LeaveRequest) {
+  if (!row.signingRequestId) return;
+  try {
+    const resp = await paperlessApi.get<{ url: string }>(`/signing/requests/${row.signingRequestId}/download`);
+    if (resp.url) {
+      window.open(resp.url, '_blank');
+    }
+  } catch {
+    notification.error({ message: $t('hr.page.request.downloadFailed') });
+  }
+}
+
 async function handleDelete(row: LeaveRequest) {
   if (!row.id) return;
   try {
@@ -243,6 +256,15 @@ async function handleDelete(row: LeaveRequest) {
             style="color: #ff4d4f"
             @click.stop="handleReject(row)"
           />
+          <Tooltip v-if="row.status === 'LEAVE_REQUEST_STATUS_APPROVED' && row.signingRequestId" :title="$t('hr.page.request.downloadSigned')">
+            <Button
+              type="link"
+              size="small"
+              :icon="h(LucideFileDown)"
+              style="color: #1890ff"
+              @click.stop="handleDownloadSigned(row)"
+            />
+          </Tooltip>
           <a-popconfirm
             :cancel-text="$t('ui.button.cancel')"
             :ok-text="$t('ui.button.ok')"
