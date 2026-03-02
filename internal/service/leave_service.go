@@ -287,7 +287,7 @@ func (s *LeaveService) approveWithSigning(ctx context.Context, existing *ent.Lea
 	fieldValues := []*paperlesspb.SigningFieldValueInput{
 		{FieldId: "StartDate", Value: existing.StartDate.Format("2006-01-02")},
 		{FieldId: "EndDate", Value: existing.EndDate.Format("2006-01-02")},
-		{FieldId: "TotalDays", Value: fmt.Sprintf("%.1f", existing.Days)},
+		{FieldId: "TotalDays", Value: fmt.Sprintf("%d", int(existing.Days))},
 	}
 
 	requestName := fmt.Sprintf("Leave Request - %s (%s to %s)",
@@ -296,11 +296,11 @@ func (s *LeaveService) approveWithSigning(ctx context.Context, existing *ent.Lea
 		existing.EndDate.Format("2006-01-02"),
 	)
 
-	message := fmt.Sprintf("Please sign the absence approval for %s. Period: %s to %s (%.1f days).",
+	message := fmt.Sprintf("Please sign the absence approval for %s. Period: %s to %s (%d days).",
 		existing.UserName,
 		existing.StartDate.Format("2006-01-02"),
 		existing.EndDate.Format("2006-01-02"),
-		existing.Days,
+		int(existing.Days),
 	)
 
 	signingRequestID, err := s.paperlessClient.CreateSigningRequest(
