@@ -19,6 +19,7 @@ interface PortalUser {
   realname?: string;
   avatar?: string;
   orgUnitNames?: string[];
+  positionNames?: string[];
 }
 
 const leaveStore = useHrLeaveStore();
@@ -35,6 +36,7 @@ const events = ref<CalendarEvent[]>([]);
 const selectedOrgUnit = ref<string>();
 const orgUnits = ref<string[]>([]);
 const collapsedOrgUnits = ref<Set<string>>(new Set());
+const collapsedPositions = ref<Set<string>>(new Set());
 
 // Container ref for scroll-to-today
 const containerRef = ref<HTMLElement | null>(null);
@@ -235,6 +237,7 @@ const groupedRows = computed(() => {
 
   type Row =
     | { type: 'dept'; department: string; count: number }
+    | { type: 'position'; department: string; position: string; count: number }
     | { type: 'user'; user: PortalUser };
 
   const result: Row[] = [];
@@ -243,8 +246,23 @@ const groupedRows = computed(() => {
     const unitUsers = byOrgUnit.get(unit)!;
     result.push({ type: 'dept', department: unit, count: unitUsers.length });
     if (!collapsedOrgUnits.value.has(unit)) {
+      // Group by position within org unit
+      const byPosition = new Map<string, PortalUser[]>();
       for (const user of unitUsers) {
-        result.push({ type: 'user', user });
+        const pos = user.positionNames?.[0] || 'Unassigned';
+        if (!byPosition.has(pos)) byPosition.set(pos, []);
+        byPosition.get(pos)!.push(user);
+      }
+      const sortedPositions = Array.from(byPosition.keys()).sort();
+      for (const pos of sortedPositions) {
+        const posUsers = byPosition.get(pos)!;
+        const posKey = `${unit}::${pos}`;
+        result.push({ type: 'position', department: unit, position: pos, count: posUsers.length });
+        if (!collapsedPositions.value.has(posKey)) {
+          for (const user of posUsers) {
+            result.push({ type: 'user', user });
+          }
+        }
       }
     }
   }
@@ -395,6 +413,14 @@ function toggleDept(dept: string) {
   collapsedOrgUnits.value = s;
 }
 
+function togglePosition(dept: string, position: string) {
+  const key = `${dept}::${position}`;
+  const s = new Set(collapsedPositions.value);
+  if (s.has(key)) s.delete(key);
+  else s.add(key);
+  collapsedPositions.value = s;
+}
+
 // --- View switcher ---
 const viewOptions = computed(() => [
   { value: 'week', label: $t('hr.page.calendar.viewWeek') },
@@ -529,6 +555,26 @@ onUnmounted(() => {
                 <path d="M5 3L9 7L5 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
               <span>{{ row.department }}</span>
+              <span class="tl-dept-count">{{ row.count }}</span>
+            </div>
+            <div class="tl-dept-fill" />
+          </div>
+
+          <!-- Position sub-header -->
+          <div
+            v-else-if="row.type === 'position'"
+            class="tl-position-row"
+            @click="togglePosition(row.department, row.position)"
+          >
+            <div class="tl-position-label" :style="{ width: `${EMP_COL_WIDTH}px`, minWidth: `${EMP_COL_WIDTH}px` }">
+              <svg
+                class="tl-dept-chevron"
+                :class="{ collapsed: collapsedPositions.has(`${row.department}::${row.position}`) }"
+                width="12" height="12" viewBox="0 0 14 14" fill="none"
+              >
+                <path d="M5 3L9 7L5 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <span>{{ row.position }}</span>
               <span class="tl-dept-count">{{ row.count }}</span>
             </div>
             <div class="tl-dept-fill" />
@@ -923,6 +969,34 @@ function stringToColor(str: string): string {
 }
 .tl-dept-fill {
   flex: 1;
+}
+
+/* ===== Position sub-rows ===== */
+.tl-position-row {
+  display: flex;
+  height: 30px;
+  background: var(--ant-color-bg-container, #fff);
+  border-bottom: 1px solid var(--ant-color-border-secondary, #f0f0f0);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.tl-position-row:hover {
+  background: var(--ant-color-bg-text-hover, #fafafa);
+}
+.tl-position-label {
+  position: sticky;
+  left: 0;
+  z-index: 10;
+  background: inherit;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 0 16px 0 36px;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--ant-color-text-tertiary, #999);
+  border-right: 1px solid var(--ant-color-border, #d9d9d9);
+  flex-shrink: 0;
 }
 
 /* ===== User rows ===== */
