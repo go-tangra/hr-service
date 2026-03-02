@@ -14,15 +14,7 @@ import {
 import { $t } from 'shell/locales';
 import { useUserStore } from 'shell/vben/stores';
 import { useHrLeaveStore } from '../../stores/hr-leave.state';
-import { adminApi } from '../../api/client';
 import type { LeaveRequest } from '../../api/services';
-
-interface PortalUser {
-  id: number;
-  username?: string;
-  realname?: string;
-  email?: string;
-}
 
 const leaveStore = useHrLeaveStore();
 const userStore = useUserStore();
@@ -33,7 +25,6 @@ const data = ref<{
   row?: LeaveRequest;
 }>();
 const loading = ref(false);
-const requesterEmail = ref('');
 
 const formState = ref({
   reviewNotes: '',
@@ -47,15 +38,6 @@ const title = computed(() => {
 
 const isApprove = computed(() => data.value?.action === 'approve');
 
-async function fetchRequesterEmail(userId: number) {
-  try {
-    const resp = await adminApi.get<{ user: PortalUser }>(`/users/${userId}`);
-    requesterEmail.value = resp.user?.email || '';
-  } catch {
-    requesterEmail.value = '';
-  }
-}
-
 async function handleSubmit() {
   if (!data.value?.requestId) return;
   loading.value = true;
@@ -68,7 +50,6 @@ async function handleSubmit() {
         formState.value.reviewNotes || undefined,
         currentUser?.email || undefined,
         currentUser?.realname || currentUser?.username || undefined,
-        requesterEmail.value || undefined,
       );
       notification.success({
         message: $t('hr.page.request.approveSuccess'),
@@ -103,12 +84,6 @@ const [Modal, modalApi] = useVbenModal({
         row?: LeaveRequest;
       };
       formState.value = { reviewNotes: '' };
-      requesterEmail.value = '';
-
-      // Fetch requester email for signing when approving
-      if (data.value?.action === 'approve' && data.value?.row?.userId) {
-        fetchRequesterEmail(data.value.row.userId);
-      }
     }
   },
 });

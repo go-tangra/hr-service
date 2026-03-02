@@ -61,6 +61,7 @@ export interface LeaveRequest {
   notes?: string;
   metadata?: Record<string, unknown>;
   userName?: string;
+  userEmail?: string;
   absenceTypeName?: string;
   absenceTypeColor?: string;
   reviewerName?: string;
@@ -317,7 +318,6 @@ export const LeaveService = {
       reviewNotes?: string;
       approverEmail?: string;
       approverName?: string;
-      requesterEmail?: string;
     },
     options?: RequestOptions,
   ): Promise<{ leaveRequest: LeaveRequest }> => {

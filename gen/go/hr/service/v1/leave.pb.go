@@ -105,6 +105,7 @@ type LeaveRequest struct {
 	Metadata      *structpb.Struct       `protobuf:"bytes,14,opt,name=metadata,proto3" json:"metadata,omitempty"`
 	// Denormalized fields for display
 	UserName         *string                `protobuf:"bytes,30,opt,name=user_name,json=userName,proto3,oneof" json:"user_name,omitempty"`
+	UserEmail        *string                `protobuf:"bytes,36,opt,name=user_email,json=userEmail,proto3,oneof" json:"user_email,omitempty"`
 	AbsenceTypeName  *string                `protobuf:"bytes,31,opt,name=absence_type_name,json=absenceTypeName,proto3,oneof" json:"absence_type_name,omitempty"`
 	AbsenceTypeColor *string                `protobuf:"bytes,32,opt,name=absence_type_color,json=absenceTypeColor,proto3,oneof" json:"absence_type_color,omitempty"`
 	ReviewerName     *string                `protobuf:"bytes,33,opt,name=reviewer_name,json=reviewerName,proto3,oneof" json:"reviewer_name,omitempty"`
@@ -253,6 +254,13 @@ func (x *LeaveRequest) GetUserName() string {
 	return ""
 }
 
+func (x *LeaveRequest) GetUserEmail() string {
+	if x != nil && x.UserEmail != nil {
+		return *x.UserEmail
+	}
+	return ""
+}
+
 func (x *LeaveRequest) GetAbsenceTypeName() string {
 	if x != nil && x.AbsenceTypeName != nil {
 		return *x.AbsenceTypeName
@@ -328,6 +336,7 @@ type CreateLeaveRequestRequest struct {
 	Notes         *string                `protobuf:"bytes,8,opt,name=notes,proto3,oneof" json:"notes,omitempty"`
 	Metadata      *structpb.Struct       `protobuf:"bytes,9,opt,name=metadata,proto3" json:"metadata,omitempty"`
 	UserName      *string                `protobuf:"bytes,10,opt,name=user_name,json=userName,proto3,oneof" json:"user_name,omitempty"`
+	UserEmail     *string                `protobuf:"bytes,12,opt,name=user_email,json=userEmail,proto3,oneof" json:"user_email,omitempty"`
 	OrgUnitName   *string                `protobuf:"bytes,11,opt,name=org_unit_name,json=orgUnitName,proto3,oneof" json:"org_unit_name,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -429,6 +438,13 @@ func (x *CreateLeaveRequestRequest) GetMetadata() *structpb.Struct {
 func (x *CreateLeaveRequestRequest) GetUserName() string {
 	if x != nil && x.UserName != nil {
 		return *x.UserName
+	}
+	return ""
+}
+
+func (x *CreateLeaveRequestRequest) GetUserEmail() string {
+	if x != nil && x.UserEmail != nil {
+		return *x.UserEmail
 	}
 	return ""
 }
@@ -1445,7 +1461,7 @@ var File_hr_service_v1_leave_proto protoreflect.FileDescriptor
 
 const file_hr_service_v1_leave_proto_rawDesc = "" +
 	"\n" +
-	"\x19hr/service/v1/leave.proto\x12\rhr.service.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a\x1cgoogle/protobuf/struct.proto\"\x93\v\n" +
+	"\x19hr/service/v1/leave.proto\x12\rhr.service.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a\x1cgoogle/protobuf/struct.proto\"\xc6\v\n" +
 	"\fLeaveRequest\x12\x13\n" +
 	"\x02id\x18\x01 \x01(\tH\x00R\x02id\x88\x01\x01\x12 \n" +
 	"\ttenant_id\x18\x02 \x01(\rH\x01R\btenantId\x88\x01\x01\x12\x1c\n" +
@@ -1466,20 +1482,22 @@ const file_hr_service_v1_leave_proto_rawDesc = "" +
 	"reviewedAt\x88\x01\x01\x12\x19\n" +
 	"\x05notes\x18\r \x01(\tH\fR\x05notes\x88\x01\x01\x123\n" +
 	"\bmetadata\x18\x0e \x01(\v2\x17.google.protobuf.StructR\bmetadata\x12 \n" +
-	"\tuser_name\x18\x1e \x01(\tH\rR\buserName\x88\x01\x01\x12/\n" +
-	"\x11absence_type_name\x18\x1f \x01(\tH\x0eR\x0fabsenceTypeName\x88\x01\x01\x121\n" +
-	"\x12absence_type_color\x18  \x01(\tH\x0fR\x10absenceTypeColor\x88\x01\x01\x12(\n" +
-	"\rreviewer_name\x18! \x01(\tH\x10R\freviewerName\x88\x01\x01\x12'\n" +
-	"\rorg_unit_name\x18\" \x01(\tH\x11R\vorgUnitName\x88\x01\x01\x121\n" +
-	"\x12signing_request_id\x18# \x01(\tH\x12R\x10signingRequestId\x88\x01\x01\x12>\n" +
+	"\tuser_name\x18\x1e \x01(\tH\rR\buserName\x88\x01\x01\x12\"\n" +
 	"\n" +
-	"created_at\x18\x14 \x01(\v2\x1a.google.protobuf.TimestampH\x13R\tcreatedAt\x88\x01\x01\x12>\n" +
+	"user_email\x18$ \x01(\tH\x0eR\tuserEmail\x88\x01\x01\x12/\n" +
+	"\x11absence_type_name\x18\x1f \x01(\tH\x0fR\x0fabsenceTypeName\x88\x01\x01\x121\n" +
+	"\x12absence_type_color\x18  \x01(\tH\x10R\x10absenceTypeColor\x88\x01\x01\x12(\n" +
+	"\rreviewer_name\x18! \x01(\tH\x11R\freviewerName\x88\x01\x01\x12'\n" +
+	"\rorg_unit_name\x18\" \x01(\tH\x12R\vorgUnitName\x88\x01\x01\x121\n" +
+	"\x12signing_request_id\x18# \x01(\tH\x13R\x10signingRequestId\x88\x01\x01\x12>\n" +
 	"\n" +
-	"updated_at\x18\x15 \x01(\v2\x1a.google.protobuf.TimestampH\x14R\tupdatedAt\x88\x01\x01\x12\"\n" +
+	"created_at\x18\x14 \x01(\v2\x1a.google.protobuf.TimestampH\x14R\tcreatedAt\x88\x01\x01\x12>\n" +
 	"\n" +
-	"created_by\x18\x16 \x01(\rH\x15R\tcreatedBy\x88\x01\x01\x12\"\n" +
+	"updated_at\x18\x15 \x01(\v2\x1a.google.protobuf.TimestampH\x15R\tupdatedAt\x88\x01\x01\x12\"\n" +
 	"\n" +
-	"updated_by\x18\x17 \x01(\rH\x16R\tupdatedBy\x88\x01\x01B\x05\n" +
+	"created_by\x18\x16 \x01(\rH\x16R\tcreatedBy\x88\x01\x01\x12\"\n" +
+	"\n" +
+	"updated_by\x18\x17 \x01(\rH\x17R\tupdatedBy\x88\x01\x01B\x05\n" +
 	"\x03_idB\f\n" +
 	"\n" +
 	"_tenant_idB\n" +
@@ -1496,7 +1514,8 @@ const file_hr_service_v1_leave_proto_rawDesc = "" +
 	"\f_reviewed_atB\b\n" +
 	"\x06_notesB\f\n" +
 	"\n" +
-	"_user_nameB\x14\n" +
+	"_user_nameB\r\n" +
+	"\v_user_emailB\x14\n" +
 	"\x12_absence_type_nameB\x15\n" +
 	"\x13_absence_type_colorB\x10\n" +
 	"\x0e_reviewer_nameB\x10\n" +
@@ -1505,7 +1524,7 @@ const file_hr_service_v1_leave_proto_rawDesc = "" +
 	"\v_created_atB\r\n" +
 	"\v_updated_atB\r\n" +
 	"\v_created_byB\r\n" +
-	"\v_updated_by\"\xfd\x04\n" +
+	"\v_updated_by\"\xb0\x05\n" +
 	"\x19CreateLeaveRequestRequest\x12%\n" +
 	"\ttenant_id\x18\x01 \x01(\rB\x03\xe0A\x02H\x00R\btenantId\x88\x01\x01\x12!\n" +
 	"\auser_id\x18\x02 \x01(\rB\x03\xe0A\x02H\x01R\x06userId\x88\x01\x01\x127\n" +
@@ -1519,8 +1538,11 @@ const file_hr_service_v1_leave_proto_rawDesc = "" +
 	"\x05notes\x18\b \x01(\tH\aR\x05notes\x88\x01\x01\x123\n" +
 	"\bmetadata\x18\t \x01(\v2\x17.google.protobuf.StructR\bmetadata\x12 \n" +
 	"\tuser_name\x18\n" +
-	" \x01(\tH\bR\buserName\x88\x01\x01\x12'\n" +
-	"\rorg_unit_name\x18\v \x01(\tH\tR\vorgUnitName\x88\x01\x01B\f\n" +
+	" \x01(\tH\bR\buserName\x88\x01\x01\x12\"\n" +
+	"\n" +
+	"user_email\x18\f \x01(\tH\tR\tuserEmail\x88\x01\x01\x12'\n" +
+	"\rorg_unit_name\x18\v \x01(\tH\n" +
+	"R\vorgUnitName\x88\x01\x01B\f\n" +
 	"\n" +
 	"_tenant_idB\n" +
 	"\n" +
@@ -1532,7 +1554,8 @@ const file_hr_service_v1_leave_proto_rawDesc = "" +
 	"\a_reasonB\b\n" +
 	"\x06_notesB\f\n" +
 	"\n" +
-	"_user_nameB\x10\n" +
+	"_user_nameB\r\n" +
+	"\v_user_emailB\x10\n" +
 	"\x0e_org_unit_name\"^\n" +
 	"\x1aCreateLeaveRequestResponse\x12@\n" +
 	"\rleave_request\x18\x01 \x01(\v2\x1b.hr.service.v1.LeaveRequestR\fleaveRequest\"4\n" +

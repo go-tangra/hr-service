@@ -36,6 +36,8 @@ type LeaveRequest struct {
 	UserID uint32 `json:"user_id,omitempty"`
 	// Denormalized user display name
 	UserName string `json:"user_name,omitempty"`
+	// Denormalized user email for signing workflows
+	UserEmail string `json:"user_email,omitempty"`
 	// Denormalized org unit name for grouping
 	OrgUnitName string `json:"org_unit_name,omitempty"`
 	// FK to AbsenceType
@@ -101,7 +103,7 @@ func (*LeaveRequest) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullFloat64)
 		case leaverequest.FieldCreateBy, leaverequest.FieldUpdateBy, leaverequest.FieldTenantID, leaverequest.FieldUserID, leaverequest.FieldReviewedBy:
 			values[i] = new(sql.NullInt64)
-		case leaverequest.FieldID, leaverequest.FieldUserName, leaverequest.FieldOrgUnitName, leaverequest.FieldAbsenceTypeID, leaverequest.FieldStatus, leaverequest.FieldSigningRequestID, leaverequest.FieldReason, leaverequest.FieldReviewNotes, leaverequest.FieldReviewerName, leaverequest.FieldNotes:
+		case leaverequest.FieldID, leaverequest.FieldUserName, leaverequest.FieldUserEmail, leaverequest.FieldOrgUnitName, leaverequest.FieldAbsenceTypeID, leaverequest.FieldStatus, leaverequest.FieldSigningRequestID, leaverequest.FieldReason, leaverequest.FieldReviewNotes, leaverequest.FieldReviewerName, leaverequest.FieldNotes:
 			values[i] = new(sql.NullString)
 		case leaverequest.FieldCreateTime, leaverequest.FieldUpdateTime, leaverequest.FieldDeleteTime, leaverequest.FieldStartDate, leaverequest.FieldEndDate, leaverequest.FieldReviewedAt:
 			values[i] = new(sql.NullTime)
@@ -179,6 +181,12 @@ func (_m *LeaveRequest) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field user_name", values[i])
 			} else if value.Valid {
 				_m.UserName = value.String
+			}
+		case leaverequest.FieldUserEmail:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field user_email", values[i])
+			} else if value.Valid {
+				_m.UserEmail = value.String
 			}
 		case leaverequest.FieldOrgUnitName:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -343,6 +351,9 @@ func (_m *LeaveRequest) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("user_name=")
 	builder.WriteString(_m.UserName)
+	builder.WriteString(", ")
+	builder.WriteString("user_email=")
+	builder.WriteString(_m.UserEmail)
 	builder.WriteString(", ")
 	builder.WriteString("org_unit_name=")
 	builder.WriteString(_m.OrgUnitName)

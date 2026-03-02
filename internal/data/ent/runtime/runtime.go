@@ -199,24 +199,28 @@ func init() {
 	leaverequestDescUserName := leaverequestFields[2].Descriptor()
 	// leaverequest.DefaultUserName holds the default value on creation for the user_name field.
 	leaverequest.DefaultUserName = leaverequestDescUserName.Default.(string)
+	// leaverequestDescUserEmail is the schema descriptor for user_email field.
+	leaverequestDescUserEmail := leaverequestFields[3].Descriptor()
+	// leaverequest.DefaultUserEmail holds the default value on creation for the user_email field.
+	leaverequest.DefaultUserEmail = leaverequestDescUserEmail.Default.(string)
 	// leaverequestDescOrgUnitName is the schema descriptor for org_unit_name field.
-	leaverequestDescOrgUnitName := leaverequestFields[3].Descriptor()
+	leaverequestDescOrgUnitName := leaverequestFields[4].Descriptor()
 	// leaverequest.DefaultOrgUnitName holds the default value on creation for the org_unit_name field.
 	leaverequest.DefaultOrgUnitName = leaverequestDescOrgUnitName.Default.(string)
 	// leaverequestDescAbsenceTypeID is the schema descriptor for absence_type_id field.
-	leaverequestDescAbsenceTypeID := leaverequestFields[4].Descriptor()
+	leaverequestDescAbsenceTypeID := leaverequestFields[5].Descriptor()
 	// leaverequest.AbsenceTypeIDValidator is a validator for the "absence_type_id" field. It is called by the builders before save.
 	leaverequest.AbsenceTypeIDValidator = leaverequestDescAbsenceTypeID.Validators[0].(func(string) error)
 	// leaverequestDescSigningRequestID is the schema descriptor for signing_request_id field.
-	leaverequestDescSigningRequestID := leaverequestFields[9].Descriptor()
+	leaverequestDescSigningRequestID := leaverequestFields[10].Descriptor()
 	// leaverequest.DefaultSigningRequestID holds the default value on creation for the signing_request_id field.
 	leaverequest.DefaultSigningRequestID = leaverequestDescSigningRequestID.Default.(string)
 	// leaverequestDescReviewedBy is the schema descriptor for reviewed_by field.
-	leaverequestDescReviewedBy := leaverequestFields[12].Descriptor()
+	leaverequestDescReviewedBy := leaverequestFields[13].Descriptor()
 	// leaverequest.DefaultReviewedBy holds the default value on creation for the reviewed_by field.
 	leaverequest.DefaultReviewedBy = leaverequestDescReviewedBy.Default.(uint32)
 	// leaverequestDescReviewerName is the schema descriptor for reviewer_name field.
-	leaverequestDescReviewerName := leaverequestFields[13].Descriptor()
+	leaverequestDescReviewerName := leaverequestFields[14].Descriptor()
 	// leaverequest.DefaultReviewerName holds the default value on creation for the reviewer_name field.
 	leaverequest.DefaultReviewerName = leaverequestDescReviewerName.Default.(string)
 	// leaverequestDescID is the schema descriptor for id field.

@@ -229,6 +229,10 @@ func (m *LeaveRequest) validate(all bool) error {
 		// no validation rules for UserName
 	}
 
+	if m.UserEmail != nil {
+		// no validation rules for UserEmail
+	}
+
 	if m.AbsenceTypeName != nil {
 		// no validation rules for AbsenceTypeName
 	}
@@ -543,6 +547,10 @@ func (m *CreateLeaveRequestRequest) validate(all bool) error {
 
 	if m.UserName != nil {
 		// no validation rules for UserName
+	}
+
+	if m.UserEmail != nil {
+		// no validation rules for UserEmail
 	}
 
 	if m.OrgUnitName != nil {

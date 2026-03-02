@@ -5163,6 +5163,7 @@ type LeaveRequestMutation struct {
 	user_id             *uint32
 	adduser_id          *int32
 	user_name           *string
+	user_email          *string
 	org_unit_name       *string
 	start_date          *time.Time
 	end_date            *time.Time
@@ -5750,6 +5751,55 @@ func (m *LeaveRequestMutation) UserNameCleared() bool {
 func (m *LeaveRequestMutation) ResetUserName() {
 	m.user_name = nil
 	delete(m.clearedFields, leaverequest.FieldUserName)
+}
+
+// SetUserEmail sets the "user_email" field.
+func (m *LeaveRequestMutation) SetUserEmail(s string) {
+	m.user_email = &s
+}
+
+// UserEmail returns the value of the "user_email" field in the mutation.
+func (m *LeaveRequestMutation) UserEmail() (r string, exists bool) {
+	v := m.user_email
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUserEmail returns the old "user_email" field's value of the LeaveRequest entity.
+// If the LeaveRequest object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *LeaveRequestMutation) OldUserEmail(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUserEmail is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUserEmail requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUserEmail: %w", err)
+	}
+	return oldValue.UserEmail, nil
+}
+
+// ClearUserEmail clears the value of the "user_email" field.
+func (m *LeaveRequestMutation) ClearUserEmail() {
+	m.user_email = nil
+	m.clearedFields[leaverequest.FieldUserEmail] = struct{}{}
+}
+
+// UserEmailCleared returns if the "user_email" field was cleared in this mutation.
+func (m *LeaveRequestMutation) UserEmailCleared() bool {
+	_, ok := m.clearedFields[leaverequest.FieldUserEmail]
+	return ok
+}
+
+// ResetUserEmail resets all changes to the "user_email" field.
+func (m *LeaveRequestMutation) ResetUserEmail() {
+	m.user_email = nil
+	delete(m.clearedFields, leaverequest.FieldUserEmail)
 }
 
 // SetOrgUnitName sets the "org_unit_name" field.
@@ -6475,7 +6525,7 @@ func (m *LeaveRequestMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *LeaveRequestMutation) Fields() []string {
-	fields := make([]string, 0, 22)
+	fields := make([]string, 0, 23)
 	if m.create_by != nil {
 		fields = append(fields, leaverequest.FieldCreateBy)
 	}
@@ -6499,6 +6549,9 @@ func (m *LeaveRequestMutation) Fields() []string {
 	}
 	if m.user_name != nil {
 		fields = append(fields, leaverequest.FieldUserName)
+	}
+	if m.user_email != nil {
+		fields = append(fields, leaverequest.FieldUserEmail)
 	}
 	if m.org_unit_name != nil {
 		fields = append(fields, leaverequest.FieldOrgUnitName)
@@ -6566,6 +6619,8 @@ func (m *LeaveRequestMutation) Field(name string) (ent.Value, bool) {
 		return m.UserID()
 	case leaverequest.FieldUserName:
 		return m.UserName()
+	case leaverequest.FieldUserEmail:
+		return m.UserEmail()
 	case leaverequest.FieldOrgUnitName:
 		return m.OrgUnitName()
 	case leaverequest.FieldAbsenceTypeID:
@@ -6619,6 +6674,8 @@ func (m *LeaveRequestMutation) OldField(ctx context.Context, name string) (ent.V
 		return m.OldUserID(ctx)
 	case leaverequest.FieldUserName:
 		return m.OldUserName(ctx)
+	case leaverequest.FieldUserEmail:
+		return m.OldUserEmail(ctx)
 	case leaverequest.FieldOrgUnitName:
 		return m.OldOrgUnitName(ctx)
 	case leaverequest.FieldAbsenceTypeID:
@@ -6711,6 +6768,13 @@ func (m *LeaveRequestMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetUserName(v)
+		return nil
+	case leaverequest.FieldUserEmail:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUserEmail(v)
 		return nil
 	case leaverequest.FieldOrgUnitName:
 		v, ok := value.(string)
@@ -6936,6 +7000,9 @@ func (m *LeaveRequestMutation) ClearedFields() []string {
 	if m.FieldCleared(leaverequest.FieldUserName) {
 		fields = append(fields, leaverequest.FieldUserName)
 	}
+	if m.FieldCleared(leaverequest.FieldUserEmail) {
+		fields = append(fields, leaverequest.FieldUserEmail)
+	}
 	if m.FieldCleared(leaverequest.FieldOrgUnitName) {
 		fields = append(fields, leaverequest.FieldOrgUnitName)
 	}
@@ -6998,6 +7065,9 @@ func (m *LeaveRequestMutation) ClearField(name string) error {
 	case leaverequest.FieldUserName:
 		m.ClearUserName()
 		return nil
+	case leaverequest.FieldUserEmail:
+		m.ClearUserEmail()
+		return nil
 	case leaverequest.FieldOrgUnitName:
 		m.ClearOrgUnitName()
 		return nil
@@ -7056,6 +7126,9 @@ func (m *LeaveRequestMutation) ResetField(name string) error {
 		return nil
 	case leaverequest.FieldUserName:
 		m.ResetUserName()
+		return nil
+	case leaverequest.FieldUserEmail:
+		m.ResetUserEmail()
 		return nil
 	case leaverequest.FieldOrgUnitName:
 		m.ResetOrgUnitName()

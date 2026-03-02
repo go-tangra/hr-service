@@ -106,6 +106,9 @@ func (s *LeaveService) CreateLeaveRequest(ctx context.Context, req *hrV1.CreateL
 	if req.UserName != nil {
 		opts = append(opts, func(c *ent.LeaveRequestCreate) { c.SetUserName(*req.UserName) })
 	}
+	if req.UserEmail != nil {
+		opts = append(opts, func(c *ent.LeaveRequestCreate) { c.SetUserEmail(*req.UserEmail) })
+	}
 	if req.OrgUnitName != nil {
 		opts = append(opts, func(c *ent.LeaveRequestCreate) { c.SetOrgUnitName(*req.OrgUnitName) })
 	}
@@ -274,7 +277,7 @@ func (s *LeaveService) approveWithSigning(ctx context.Context, existing *ent.Lea
 			SigningOrder: 1,
 		},
 		{
-			Email:        req.GetRequesterEmail(),
+			Email:        existing.UserEmail,
 			Name:         existing.UserName,
 			SigningOrder: 2,
 		},
@@ -502,6 +505,7 @@ func leaveRequestToProto(e *ent.LeaveRequest) *hrV1.LeaveRequest {
 		ReviewedBy:    &e.ReviewedBy,
 		ReviewerName:  ptrString(e.ReviewerName),
 		UserName:      ptrString(e.UserName),
+		UserEmail:     ptrString(e.UserEmail),
 		OrgUnitName:   ptrString(e.OrgUnitName),
 		Notes:         ptrString(e.Notes),
 		Metadata:      mapToStruct(e.Metadata),

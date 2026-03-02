@@ -185,6 +185,8 @@ func (x *LeaveRequest) Redact() string {
 
 	// Safe field: UserName
 
+	// Safe field: UserEmail
+
 	// Safe field: AbsenceTypeName
 
 	// Safe field: AbsenceTypeColor
@@ -230,6 +232,8 @@ func (x *CreateLeaveRequestRequest) Redact() string {
 	// Safe field: Metadata
 
 	// Safe field: UserName
+
+	// Safe field: UserEmail
 
 	// Safe field: OrgUnitName
 	return x.String()

@@ -40,6 +40,11 @@ func (LeaveRequest) Fields() []ent.Field {
 			Default("").
 			Comment("Denormalized user display name"),
 
+		field.String("user_email").
+			Optional().
+			Default("").
+			Comment("Denormalized user email for signing workflows"),
+
 		field.String("org_unit_name").
 			Optional().
 			Default("").

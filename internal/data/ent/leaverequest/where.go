@@ -105,6 +105,11 @@ func UserName(v string) predicate.LeaveRequest {
 	return predicate.LeaveRequest(sql.FieldEQ(FieldUserName, v))
 }
 
+// UserEmail applies equality check predicate on the "user_email" field. It's identical to UserEmailEQ.
+func UserEmail(v string) predicate.LeaveRequest {
+	return predicate.LeaveRequest(sql.FieldEQ(FieldUserEmail, v))
+}
+
 // OrgUnitName applies equality check predicate on the "org_unit_name" field. It's identical to OrgUnitNameEQ.
 func OrgUnitName(v string) predicate.LeaveRequest {
 	return predicate.LeaveRequest(sql.FieldEQ(FieldOrgUnitName, v))
@@ -578,6 +583,81 @@ func UserNameEqualFold(v string) predicate.LeaveRequest {
 // UserNameContainsFold applies the ContainsFold predicate on the "user_name" field.
 func UserNameContainsFold(v string) predicate.LeaveRequest {
 	return predicate.LeaveRequest(sql.FieldContainsFold(FieldUserName, v))
+}
+
+// UserEmailEQ applies the EQ predicate on the "user_email" field.
+func UserEmailEQ(v string) predicate.LeaveRequest {
+	return predicate.LeaveRequest(sql.FieldEQ(FieldUserEmail, v))
+}
+
+// UserEmailNEQ applies the NEQ predicate on the "user_email" field.
+func UserEmailNEQ(v string) predicate.LeaveRequest {
+	return predicate.LeaveRequest(sql.FieldNEQ(FieldUserEmail, v))
+}
+
+// UserEmailIn applies the In predicate on the "user_email" field.
+func UserEmailIn(vs ...string) predicate.LeaveRequest {
+	return predicate.LeaveRequest(sql.FieldIn(FieldUserEmail, vs...))
+}
+
+// UserEmailNotIn applies the NotIn predicate on the "user_email" field.
+func UserEmailNotIn(vs ...string) predicate.LeaveRequest {
+	return predicate.LeaveRequest(sql.FieldNotIn(FieldUserEmail, vs...))
+}
+
+// UserEmailGT applies the GT predicate on the "user_email" field.
+func UserEmailGT(v string) predicate.LeaveRequest {
+	return predicate.LeaveRequest(sql.FieldGT(FieldUserEmail, v))
+}
+
+// UserEmailGTE applies the GTE predicate on the "user_email" field.
+func UserEmailGTE(v string) predicate.LeaveRequest {
+	return predicate.LeaveRequest(sql.FieldGTE(FieldUserEmail, v))
+}
+
+// UserEmailLT applies the LT predicate on the "user_email" field.
+func UserEmailLT(v string) predicate.LeaveRequest {
+	return predicate.LeaveRequest(sql.FieldLT(FieldUserEmail, v))
+}
+
+// UserEmailLTE applies the LTE predicate on the "user_email" field.
+func UserEmailLTE(v string) predicate.LeaveRequest {
+	return predicate.LeaveRequest(sql.FieldLTE(FieldUserEmail, v))
+}
+
+// UserEmailContains applies the Contains predicate on the "user_email" field.
+func UserEmailContains(v string) predicate.LeaveRequest {
+	return predicate.LeaveRequest(sql.FieldContains(FieldUserEmail, v))
+}
+
+// UserEmailHasPrefix applies the HasPrefix predicate on the "user_email" field.
+func UserEmailHasPrefix(v string) predicate.LeaveRequest {
+	return predicate.LeaveRequest(sql.FieldHasPrefix(FieldUserEmail, v))
+}
+
+// UserEmailHasSuffix applies the HasSuffix predicate on the "user_email" field.
+func UserEmailHasSuffix(v string) predicate.LeaveRequest {
+	return predicate.LeaveRequest(sql.FieldHasSuffix(FieldUserEmail, v))
+}
+
+// UserEmailIsNil applies the IsNil predicate on the "user_email" field.
+func UserEmailIsNil() predicate.LeaveRequest {
+	return predicate.LeaveRequest(sql.FieldIsNull(FieldUserEmail))
+}
+
+// UserEmailNotNil applies the NotNil predicate on the "user_email" field.
+func UserEmailNotNil() predicate.LeaveRequest {
+	return predicate.LeaveRequest(sql.FieldNotNull(FieldUserEmail))
+}
+
+// UserEmailEqualFold applies the EqualFold predicate on the "user_email" field.
+func UserEmailEqualFold(v string) predicate.LeaveRequest {
+	return predicate.LeaveRequest(sql.FieldEqualFold(FieldUserEmail, v))
+}
+
+// UserEmailContainsFold applies the ContainsFold predicate on the "user_email" field.
+func UserEmailContainsFold(v string) predicate.LeaveRequest {
+	return predicate.LeaveRequest(sql.FieldContainsFold(FieldUserEmail, v))
 }
 
 // OrgUnitNameEQ applies the EQ predicate on the "org_unit_name" field.

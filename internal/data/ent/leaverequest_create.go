@@ -128,6 +128,20 @@ func (_c *LeaveRequestCreate) SetNillableUserName(v *string) *LeaveRequestCreate
 	return _c
 }
 
+// SetUserEmail sets the "user_email" field.
+func (_c *LeaveRequestCreate) SetUserEmail(v string) *LeaveRequestCreate {
+	_c.mutation.SetUserEmail(v)
+	return _c
+}
+
+// SetNillableUserEmail sets the "user_email" field if the given value is not nil.
+func (_c *LeaveRequestCreate) SetNillableUserEmail(v *string) *LeaveRequestCreate {
+	if v != nil {
+		_c.SetUserEmail(*v)
+	}
+	return _c
+}
+
 // SetOrgUnitName sets the "org_unit_name" field.
 func (_c *LeaveRequestCreate) SetOrgUnitName(v string) *LeaveRequestCreate {
 	_c.mutation.SetOrgUnitName(v)
@@ -340,6 +354,10 @@ func (_c *LeaveRequestCreate) defaults() error {
 		v := leaverequest.DefaultUserName
 		_c.mutation.SetUserName(v)
 	}
+	if _, ok := _c.mutation.UserEmail(); !ok {
+		v := leaverequest.DefaultUserEmail
+		_c.mutation.SetUserEmail(v)
+	}
 	if _, ok := _c.mutation.OrgUnitName(); !ok {
 		v := leaverequest.DefaultOrgUnitName
 		_c.mutation.SetOrgUnitName(v)
@@ -468,6 +486,10 @@ func (_c *LeaveRequestCreate) createSpec() (*LeaveRequest, *sqlgraph.CreateSpec)
 	if value, ok := _c.mutation.UserName(); ok {
 		_spec.SetField(leaverequest.FieldUserName, field.TypeString, value)
 		_node.UserName = value
+	}
+	if value, ok := _c.mutation.UserEmail(); ok {
+		_spec.SetField(leaverequest.FieldUserEmail, field.TypeString, value)
+		_node.UserEmail = value
 	}
 	if value, ok := _c.mutation.OrgUnitName(); ok {
 		_spec.SetField(leaverequest.FieldOrgUnitName, field.TypeString, value)
@@ -707,6 +729,24 @@ func (u *LeaveRequestUpsert) UpdateUserName() *LeaveRequestUpsert {
 // ClearUserName clears the value of the "user_name" field.
 func (u *LeaveRequestUpsert) ClearUserName() *LeaveRequestUpsert {
 	u.SetNull(leaverequest.FieldUserName)
+	return u
+}
+
+// SetUserEmail sets the "user_email" field.
+func (u *LeaveRequestUpsert) SetUserEmail(v string) *LeaveRequestUpsert {
+	u.Set(leaverequest.FieldUserEmail, v)
+	return u
+}
+
+// UpdateUserEmail sets the "user_email" field to the value that was provided on create.
+func (u *LeaveRequestUpsert) UpdateUserEmail() *LeaveRequestUpsert {
+	u.SetExcluded(leaverequest.FieldUserEmail)
+	return u
+}
+
+// ClearUserEmail clears the value of the "user_email" field.
+func (u *LeaveRequestUpsert) ClearUserEmail() *LeaveRequestUpsert {
+	u.SetNull(leaverequest.FieldUserEmail)
 	return u
 }
 
@@ -1135,6 +1175,27 @@ func (u *LeaveRequestUpsertOne) UpdateUserName() *LeaveRequestUpsertOne {
 func (u *LeaveRequestUpsertOne) ClearUserName() *LeaveRequestUpsertOne {
 	return u.Update(func(s *LeaveRequestUpsert) {
 		s.ClearUserName()
+	})
+}
+
+// SetUserEmail sets the "user_email" field.
+func (u *LeaveRequestUpsertOne) SetUserEmail(v string) *LeaveRequestUpsertOne {
+	return u.Update(func(s *LeaveRequestUpsert) {
+		s.SetUserEmail(v)
+	})
+}
+
+// UpdateUserEmail sets the "user_email" field to the value that was provided on create.
+func (u *LeaveRequestUpsertOne) UpdateUserEmail() *LeaveRequestUpsertOne {
+	return u.Update(func(s *LeaveRequestUpsert) {
+		s.UpdateUserEmail()
+	})
+}
+
+// ClearUserEmail clears the value of the "user_email" field.
+func (u *LeaveRequestUpsertOne) ClearUserEmail() *LeaveRequestUpsertOne {
+	return u.Update(func(s *LeaveRequestUpsert) {
+		s.ClearUserEmail()
 	})
 }
 
@@ -1769,6 +1830,27 @@ func (u *LeaveRequestUpsertBulk) UpdateUserName() *LeaveRequestUpsertBulk {
 func (u *LeaveRequestUpsertBulk) ClearUserName() *LeaveRequestUpsertBulk {
 	return u.Update(func(s *LeaveRequestUpsert) {
 		s.ClearUserName()
+	})
+}
+
+// SetUserEmail sets the "user_email" field.
+func (u *LeaveRequestUpsertBulk) SetUserEmail(v string) *LeaveRequestUpsertBulk {
+	return u.Update(func(s *LeaveRequestUpsert) {
+		s.SetUserEmail(v)
+	})
+}
+
+// UpdateUserEmail sets the "user_email" field to the value that was provided on create.
+func (u *LeaveRequestUpsertBulk) UpdateUserEmail() *LeaveRequestUpsertBulk {
+	return u.Update(func(s *LeaveRequestUpsert) {
+		s.UpdateUserEmail()
+	})
+}
+
+// ClearUserEmail clears the value of the "user_email" field.
+func (u *LeaveRequestUpsertBulk) ClearUserEmail() *LeaveRequestUpsertBulk {
+	return u.Update(func(s *LeaveRequestUpsert) {
+		s.ClearUserEmail()
 	})
 }
 

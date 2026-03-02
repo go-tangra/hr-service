@@ -39,6 +39,7 @@ message LeaveRequest {
 
   // Denormalized fields for display
   optional string user_name = 30 [json_name = "userName"];
+  optional string user_email = 36 [json_name = "userEmail"];
   optional string absence_type_name = 31 [json_name = "absenceTypeName"];
   optional string absence_type_color = 32 [json_name = "absenceTypeColor"];
   optional string reviewer_name = 33 [json_name = "reviewerName"];
@@ -83,6 +84,7 @@ message CreateLeaveRequestRequest {
   optional string notes = 8 [json_name = "notes"];
   google.protobuf.Struct metadata = 9 [json_name = "metadata"];
   optional string user_name = 10 [json_name = "userName"];
+  optional string user_email = 12 [json_name = "userEmail"];
   optional string org_unit_name = 11 [json_name = "orgUnitName"];
 }
 

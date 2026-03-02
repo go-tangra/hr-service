@@ -34,6 +34,7 @@ interface PortalUser {
   id: number;
   username?: string;
   realname?: string;
+  email?: string;
   orgUnitNames?: string[];
 }
 
@@ -48,6 +49,7 @@ const users = ref<PortalUser[]>([]);
 const formState = ref({
   userId: undefined as number | undefined,
   userName: '',
+  userEmail: '',
   orgUnitName: '',
   absenceTypeId: '',
   startDate: '',
@@ -101,6 +103,7 @@ function onUserSelect(userId: number) {
   const user = users.value.find((u) => u.id === userId);
   if (user) {
     formState.value.userName = getUserDisplayName(user);
+    formState.value.userEmail = user.email || '';
     formState.value.orgUnitName = user.orgUnitNames?.[0] || '';
   }
 }
@@ -125,6 +128,7 @@ async function handleSubmit() {
       await leaveStore.createLeaveRequest({
         userId: formState.value.userId,
         userName: formState.value.userName || undefined,
+        userEmail: formState.value.userEmail || undefined,
         orgUnitName: formState.value.orgUnitName || undefined,
         absenceTypeId: formState.value.absenceTypeId,
         startDate: toTimestamp(formState.value.startDate),

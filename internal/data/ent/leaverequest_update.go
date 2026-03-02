@@ -165,6 +165,26 @@ func (_u *LeaveRequestUpdate) ClearUserName() *LeaveRequestUpdate {
 	return _u
 }
 
+// SetUserEmail sets the "user_email" field.
+func (_u *LeaveRequestUpdate) SetUserEmail(v string) *LeaveRequestUpdate {
+	_u.mutation.SetUserEmail(v)
+	return _u
+}
+
+// SetNillableUserEmail sets the "user_email" field if the given value is not nil.
+func (_u *LeaveRequestUpdate) SetNillableUserEmail(v *string) *LeaveRequestUpdate {
+	if v != nil {
+		_u.SetUserEmail(*v)
+	}
+	return _u
+}
+
+// ClearUserEmail clears the value of the "user_email" field.
+func (_u *LeaveRequestUpdate) ClearUserEmail() *LeaveRequestUpdate {
+	_u.mutation.ClearUserEmail()
+	return _u
+}
+
 // SetOrgUnitName sets the "org_unit_name" field.
 func (_u *LeaveRequestUpdate) SetOrgUnitName(v string) *LeaveRequestUpdate {
 	_u.mutation.SetOrgUnitName(v)
@@ -548,6 +568,12 @@ func (_u *LeaveRequestUpdate) sqlSave(ctx context.Context) (_node int, err error
 	if _u.mutation.UserNameCleared() {
 		_spec.ClearField(leaverequest.FieldUserName, field.TypeString)
 	}
+	if value, ok := _u.mutation.UserEmail(); ok {
+		_spec.SetField(leaverequest.FieldUserEmail, field.TypeString, value)
+	}
+	if _u.mutation.UserEmailCleared() {
+		_spec.ClearField(leaverequest.FieldUserEmail, field.TypeString)
+	}
 	if value, ok := _u.mutation.OrgUnitName(); ok {
 		_spec.SetField(leaverequest.FieldOrgUnitName, field.TypeString, value)
 	}
@@ -803,6 +829,26 @@ func (_u *LeaveRequestUpdateOne) SetNillableUserName(v *string) *LeaveRequestUpd
 // ClearUserName clears the value of the "user_name" field.
 func (_u *LeaveRequestUpdateOne) ClearUserName() *LeaveRequestUpdateOne {
 	_u.mutation.ClearUserName()
+	return _u
+}
+
+// SetUserEmail sets the "user_email" field.
+func (_u *LeaveRequestUpdateOne) SetUserEmail(v string) *LeaveRequestUpdateOne {
+	_u.mutation.SetUserEmail(v)
+	return _u
+}
+
+// SetNillableUserEmail sets the "user_email" field if the given value is not nil.
+func (_u *LeaveRequestUpdateOne) SetNillableUserEmail(v *string) *LeaveRequestUpdateOne {
+	if v != nil {
+		_u.SetUserEmail(*v)
+	}
+	return _u
+}
+
+// ClearUserEmail clears the value of the "user_email" field.
+func (_u *LeaveRequestUpdateOne) ClearUserEmail() *LeaveRequestUpdateOne {
+	_u.mutation.ClearUserEmail()
 	return _u
 }
 
@@ -1218,6 +1264,12 @@ func (_u *LeaveRequestUpdateOne) sqlSave(ctx context.Context) (_node *LeaveReque
 	}
 	if _u.mutation.UserNameCleared() {
 		_spec.ClearField(leaverequest.FieldUserName, field.TypeString)
+	}
+	if value, ok := _u.mutation.UserEmail(); ok {
+		_spec.SetField(leaverequest.FieldUserEmail, field.TypeString, value)
+	}
+	if _u.mutation.UserEmailCleared() {
+		_spec.ClearField(leaverequest.FieldUserEmail, field.TypeString)
 	}
 	if value, ok := _u.mutation.OrgUnitName(); ok {
 		_spec.SetField(leaverequest.FieldOrgUnitName, field.TypeString, value)

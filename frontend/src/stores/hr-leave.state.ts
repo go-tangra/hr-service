@@ -61,13 +61,11 @@ export const useHrLeaveStore = defineStore('hr-leave', () => {
     reviewNotes?: string,
     approverEmail?: string,
     approverName?: string,
-    requesterEmail?: string,
   ): Promise<{ leaveRequest: LeaveRequest }> {
     return await LeaveService.approve(id, {
       reviewNotes,
       approverEmail,
       approverName,
-      requesterEmail,
     });
   }
 

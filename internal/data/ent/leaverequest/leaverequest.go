@@ -31,6 +31,8 @@ const (
 	FieldUserID = "user_id"
 	// FieldUserName holds the string denoting the user_name field in the database.
 	FieldUserName = "user_name"
+	// FieldUserEmail holds the string denoting the user_email field in the database.
+	FieldUserEmail = "user_email"
 	// FieldOrgUnitName holds the string denoting the org_unit_name field in the database.
 	FieldOrgUnitName = "org_unit_name"
 	// FieldAbsenceTypeID holds the string denoting the absence_type_id field in the database.
@@ -83,6 +85,7 @@ var Columns = []string{
 	FieldTenantID,
 	FieldUserID,
 	FieldUserName,
+	FieldUserEmail,
 	FieldOrgUnitName,
 	FieldAbsenceTypeID,
 	FieldStartDate,
@@ -121,6 +124,8 @@ var (
 	DefaultTenantID uint32
 	// DefaultUserName holds the default value on creation for the "user_name" field.
 	DefaultUserName string
+	// DefaultUserEmail holds the default value on creation for the "user_email" field.
+	DefaultUserEmail string
 	// DefaultOrgUnitName holds the default value on creation for the "org_unit_name" field.
 	DefaultOrgUnitName string
 	// AbsenceTypeIDValidator is a validator for the "absence_type_id" field. It is called by the builders before save.
@@ -210,6 +215,11 @@ func ByUserID(opts ...sql.OrderTermOption) OrderOption {
 // ByUserName orders the results by the user_name field.
 func ByUserName(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldUserName, opts...).ToFunc()
+}
+
+// ByUserEmail orders the results by the user_email field.
+func ByUserEmail(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldUserEmail, opts...).ToFunc()
 }
 
 // ByOrgUnitName orders the results by the org_unit_name field.

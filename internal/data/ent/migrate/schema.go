@@ -177,6 +177,7 @@ var (
 		{Name: "tenant_id", Type: field.TypeUint32, Nullable: true, Comment: "租户ID", Default: 0},
 		{Name: "user_id", Type: field.TypeUint32, Comment: "FK to Portal User"},
 		{Name: "user_name", Type: field.TypeString, Nullable: true, Comment: "Denormalized user display name", Default: ""},
+		{Name: "user_email", Type: field.TypeString, Nullable: true, Comment: "Denormalized user email for signing workflows", Default: ""},
 		{Name: "org_unit_name", Type: field.TypeString, Nullable: true, Comment: "Denormalized org unit name for grouping", Default: ""},
 		{Name: "start_date", Type: field.TypeTime, Comment: "Start date of absence"},
 		{Name: "end_date", Type: field.TypeTime, Comment: "End date of absence"},
@@ -200,7 +201,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "hr_leave_requests_hr_absence_types_leave_requests",
-				Columns:    []*schema.Column{HrLeaveRequestsColumns[22]},
+				Columns:    []*schema.Column{HrLeaveRequestsColumns[23]},
 				RefColumns: []*schema.Column{HrAbsenceTypesColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
@@ -209,12 +210,12 @@ var (
 			{
 				Name:    "idx_hr_leavereq_tenant_user_start",
 				Unique:  false,
-				Columns: []*schema.Column{HrLeaveRequestsColumns[6], HrLeaveRequestsColumns[7], HrLeaveRequestsColumns[10]},
+				Columns: []*schema.Column{HrLeaveRequestsColumns[6], HrLeaveRequestsColumns[7], HrLeaveRequestsColumns[11]},
 			},
 			{
 				Name:    "idx_hr_leavereq_tenant_status",
 				Unique:  false,
-				Columns: []*schema.Column{HrLeaveRequestsColumns[6], HrLeaveRequestsColumns[13]},
+				Columns: []*schema.Column{HrLeaveRequestsColumns[6], HrLeaveRequestsColumns[14]},
 			},
 			{
 				Name:    "idx_hr_leavereq_tenant",
