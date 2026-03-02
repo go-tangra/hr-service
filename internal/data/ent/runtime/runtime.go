@@ -207,12 +207,16 @@ func init() {
 	leaverequestDescAbsenceTypeID := leaverequestFields[4].Descriptor()
 	// leaverequest.AbsenceTypeIDValidator is a validator for the "absence_type_id" field. It is called by the builders before save.
 	leaverequest.AbsenceTypeIDValidator = leaverequestDescAbsenceTypeID.Validators[0].(func(string) error)
+	// leaverequestDescSigningRequestID is the schema descriptor for signing_request_id field.
+	leaverequestDescSigningRequestID := leaverequestFields[9].Descriptor()
+	// leaverequest.DefaultSigningRequestID holds the default value on creation for the signing_request_id field.
+	leaverequest.DefaultSigningRequestID = leaverequestDescSigningRequestID.Default.(string)
 	// leaverequestDescReviewedBy is the schema descriptor for reviewed_by field.
-	leaverequestDescReviewedBy := leaverequestFields[11].Descriptor()
+	leaverequestDescReviewedBy := leaverequestFields[12].Descriptor()
 	// leaverequest.DefaultReviewedBy holds the default value on creation for the reviewed_by field.
 	leaverequest.DefaultReviewedBy = leaverequestDescReviewedBy.Default.(uint32)
 	// leaverequestDescReviewerName is the schema descriptor for reviewer_name field.
-	leaverequestDescReviewerName := leaverequestFields[12].Descriptor()
+	leaverequestDescReviewerName := leaverequestFields[13].Descriptor()
 	// leaverequest.DefaultReviewerName holds the default value on creation for the reviewer_name field.
 	leaverequest.DefaultReviewerName = leaverequestDescReviewerName.Default.(string)
 	// leaverequestDescID is the schema descriptor for id field.

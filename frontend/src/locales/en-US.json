@@ -105,7 +105,8 @@
       "pending": "Pending",
       "approved": "Approved",
       "rejected": "Rejected",
-      "cancelled": "Cancelled"
+      "cancelled": "Cancelled",
+      "awaitingSigning": "Awaiting Signing"
     }
   }
 }

@@ -10,9 +10,11 @@ import (
 	"google.golang.org/protobuf/types/known/emptypb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
+	"github.com/go-tangra/go-tangra-hr/internal/client"
 	"github.com/go-tangra/go-tangra-hr/internal/data"
 	"github.com/go-tangra/go-tangra-hr/internal/data/ent"
 	hrV1 "github.com/go-tangra/go-tangra-hr/gen/go/hr/service/v1"
+	paperlesspb "github.com/go-tangra/go-tangra-paperless/gen/go/paperless/service/v1"
 )
 
 type LeaveService struct {
@@ -22,14 +24,16 @@ type LeaveService struct {
 	leaveRequestRepo *data.LeaveRequestRepo
 	allowanceRepo    *data.LeaveAllowanceRepo
 	absenceTypeRepo  *data.AbsenceTypeRepo
+	paperlessClient  *client.PaperlessClient
 }
 
-func NewLeaveService(ctx *bootstrap.Context, leaveRequestRepo *data.LeaveRequestRepo, allowanceRepo *data.LeaveAllowanceRepo, absenceTypeRepo *data.AbsenceTypeRepo) *LeaveService {
+func NewLeaveService(ctx *bootstrap.Context, leaveRequestRepo *data.LeaveRequestRepo, allowanceRepo *data.LeaveAllowanceRepo, absenceTypeRepo *data.AbsenceTypeRepo, paperlessClient *client.PaperlessClient) *LeaveService {
 	return &LeaveService{
 		log:              ctx.NewLoggerHelper("hr/service/leave"),
 		leaveRequestRepo: leaveRequestRepo,
 		allowanceRepo:    allowanceRepo,
 		absenceTypeRepo:  absenceTypeRepo,
+		paperlessClient:  paperlessClient,
 	}
 }
 
@@ -239,7 +243,97 @@ func (s *LeaveService) ApproveLeaveRequest(ctx context.Context, req *hrV1.Approv
 		reviewNotes = *req.ReviewNotes
 	}
 
-	entity, err := s.leaveRequestRepo.UpdateStatus(ctx, req.GetId(), "approved", getUserID(ctx), getUsername(ctx), reviewNotes)
+	// Check if absence type requires signing
+	absType := existing.Edges.AbsenceType
+	if absType != nil && absType.RequiresSigning && absType.SigningTemplateID != "" {
+		return s.approveWithSigning(ctx, existing, absType, req, reviewNotes)
+	}
+
+	// Standard approval flow (no signing required)
+	return s.approveImmediate(ctx, existing, req.GetId(), reviewNotes)
+}
+
+// approveWithSigning creates a signing request in paperless and sets status to awaiting_signing
+func (s *LeaveService) approveWithSigning(ctx context.Context, existing *ent.LeaveRequest, absType *ent.AbsenceType, req *hrV1.ApproveLeaveRequestRequest, reviewNotes string) (*hrV1.ApproveLeaveRequestResponse, error) {
+	// Store reviewer info with awaiting_signing status
+	entity, err := s.leaveRequestRepo.UpdateStatus(ctx, existing.ID, "awaiting_signing", getUserID(ctx), getUsername(ctx), reviewNotes)
+	if err != nil {
+		return nil, err
+	}
+
+	// Build signing recipients: approver signs first, then employee
+	approverName := getUsername(ctx)
+	if req.ApproverName != nil && *req.ApproverName != "" {
+		approverName = *req.ApproverName
+	}
+
+	recipients := []*paperlesspb.SigningRecipientInput{
+		{
+			Email:        req.GetApproverEmail(),
+			Name:         approverName,
+			SigningOrder: 1,
+		},
+		{
+			Email:        req.GetRequesterEmail(),
+			Name:         existing.UserName,
+			SigningOrder: 2,
+		},
+	}
+
+	// Prefill template fields with leave request data
+	fieldValues := []*paperlesspb.SigningFieldValueInput{
+		{FieldId: "StartDate", Value: existing.StartDate.Format("2006-01-02")},
+		{FieldId: "EndDate", Value: existing.EndDate.Format("2006-01-02")},
+		{FieldId: "TotalDays", Value: fmt.Sprintf("%.1f", existing.Days)},
+	}
+
+	requestName := fmt.Sprintf("Leave Request - %s (%s to %s)",
+		existing.UserName,
+		existing.StartDate.Format("2006-01-02"),
+		existing.EndDate.Format("2006-01-02"),
+	)
+
+	message := fmt.Sprintf("Please sign the absence approval for %s. Period: %s to %s (%.1f days).",
+		existing.UserName,
+		existing.StartDate.Format("2006-01-02"),
+		existing.EndDate.Format("2006-01-02"),
+		existing.Days,
+	)
+
+	signingRequestID, err := s.paperlessClient.CreateSigningRequest(
+		ctx,
+		absType.SigningTemplateID,
+		requestName,
+		recipients,
+		fieldValues,
+		message,
+	)
+	if err != nil {
+		// Roll back to pending on failure
+		s.log.Errorf("Failed to create signing request, rolling back to pending: %v", err)
+		_, _ = s.leaveRequestRepo.UpdateStatus(ctx, existing.ID, "pending", 0, "", "")
+		return nil, hrV1.ErrorInternalServerError("failed to create signing request")
+	}
+
+	// Store the signing request ID on the leave request
+	if err := s.leaveRequestRepo.SetSigningRequestID(ctx, existing.ID, signingRequestID); err != nil {
+		s.log.Errorf("Failed to store signing_request_id: %v", err)
+	}
+
+	// Re-fetch with edges
+	entity2, _ := s.leaveRequestRepo.GetByID(ctx, entity.ID)
+	if entity2 != nil {
+		entity = entity2
+	}
+
+	return &hrV1.ApproveLeaveRequestResponse{
+		LeaveRequest: leaveRequestToProto(entity),
+	}, nil
+}
+
+// approveImmediate performs standard approval without signing
+func (s *LeaveService) approveImmediate(ctx context.Context, existing *ent.LeaveRequest, id string, reviewNotes string) (*hrV1.ApproveLeaveRequestResponse, error) {
+	entity, err := s.leaveRequestRepo.UpdateStatus(ctx, id, "approved", getUserID(ctx), getUsername(ctx), reviewNotes)
 	if err != nil {
 		return nil, err
 	}
@@ -425,6 +519,10 @@ func leaveRequestToProto(e *ent.LeaveRequest) *hrV1.LeaveRequest {
 		result.UpdatedAt = timestamppb.New(*e.UpdateTime)
 	}
 
+	if e.SigningRequestID != "" {
+		result.SigningRequestId = ptrString(e.SigningRequestID)
+	}
+
 	// Denormalized fields from edges
 	if e.Edges.AbsenceType != nil {
 		result.AbsenceTypeName = &e.Edges.AbsenceType.Name
@@ -444,6 +542,8 @@ func leaveStatusToProto(status string) hrV1.LeaveRequestStatus {
 		return hrV1.LeaveRequestStatus_LEAVE_REQUEST_STATUS_REJECTED
 	case "cancelled":
 		return hrV1.LeaveRequestStatus_LEAVE_REQUEST_STATUS_CANCELLED
+	case "awaiting_signing":
+		return hrV1.LeaveRequestStatus_LEAVE_REQUEST_STATUS_AWAITING_SIGNING
 	default:
 		return hrV1.LeaveRequestStatus_LEAVE_REQUEST_STATUS_UNSPECIFIED
 	}
@@ -464,6 +564,8 @@ func leaveStatusToString(status hrV1.LeaveRequestStatus) string {
 		return "rejected"
 	case hrV1.LeaveRequestStatus_LEAVE_REQUEST_STATUS_CANCELLED:
 		return "cancelled"
+	case hrV1.LeaveRequestStatus_LEAVE_REQUEST_STATUS_AWAITING_SIGNING:
+		return "awaiting_signing"
 	default:
 		return ""
 	}

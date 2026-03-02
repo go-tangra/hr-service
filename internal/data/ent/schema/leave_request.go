@@ -59,9 +59,14 @@ func (LeaveRequest) Fields() []ent.Field {
 			Comment("Calculated business days"),
 
 		field.Enum("status").
-			Values("pending", "approved", "rejected", "cancelled").
+			Values("pending", "approved", "rejected", "cancelled", "awaiting_signing").
 			Default("pending").
 			Comment("Request status"),
+
+		field.String("signing_request_id").
+			Optional().
+			Default("").
+			Comment("Paperless signing request ID"),
 
 		field.Text("reason").
 			Optional().

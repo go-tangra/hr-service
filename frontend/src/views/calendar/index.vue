@@ -284,7 +284,7 @@ const barsByUser = computed(() => {
     const dw = dayWidth.value;
     const left = startIdx * dw;
     const width = (endIdx - startIdx + 1) * dw;
-    const isPending = evt.status === 'LEAVE_REQUEST_STATUS_PENDING';
+    const isPending = evt.status === 'LEAVE_REQUEST_STATUS_PENDING' || evt.status === 'LEAVE_REQUEST_STATUS_AWAITING_SIGNING';
 
     if (!map.has(evt.userId)) map.set(evt.userId, []);
     map.get(evt.userId)!.push({ event: evt, left, width, isPending });
@@ -631,13 +631,15 @@ onUnmounted(() => {
         <div class="tl-tooltip-meta">
           <span>{{ hoveredBar.days }} {{ $t('hr.page.request.days') }}</span>
           <Tag
-            :color="hoveredBar.status === 'LEAVE_REQUEST_STATUS_APPROVED' ? 'green' : 'orange'"
+            :color="hoveredBar.status === 'LEAVE_REQUEST_STATUS_APPROVED' ? 'green' : hoveredBar.status === 'LEAVE_REQUEST_STATUS_AWAITING_SIGNING' ? 'blue' : 'orange'"
             size="small"
             class="ml-1"
           >
             {{ hoveredBar.status === 'LEAVE_REQUEST_STATUS_APPROVED'
               ? $t('hr.page.calendar.approved')
-              : $t('hr.page.calendar.pending') }}
+              : hoveredBar.status === 'LEAVE_REQUEST_STATUS_AWAITING_SIGNING'
+                ? $t('hr.enum.leaveRequestStatus.awaitingSigning')
+                : $t('hr.page.calendar.pending') }}
           </Tag>
         </div>
       </div>

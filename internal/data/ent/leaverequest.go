@@ -48,6 +48,8 @@ type LeaveRequest struct {
 	Days float64 `json:"days,omitempty"`
 	// Request status
 	Status leaverequest.Status `json:"status,omitempty"`
+	// Paperless signing request ID
+	SigningRequestID string `json:"signing_request_id,omitempty"`
 	// User's reason for request
 	Reason string `json:"reason,omitempty"`
 	// HR admin's review notes
@@ -99,7 +101,7 @@ func (*LeaveRequest) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullFloat64)
 		case leaverequest.FieldCreateBy, leaverequest.FieldUpdateBy, leaverequest.FieldTenantID, leaverequest.FieldUserID, leaverequest.FieldReviewedBy:
 			values[i] = new(sql.NullInt64)
-		case leaverequest.FieldID, leaverequest.FieldUserName, leaverequest.FieldOrgUnitName, leaverequest.FieldAbsenceTypeID, leaverequest.FieldStatus, leaverequest.FieldReason, leaverequest.FieldReviewNotes, leaverequest.FieldReviewerName, leaverequest.FieldNotes:
+		case leaverequest.FieldID, leaverequest.FieldUserName, leaverequest.FieldOrgUnitName, leaverequest.FieldAbsenceTypeID, leaverequest.FieldStatus, leaverequest.FieldSigningRequestID, leaverequest.FieldReason, leaverequest.FieldReviewNotes, leaverequest.FieldReviewerName, leaverequest.FieldNotes:
 			values[i] = new(sql.NullString)
 		case leaverequest.FieldCreateTime, leaverequest.FieldUpdateTime, leaverequest.FieldDeleteTime, leaverequest.FieldStartDate, leaverequest.FieldEndDate, leaverequest.FieldReviewedAt:
 			values[i] = new(sql.NullTime)
@@ -213,6 +215,12 @@ func (_m *LeaveRequest) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field status", values[i])
 			} else if value.Valid {
 				_m.Status = leaverequest.Status(value.String)
+			}
+		case leaverequest.FieldSigningRequestID:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field signing_request_id", values[i])
+			} else if value.Valid {
+				_m.SigningRequestID = value.String
 			}
 		case leaverequest.FieldReason:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -353,6 +361,9 @@ func (_m *LeaveRequest) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("status=")
 	builder.WriteString(fmt.Sprintf("%v", _m.Status))
+	builder.WriteString(", ")
+	builder.WriteString("signing_request_id=")
+	builder.WriteString(_m.SigningRequestID)
 	builder.WriteString(", ")
 	builder.WriteString("reason=")
 	builder.WriteString(_m.Reason)

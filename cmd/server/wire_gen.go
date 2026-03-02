@@ -9,7 +9,9 @@ package main
 import (
 	"github.com/go-kratos/kratos/v2"
 	"github.com/go-tangra/go-tangra-hr/internal/cert"
+	"github.com/go-tangra/go-tangra-hr/internal/client"
 	"github.com/go-tangra/go-tangra-hr/internal/data"
+	"github.com/go-tangra/go-tangra-hr/internal/event"
 	"github.com/go-tangra/go-tangra-hr/internal/server"
 	"github.com/go-tangra/go-tangra-hr/internal/service"
 	"github.com/tx7do/kratos-bootstrap/bootstrap"
@@ -32,12 +34,27 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 	systemService := service.NewSystemService(context, absenceTypeRepo, leaveRequestRepo)
 	absenceTypeService := service.NewAbsenceTypeService(context, absenceTypeRepo)
 	leaveAllowanceRepo := data.NewLeaveAllowanceRepo(context, entClient)
-	leaveService := service.NewLeaveService(context, leaveRequestRepo, leaveAllowanceRepo, absenceTypeRepo)
+	paperlessClient, cleanup2, err := client.NewPaperlessClient(context)
+	if err != nil {
+		cleanup()
+		return nil, nil, err
+	}
+	leaveService := service.NewLeaveService(context, leaveRequestRepo, leaveAllowanceRepo, absenceTypeRepo, paperlessClient)
 	allowanceService := service.NewAllowanceService(context, leaveAllowanceRepo, absenceTypeRepo)
 	grpcServer := server.NewGRPCServer(context, certManager, auditLogRepo, systemService, absenceTypeService, leaveService, allowanceService)
 	httpServer := server.NewHTTPServer(context)
-	app := newApp(context, grpcServer, httpServer)
+	redisClient, cleanup3, err := data.NewRedisClient(context)
+	if err != nil {
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
+	handler := event.NewHandler(context, leaveRequestRepo, leaveAllowanceRepo, absenceTypeRepo)
+	subscriber := event.NewSubscriber(context, redisClient, handler)
+	app := newApp(context, grpcServer, httpServer, subscriber)
 	return app, func() {
+		cleanup3()
+		cleanup2()
 		cleanup()
 	}, nil
 }

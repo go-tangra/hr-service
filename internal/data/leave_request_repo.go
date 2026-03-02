@@ -112,7 +112,7 @@ func (r *LeaveRequestRepo) CheckOverlap(ctx context.Context, tenantID uint32, us
 		Where(
 			leaverequest.TenantID(tenantID),
 			leaverequest.UserID(userID),
-			leaverequest.StatusIn(leaverequest.StatusPending, leaverequest.StatusApproved),
+			leaverequest.StatusIn(leaverequest.StatusPending, leaverequest.StatusApproved, leaverequest.StatusAwaitingSigning),
 			leaverequest.StartDateLT(endDate),
 			leaverequest.EndDateGT(startDate),
 		)
@@ -134,7 +134,7 @@ func (r *LeaveRequestRepo) GetCalendarEvents(ctx context.Context, tenantID uint3
 	query := r.entClient.Client().LeaveRequest.Query().
 		Where(
 			leaverequest.TenantID(tenantID),
-			leaverequest.StatusIn(leaverequest.StatusPending, leaverequest.StatusApproved),
+			leaverequest.StatusIn(leaverequest.StatusPending, leaverequest.StatusApproved, leaverequest.StatusAwaitingSigning),
 			leaverequest.StartDateLT(endDate),
 			leaverequest.EndDateGT(startDate),
 		).
@@ -216,6 +216,36 @@ func (r *LeaveRequestRepo) Delete(ctx context.Context, id string) error {
 		}
 		r.log.Errorf("delete leave request failed: %s", err.Error())
 		return hrV1.ErrorInternalServerError("delete leave request failed")
+	}
+	return nil
+}
+
+func (r *LeaveRequestRepo) GetBySigningRequestID(ctx context.Context, signingRequestID string) (*ent.LeaveRequest, error) {
+	entity, err := r.entClient.Client().LeaveRequest.Query().
+		Where(leaverequest.SigningRequestID(signingRequestID)).
+		WithAbsenceType().
+		Only(ctx)
+	if err != nil {
+		if ent.IsNotFound(err) {
+			return nil, nil
+		}
+		r.log.Errorf("get leave request by signing_request_id failed: %s", err.Error())
+		return nil, hrV1.ErrorInternalServerError("get leave request by signing_request_id failed")
+	}
+	return entity, nil
+}
+
+func (r *LeaveRequestRepo) SetSigningRequestID(ctx context.Context, id string, signingRequestID string) error {
+	err := r.entClient.Client().LeaveRequest.UpdateOneID(id).
+		SetSigningRequestID(signingRequestID).
+		SetUpdateTime(time.Now()).
+		Exec(ctx)
+	if err != nil {
+		if ent.IsNotFound(err) {
+			return hrV1.ErrorLeaveRequestNotFound("leave request not found")
+		}
+		r.log.Errorf("set signing_request_id failed: %s", err.Error())
+		return hrV1.ErrorInternalServerError("set signing_request_id failed")
 	}
 	return nil
 }

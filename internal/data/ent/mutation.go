@@ -5169,6 +5169,7 @@ type LeaveRequestMutation struct {
 	days                *float64
 	adddays             *float64
 	status              *leaverequest.Status
+	signing_request_id  *string
 	reason              *string
 	review_notes        *string
 	reviewed_by         *uint32
@@ -6000,6 +6001,55 @@ func (m *LeaveRequestMutation) ResetStatus() {
 	m.status = nil
 }
 
+// SetSigningRequestID sets the "signing_request_id" field.
+func (m *LeaveRequestMutation) SetSigningRequestID(s string) {
+	m.signing_request_id = &s
+}
+
+// SigningRequestID returns the value of the "signing_request_id" field in the mutation.
+func (m *LeaveRequestMutation) SigningRequestID() (r string, exists bool) {
+	v := m.signing_request_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldSigningRequestID returns the old "signing_request_id" field's value of the LeaveRequest entity.
+// If the LeaveRequest object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *LeaveRequestMutation) OldSigningRequestID(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldSigningRequestID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldSigningRequestID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldSigningRequestID: %w", err)
+	}
+	return oldValue.SigningRequestID, nil
+}
+
+// ClearSigningRequestID clears the value of the "signing_request_id" field.
+func (m *LeaveRequestMutation) ClearSigningRequestID() {
+	m.signing_request_id = nil
+	m.clearedFields[leaverequest.FieldSigningRequestID] = struct{}{}
+}
+
+// SigningRequestIDCleared returns if the "signing_request_id" field was cleared in this mutation.
+func (m *LeaveRequestMutation) SigningRequestIDCleared() bool {
+	_, ok := m.clearedFields[leaverequest.FieldSigningRequestID]
+	return ok
+}
+
+// ResetSigningRequestID resets all changes to the "signing_request_id" field.
+func (m *LeaveRequestMutation) ResetSigningRequestID() {
+	m.signing_request_id = nil
+	delete(m.clearedFields, leaverequest.FieldSigningRequestID)
+}
+
 // SetReason sets the "reason" field.
 func (m *LeaveRequestMutation) SetReason(s string) {
 	m.reason = &s
@@ -6425,7 +6475,7 @@ func (m *LeaveRequestMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *LeaveRequestMutation) Fields() []string {
-	fields := make([]string, 0, 21)
+	fields := make([]string, 0, 22)
 	if m.create_by != nil {
 		fields = append(fields, leaverequest.FieldCreateBy)
 	}
@@ -6467,6 +6517,9 @@ func (m *LeaveRequestMutation) Fields() []string {
 	}
 	if m.status != nil {
 		fields = append(fields, leaverequest.FieldStatus)
+	}
+	if m.signing_request_id != nil {
+		fields = append(fields, leaverequest.FieldSigningRequestID)
 	}
 	if m.reason != nil {
 		fields = append(fields, leaverequest.FieldReason)
@@ -6525,6 +6578,8 @@ func (m *LeaveRequestMutation) Field(name string) (ent.Value, bool) {
 		return m.Days()
 	case leaverequest.FieldStatus:
 		return m.Status()
+	case leaverequest.FieldSigningRequestID:
+		return m.SigningRequestID()
 	case leaverequest.FieldReason:
 		return m.Reason()
 	case leaverequest.FieldReviewNotes:
@@ -6576,6 +6631,8 @@ func (m *LeaveRequestMutation) OldField(ctx context.Context, name string) (ent.V
 		return m.OldDays(ctx)
 	case leaverequest.FieldStatus:
 		return m.OldStatus(ctx)
+	case leaverequest.FieldSigningRequestID:
+		return m.OldSigningRequestID(ctx)
 	case leaverequest.FieldReason:
 		return m.OldReason(ctx)
 	case leaverequest.FieldReviewNotes:
@@ -6696,6 +6753,13 @@ func (m *LeaveRequestMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetStatus(v)
+		return nil
+	case leaverequest.FieldSigningRequestID:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetSigningRequestID(v)
 		return nil
 	case leaverequest.FieldReason:
 		v, ok := value.(string)
@@ -6875,6 +6939,9 @@ func (m *LeaveRequestMutation) ClearedFields() []string {
 	if m.FieldCleared(leaverequest.FieldOrgUnitName) {
 		fields = append(fields, leaverequest.FieldOrgUnitName)
 	}
+	if m.FieldCleared(leaverequest.FieldSigningRequestID) {
+		fields = append(fields, leaverequest.FieldSigningRequestID)
+	}
 	if m.FieldCleared(leaverequest.FieldReason) {
 		fields = append(fields, leaverequest.FieldReason)
 	}
@@ -6933,6 +7000,9 @@ func (m *LeaveRequestMutation) ClearField(name string) error {
 		return nil
 	case leaverequest.FieldOrgUnitName:
 		m.ClearOrgUnitName()
+		return nil
+	case leaverequest.FieldSigningRequestID:
+		m.ClearSigningRequestID()
 		return nil
 	case leaverequest.FieldReason:
 		m.ClearReason()
@@ -7004,6 +7074,9 @@ func (m *LeaveRequestMutation) ResetField(name string) error {
 		return nil
 	case leaverequest.FieldStatus:
 		m.ResetStatus()
+		return nil
+	case leaverequest.FieldSigningRequestID:
+		m.ResetSigningRequestID()
 		return nil
 	case leaverequest.FieldReason:
 		m.ResetReason()

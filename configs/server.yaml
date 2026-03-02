@@ -8,3 +8,10 @@ server:
       enable_tracing: false
       enable_validate: true
       enable_metadata: true
+
+hr:
+  events:
+    enabled: true
+    topic_prefix: "paperless"
+    subscribe_events:
+      - "signing.request.completed"

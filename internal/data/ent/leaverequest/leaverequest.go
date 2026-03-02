@@ -43,6 +43,8 @@ const (
 	FieldDays = "days"
 	// FieldStatus holds the string denoting the status field in the database.
 	FieldStatus = "status"
+	// FieldSigningRequestID holds the string denoting the signing_request_id field in the database.
+	FieldSigningRequestID = "signing_request_id"
 	// FieldReason holds the string denoting the reason field in the database.
 	FieldReason = "reason"
 	// FieldReviewNotes holds the string denoting the review_notes field in the database.
@@ -87,6 +89,7 @@ var Columns = []string{
 	FieldEndDate,
 	FieldDays,
 	FieldStatus,
+	FieldSigningRequestID,
 	FieldReason,
 	FieldReviewNotes,
 	FieldReviewedBy,
@@ -122,6 +125,8 @@ var (
 	DefaultOrgUnitName string
 	// AbsenceTypeIDValidator is a validator for the "absence_type_id" field. It is called by the builders before save.
 	AbsenceTypeIDValidator func(string) error
+	// DefaultSigningRequestID holds the default value on creation for the "signing_request_id" field.
+	DefaultSigningRequestID string
 	// DefaultReviewedBy holds the default value on creation for the "reviewed_by" field.
 	DefaultReviewedBy uint32
 	// DefaultReviewerName holds the default value on creation for the "reviewer_name" field.
@@ -138,10 +143,11 @@ const DefaultStatus = StatusPending
 
 // Status values.
 const (
-	StatusPending   Status = "pending"
-	StatusApproved  Status = "approved"
-	StatusRejected  Status = "rejected"
-	StatusCancelled Status = "cancelled"
+	StatusPending         Status = "pending"
+	StatusApproved        Status = "approved"
+	StatusRejected        Status = "rejected"
+	StatusCancelled       Status = "cancelled"
+	StatusAwaitingSigning Status = "awaiting_signing"
 )
 
 func (s Status) String() string {
@@ -151,7 +157,7 @@ func (s Status) String() string {
 // StatusValidator is a validator for the "status" field enum values. It is called by the builders before save.
 func StatusValidator(s Status) error {
 	switch s {
-	case StatusPending, StatusApproved, StatusRejected, StatusCancelled:
+	case StatusPending, StatusApproved, StatusRejected, StatusCancelled, StatusAwaitingSigning:
 		return nil
 	default:
 		return fmt.Errorf("leaverequest: invalid enum value for status field: %q", s)
@@ -234,6 +240,11 @@ func ByDays(opts ...sql.OrderTermOption) OrderOption {
 // ByStatus orders the results by the status field.
 func ByStatus(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldStatus, opts...).ToFunc()
+}
+
+// BySigningRequestID orders the results by the signing_request_id field.
+func BySigningRequestID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldSigningRequestID, opts...).ToFunc()
 }
 
 // ByReason orders the results by the reason field.

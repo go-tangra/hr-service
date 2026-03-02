@@ -77,6 +77,7 @@ function statusColor(status?: string): string {
     case 'LEAVE_REQUEST_STATUS_REJECTED': return 'red';
     case 'LEAVE_REQUEST_STATUS_CANCELLED': return 'default';
     case 'LEAVE_REQUEST_STATUS_PENDING': return 'orange';
+    case 'LEAVE_REQUEST_STATUS_AWAITING_SIGNING': return 'blue';
     default: return 'default';
   }
 }
@@ -87,6 +88,7 @@ function statusLabel(status?: string): string {
     case 'LEAVE_REQUEST_STATUS_REJECTED': return $t('hr.enum.leaveRequestStatus.rejected');
     case 'LEAVE_REQUEST_STATUS_CANCELLED': return $t('hr.enum.leaveRequestStatus.cancelled');
     case 'LEAVE_REQUEST_STATUS_PENDING': return $t('hr.enum.leaveRequestStatus.pending');
+    case 'LEAVE_REQUEST_STATUS_AWAITING_SIGNING': return $t('hr.enum.leaveRequestStatus.awaitingSigning');
     default: return '';
   }
 }

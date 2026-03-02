@@ -20,7 +20,8 @@ export type LeaveRequestStatus =
   | 'LEAVE_REQUEST_STATUS_PENDING'
   | 'LEAVE_REQUEST_STATUS_APPROVED'
   | 'LEAVE_REQUEST_STATUS_REJECTED'
-  | 'LEAVE_REQUEST_STATUS_CANCELLED';
+  | 'LEAVE_REQUEST_STATUS_CANCELLED'
+  | 'LEAVE_REQUEST_STATUS_AWAITING_SIGNING';
 
 // ==================== Entity Types ====================
 
@@ -63,6 +64,7 @@ export interface LeaveRequest {
   absenceTypeName?: string;
   absenceTypeColor?: string;
   reviewerName?: string;
+  signingRequestId?: string;
   orgUnitName?: string;
   createdAt?: string;
   updatedAt?: string;
@@ -311,7 +313,12 @@ export const LeaveService = {
 
   approve: async (
     id: string,
-    data?: { reviewNotes?: string },
+    data?: {
+      reviewNotes?: string;
+      approverEmail?: string;
+      approverName?: string;
+      requesterEmail?: string;
+    },
     options?: RequestOptions,
   ): Promise<{ leaveRequest: LeaveRequest }> => {
     return hrApi.post<{ leaveRequest: LeaveRequest }>(

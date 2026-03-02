@@ -130,6 +130,11 @@ func Days(v float64) predicate.LeaveRequest {
 	return predicate.LeaveRequest(sql.FieldEQ(FieldDays, v))
 }
 
+// SigningRequestID applies equality check predicate on the "signing_request_id" field. It's identical to SigningRequestIDEQ.
+func SigningRequestID(v string) predicate.LeaveRequest {
+	return predicate.LeaveRequest(sql.FieldEQ(FieldSigningRequestID, v))
+}
+
 // Reason applies equality check predicate on the "reason" field. It's identical to ReasonEQ.
 func Reason(v string) predicate.LeaveRequest {
 	return predicate.LeaveRequest(sql.FieldEQ(FieldReason, v))
@@ -853,6 +858,81 @@ func StatusIn(vs ...Status) predicate.LeaveRequest {
 // StatusNotIn applies the NotIn predicate on the "status" field.
 func StatusNotIn(vs ...Status) predicate.LeaveRequest {
 	return predicate.LeaveRequest(sql.FieldNotIn(FieldStatus, vs...))
+}
+
+// SigningRequestIDEQ applies the EQ predicate on the "signing_request_id" field.
+func SigningRequestIDEQ(v string) predicate.LeaveRequest {
+	return predicate.LeaveRequest(sql.FieldEQ(FieldSigningRequestID, v))
+}
+
+// SigningRequestIDNEQ applies the NEQ predicate on the "signing_request_id" field.
+func SigningRequestIDNEQ(v string) predicate.LeaveRequest {
+	return predicate.LeaveRequest(sql.FieldNEQ(FieldSigningRequestID, v))
+}
+
+// SigningRequestIDIn applies the In predicate on the "signing_request_id" field.
+func SigningRequestIDIn(vs ...string) predicate.LeaveRequest {
+	return predicate.LeaveRequest(sql.FieldIn(FieldSigningRequestID, vs...))
+}
+
+// SigningRequestIDNotIn applies the NotIn predicate on the "signing_request_id" field.
+func SigningRequestIDNotIn(vs ...string) predicate.LeaveRequest {
+	return predicate.LeaveRequest(sql.FieldNotIn(FieldSigningRequestID, vs...))
+}
+
+// SigningRequestIDGT applies the GT predicate on the "signing_request_id" field.
+func SigningRequestIDGT(v string) predicate.LeaveRequest {
+	return predicate.LeaveRequest(sql.FieldGT(FieldSigningRequestID, v))
+}
+
+// SigningRequestIDGTE applies the GTE predicate on the "signing_request_id" field.
+func SigningRequestIDGTE(v string) predicate.LeaveRequest {
+	return predicate.LeaveRequest(sql.FieldGTE(FieldSigningRequestID, v))
+}
+
+// SigningRequestIDLT applies the LT predicate on the "signing_request_id" field.
+func SigningRequestIDLT(v string) predicate.LeaveRequest {
+	return predicate.LeaveRequest(sql.FieldLT(FieldSigningRequestID, v))
+}
+
+// SigningRequestIDLTE applies the LTE predicate on the "signing_request_id" field.
+func SigningRequestIDLTE(v string) predicate.LeaveRequest {
+	return predicate.LeaveRequest(sql.FieldLTE(FieldSigningRequestID, v))
+}
+
+// SigningRequestIDContains applies the Contains predicate on the "signing_request_id" field.
+func SigningRequestIDContains(v string) predicate.LeaveRequest {
+	return predicate.LeaveRequest(sql.FieldContains(FieldSigningRequestID, v))
+}
+
+// SigningRequestIDHasPrefix applies the HasPrefix predicate on the "signing_request_id" field.
+func SigningRequestIDHasPrefix(v string) predicate.LeaveRequest {
+	return predicate.LeaveRequest(sql.FieldHasPrefix(FieldSigningRequestID, v))
+}
+
+// SigningRequestIDHasSuffix applies the HasSuffix predicate on the "signing_request_id" field.
+func SigningRequestIDHasSuffix(v string) predicate.LeaveRequest {
+	return predicate.LeaveRequest(sql.FieldHasSuffix(FieldSigningRequestID, v))
+}
+
+// SigningRequestIDIsNil applies the IsNil predicate on the "signing_request_id" field.
+func SigningRequestIDIsNil() predicate.LeaveRequest {
+	return predicate.LeaveRequest(sql.FieldIsNull(FieldSigningRequestID))
+}
+
+// SigningRequestIDNotNil applies the NotNil predicate on the "signing_request_id" field.
+func SigningRequestIDNotNil() predicate.LeaveRequest {
+	return predicate.LeaveRequest(sql.FieldNotNull(FieldSigningRequestID))
+}
+
+// SigningRequestIDEqualFold applies the EqualFold predicate on the "signing_request_id" field.
+func SigningRequestIDEqualFold(v string) predicate.LeaveRequest {
+	return predicate.LeaveRequest(sql.FieldEqualFold(FieldSigningRequestID, v))
+}
+
+// SigningRequestIDContainsFold applies the ContainsFold predicate on the "signing_request_id" field.
+func SigningRequestIDContainsFold(v string) predicate.LeaveRequest {
+	return predicate.LeaveRequest(sql.FieldContainsFold(FieldSigningRequestID, v))
 }
 
 // ReasonEQ applies the EQ predicate on the "reason" field.

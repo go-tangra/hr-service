@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/go-kratos/kratos/v2"
+	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-kratos/kratos/v2/transport/grpc"
 	kratosHttp "github.com/go-kratos/kratos/v2/transport/http"
 
@@ -14,6 +15,8 @@ import (
 	"github.com/go-tangra/go-tangra-common/registration"
 	pkgService "github.com/go-tangra/go-tangra-common/service"
 	"github.com/go-tangra/go-tangra-hr/cmd/server/assets"
+	hrCnf "github.com/go-tangra/go-tangra-hr/internal/conf"
+	"github.com/go-tangra/go-tangra-hr/internal/event"
 )
 
 var (
@@ -26,12 +29,22 @@ var (
 
 // Global references for cleanup
 var globalRegHelper *registration.RegistrationHelper
+var globalEventSubscriber *event.Subscriber
 
 func newApp(
 	ctx *bootstrap.Context,
 	gs *grpc.Server,
 	hs *kratosHttp.Server,
+	eventSubscriber *event.Subscriber,
 ) *kratos.App {
+	// Start the event subscriber and store reference for cleanup
+	globalEventSubscriber = eventSubscriber
+	if eventSubscriber != nil {
+		if err := eventSubscriber.Start(); err != nil {
+			log.Warnf("Failed to start event subscriber: %v", err)
+		}
+	}
+
 	globalRegHelper = registration.StartRegistration(ctx, ctx.GetLogger(), &registration.Config{
 		ModuleID:          moduleID,
 		ModuleName:        moduleName,
@@ -52,6 +65,15 @@ func newApp(
 	return bootstrap.NewApp(ctx, gs, hs)
 }
 
+// stopServices stops background services
+func stopServices() {
+	if globalEventSubscriber != nil {
+		if err := globalEventSubscriber.Stop(); err != nil {
+			log.Warnf("Failed to stop event subscriber: %v", err)
+		}
+	}
+}
+
 func runApp() error {
 	ctx := bootstrap.NewContext(
 		context.Background(),
@@ -61,7 +83,9 @@ func runApp() error {
 			Version: version,
 		},
 	)
+	ctx.RegisterCustomConfig("hr", &hrCnf.HR{})
 
+	defer stopServices()
 	defer globalRegHelper.Stop()
 
 	return bootstrap.RunApp(ctx, initApp)

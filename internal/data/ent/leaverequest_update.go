@@ -262,6 +262,26 @@ func (_u *LeaveRequestUpdate) SetNillableStatus(v *leaverequest.Status) *LeaveRe
 	return _u
 }
 
+// SetSigningRequestID sets the "signing_request_id" field.
+func (_u *LeaveRequestUpdate) SetSigningRequestID(v string) *LeaveRequestUpdate {
+	_u.mutation.SetSigningRequestID(v)
+	return _u
+}
+
+// SetNillableSigningRequestID sets the "signing_request_id" field if the given value is not nil.
+func (_u *LeaveRequestUpdate) SetNillableSigningRequestID(v *string) *LeaveRequestUpdate {
+	if v != nil {
+		_u.SetSigningRequestID(*v)
+	}
+	return _u
+}
+
+// ClearSigningRequestID clears the value of the "signing_request_id" field.
+func (_u *LeaveRequestUpdate) ClearSigningRequestID() *LeaveRequestUpdate {
+	_u.mutation.ClearSigningRequestID()
+	return _u
+}
+
 // SetReason sets the "reason" field.
 func (_u *LeaveRequestUpdate) SetReason(v string) *LeaveRequestUpdate {
 	_u.mutation.SetReason(v)
@@ -548,6 +568,12 @@ func (_u *LeaveRequestUpdate) sqlSave(ctx context.Context) (_node int, err error
 	}
 	if value, ok := _u.mutation.Status(); ok {
 		_spec.SetField(leaverequest.FieldStatus, field.TypeEnum, value)
+	}
+	if value, ok := _u.mutation.SigningRequestID(); ok {
+		_spec.SetField(leaverequest.FieldSigningRequestID, field.TypeString, value)
+	}
+	if _u.mutation.SigningRequestIDCleared() {
+		_spec.ClearField(leaverequest.FieldSigningRequestID, field.TypeString)
 	}
 	if value, ok := _u.mutation.Reason(); ok {
 		_spec.SetField(leaverequest.FieldReason, field.TypeString, value)
@@ -877,6 +903,26 @@ func (_u *LeaveRequestUpdateOne) SetNillableStatus(v *leaverequest.Status) *Leav
 	return _u
 }
 
+// SetSigningRequestID sets the "signing_request_id" field.
+func (_u *LeaveRequestUpdateOne) SetSigningRequestID(v string) *LeaveRequestUpdateOne {
+	_u.mutation.SetSigningRequestID(v)
+	return _u
+}
+
+// SetNillableSigningRequestID sets the "signing_request_id" field if the given value is not nil.
+func (_u *LeaveRequestUpdateOne) SetNillableSigningRequestID(v *string) *LeaveRequestUpdateOne {
+	if v != nil {
+		_u.SetSigningRequestID(*v)
+	}
+	return _u
+}
+
+// ClearSigningRequestID clears the value of the "signing_request_id" field.
+func (_u *LeaveRequestUpdateOne) ClearSigningRequestID() *LeaveRequestUpdateOne {
+	_u.mutation.ClearSigningRequestID()
+	return _u
+}
+
 // SetReason sets the "reason" field.
 func (_u *LeaveRequestUpdateOne) SetReason(v string) *LeaveRequestUpdateOne {
 	_u.mutation.SetReason(v)
@@ -1193,6 +1239,12 @@ func (_u *LeaveRequestUpdateOne) sqlSave(ctx context.Context) (_node *LeaveReque
 	}
 	if value, ok := _u.mutation.Status(); ok {
 		_spec.SetField(leaverequest.FieldStatus, field.TypeEnum, value)
+	}
+	if value, ok := _u.mutation.SigningRequestID(); ok {
+		_spec.SetField(leaverequest.FieldSigningRequestID, field.TypeString, value)
+	}
+	if _u.mutation.SigningRequestIDCleared() {
+		_spec.ClearField(leaverequest.FieldSigningRequestID, field.TypeString)
 	}
 	if value, ok := _u.mutation.Reason(); ok {
 		_spec.SetField(leaverequest.FieldReason, field.TypeString, value)

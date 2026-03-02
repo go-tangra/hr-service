@@ -180,6 +180,20 @@ func (_c *LeaveRequestCreate) SetNillableStatus(v *leaverequest.Status) *LeaveRe
 	return _c
 }
 
+// SetSigningRequestID sets the "signing_request_id" field.
+func (_c *LeaveRequestCreate) SetSigningRequestID(v string) *LeaveRequestCreate {
+	_c.mutation.SetSigningRequestID(v)
+	return _c
+}
+
+// SetNillableSigningRequestID sets the "signing_request_id" field if the given value is not nil.
+func (_c *LeaveRequestCreate) SetNillableSigningRequestID(v *string) *LeaveRequestCreate {
+	if v != nil {
+		_c.SetSigningRequestID(*v)
+	}
+	return _c
+}
+
 // SetReason sets the "reason" field.
 func (_c *LeaveRequestCreate) SetReason(v string) *LeaveRequestCreate {
 	_c.mutation.SetReason(v)
@@ -334,6 +348,10 @@ func (_c *LeaveRequestCreate) defaults() error {
 		v := leaverequest.DefaultStatus
 		_c.mutation.SetStatus(v)
 	}
+	if _, ok := _c.mutation.SigningRequestID(); !ok {
+		v := leaverequest.DefaultSigningRequestID
+		_c.mutation.SetSigningRequestID(v)
+	}
 	if _, ok := _c.mutation.ReviewedBy(); !ok {
 		v := leaverequest.DefaultReviewedBy
 		_c.mutation.SetReviewedBy(v)
@@ -470,6 +488,10 @@ func (_c *LeaveRequestCreate) createSpec() (*LeaveRequest, *sqlgraph.CreateSpec)
 	if value, ok := _c.mutation.Status(); ok {
 		_spec.SetField(leaverequest.FieldStatus, field.TypeEnum, value)
 		_node.Status = value
+	}
+	if value, ok := _c.mutation.SigningRequestID(); ok {
+		_spec.SetField(leaverequest.FieldSigningRequestID, field.TypeString, value)
+		_node.SigningRequestID = value
 	}
 	if value, ok := _c.mutation.Reason(); ok {
 		_spec.SetField(leaverequest.FieldReason, field.TypeString, value)
@@ -769,6 +791,24 @@ func (u *LeaveRequestUpsert) SetStatus(v leaverequest.Status) *LeaveRequestUpser
 // UpdateStatus sets the "status" field to the value that was provided on create.
 func (u *LeaveRequestUpsert) UpdateStatus() *LeaveRequestUpsert {
 	u.SetExcluded(leaverequest.FieldStatus)
+	return u
+}
+
+// SetSigningRequestID sets the "signing_request_id" field.
+func (u *LeaveRequestUpsert) SetSigningRequestID(v string) *LeaveRequestUpsert {
+	u.Set(leaverequest.FieldSigningRequestID, v)
+	return u
+}
+
+// UpdateSigningRequestID sets the "signing_request_id" field to the value that was provided on create.
+func (u *LeaveRequestUpsert) UpdateSigningRequestID() *LeaveRequestUpsert {
+	u.SetExcluded(leaverequest.FieldSigningRequestID)
+	return u
+}
+
+// ClearSigningRequestID clears the value of the "signing_request_id" field.
+func (u *LeaveRequestUpsert) ClearSigningRequestID() *LeaveRequestUpsert {
+	u.SetNull(leaverequest.FieldSigningRequestID)
 	return u
 }
 
@@ -1193,6 +1233,27 @@ func (u *LeaveRequestUpsertOne) SetStatus(v leaverequest.Status) *LeaveRequestUp
 func (u *LeaveRequestUpsertOne) UpdateStatus() *LeaveRequestUpsertOne {
 	return u.Update(func(s *LeaveRequestUpsert) {
 		s.UpdateStatus()
+	})
+}
+
+// SetSigningRequestID sets the "signing_request_id" field.
+func (u *LeaveRequestUpsertOne) SetSigningRequestID(v string) *LeaveRequestUpsertOne {
+	return u.Update(func(s *LeaveRequestUpsert) {
+		s.SetSigningRequestID(v)
+	})
+}
+
+// UpdateSigningRequestID sets the "signing_request_id" field to the value that was provided on create.
+func (u *LeaveRequestUpsertOne) UpdateSigningRequestID() *LeaveRequestUpsertOne {
+	return u.Update(func(s *LeaveRequestUpsert) {
+		s.UpdateSigningRequestID()
+	})
+}
+
+// ClearSigningRequestID clears the value of the "signing_request_id" field.
+func (u *LeaveRequestUpsertOne) ClearSigningRequestID() *LeaveRequestUpsertOne {
+	return u.Update(func(s *LeaveRequestUpsert) {
+		s.ClearSigningRequestID()
 	})
 }
 
@@ -1806,6 +1867,27 @@ func (u *LeaveRequestUpsertBulk) SetStatus(v leaverequest.Status) *LeaveRequestU
 func (u *LeaveRequestUpsertBulk) UpdateStatus() *LeaveRequestUpsertBulk {
 	return u.Update(func(s *LeaveRequestUpsert) {
 		s.UpdateStatus()
+	})
+}
+
+// SetSigningRequestID sets the "signing_request_id" field.
+func (u *LeaveRequestUpsertBulk) SetSigningRequestID(v string) *LeaveRequestUpsertBulk {
+	return u.Update(func(s *LeaveRequestUpsert) {
+		s.SetSigningRequestID(v)
+	})
+}
+
+// UpdateSigningRequestID sets the "signing_request_id" field to the value that was provided on create.
+func (u *LeaveRequestUpsertBulk) UpdateSigningRequestID() *LeaveRequestUpsertBulk {
+	return u.Update(func(s *LeaveRequestUpsert) {
+		s.UpdateSigningRequestID()
+	})
+}
+
+// ClearSigningRequestID clears the value of the "signing_request_id" field.
+func (u *LeaveRequestUpsertBulk) ClearSigningRequestID() *LeaveRequestUpsertBulk {
+	return u.Update(func(s *LeaveRequestUpsert) {
+		s.ClearSigningRequestID()
 	})
 }
 

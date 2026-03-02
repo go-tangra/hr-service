@@ -24,6 +24,7 @@ function statusColor(status?: string): string {
     case 'LEAVE_REQUEST_STATUS_REJECTED': return 'red';
     case 'LEAVE_REQUEST_STATUS_CANCELLED': return 'default';
     case 'LEAVE_REQUEST_STATUS_PENDING': return 'orange';
+    case 'LEAVE_REQUEST_STATUS_AWAITING_SIGNING': return 'blue';
     default: return 'default';
   }
 }
@@ -34,6 +35,7 @@ function statusLabel(status?: string): string {
     case 'LEAVE_REQUEST_STATUS_REJECTED': return $t('hr.enum.leaveRequestStatus.rejected');
     case 'LEAVE_REQUEST_STATUS_CANCELLED': return $t('hr.enum.leaveRequestStatus.cancelled');
     case 'LEAVE_REQUEST_STATUS_PENDING': return $t('hr.enum.leaveRequestStatus.pending');
+    case 'LEAVE_REQUEST_STATUS_AWAITING_SIGNING': return $t('hr.enum.leaveRequestStatus.awaitingSigning');
     default: return '';
   }
 }
@@ -55,6 +57,7 @@ const formOptions: VbenFormProps = {
           { label: $t('hr.enum.leaveRequestStatus.approved'), value: 'LEAVE_REQUEST_STATUS_APPROVED' },
           { label: $t('hr.enum.leaveRequestStatus.rejected'), value: 'LEAVE_REQUEST_STATUS_REJECTED' },
           { label: $t('hr.enum.leaveRequestStatus.cancelled'), value: 'LEAVE_REQUEST_STATUS_CANCELLED' },
+          { label: $t('hr.enum.leaveRequestStatus.awaitingSigning'), value: 'LEAVE_REQUEST_STATUS_AWAITING_SIGNING' },
         ],
       },
     },
@@ -177,12 +180,12 @@ function handleCreate() {
 }
 
 function handleApprove(row: LeaveRequest) {
-  reviewModalApi.setData({ action: 'approve', requestId: row.id });
+  reviewModalApi.setData({ action: 'approve', requestId: row.id, row });
   reviewModalApi.open();
 }
 
 function handleReject(row: LeaveRequest) {
-  reviewModalApi.setData({ action: 'reject', requestId: row.id });
+  reviewModalApi.setData({ action: 'reject', requestId: row.id, row });
   reviewModalApi.open();
 }
 

@@ -245,6 +245,10 @@ func (m *LeaveRequest) validate(all bool) error {
 		// no validation rules for OrgUnitName
 	}
 
+	if m.SigningRequestId != nil {
+		// no validation rules for SigningRequestId
+	}
+
 	if m.CreatedAt != nil {
 
 		if all {
@@ -1700,6 +1704,18 @@ func (m *ApproveLeaveRequestRequest) validate(all bool) error {
 
 	if m.ReviewNotes != nil {
 		// no validation rules for ReviewNotes
+	}
+
+	if m.ApproverEmail != nil {
+		// no validation rules for ApproverEmail
+	}
+
+	if m.ApproverName != nil {
+		// no validation rules for ApproverName
+	}
+
+	if m.RequesterEmail != nil {
+		// no validation rules for RequesterEmail
 	}
 
 	if len(errors) > 0 {

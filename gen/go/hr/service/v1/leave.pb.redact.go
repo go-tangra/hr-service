@@ -193,6 +193,8 @@ func (x *LeaveRequest) Redact() string {
 
 	// Safe field: OrgUnitName
 
+	// Safe field: SigningRequestId
+
 	// Safe field: CreatedAt
 
 	// Safe field: UpdatedAt
@@ -346,6 +348,12 @@ func (x *ApproveLeaveRequestRequest) Redact() string {
 	// Safe field: Id
 
 	// Safe field: ReviewNotes
+
+	// Safe field: ApproverEmail
+
+	// Safe field: ApproverName
+
+	// Safe field: RequesterEmail
 	return x.String()
 }
 

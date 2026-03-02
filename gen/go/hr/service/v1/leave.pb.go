@@ -31,11 +31,12 @@ const (
 type LeaveRequestStatus int32
 
 const (
-	LeaveRequestStatus_LEAVE_REQUEST_STATUS_UNSPECIFIED LeaveRequestStatus = 0
-	LeaveRequestStatus_LEAVE_REQUEST_STATUS_PENDING     LeaveRequestStatus = 1
-	LeaveRequestStatus_LEAVE_REQUEST_STATUS_APPROVED    LeaveRequestStatus = 2
-	LeaveRequestStatus_LEAVE_REQUEST_STATUS_REJECTED    LeaveRequestStatus = 3
-	LeaveRequestStatus_LEAVE_REQUEST_STATUS_CANCELLED   LeaveRequestStatus = 4
+	LeaveRequestStatus_LEAVE_REQUEST_STATUS_UNSPECIFIED      LeaveRequestStatus = 0
+	LeaveRequestStatus_LEAVE_REQUEST_STATUS_PENDING          LeaveRequestStatus = 1
+	LeaveRequestStatus_LEAVE_REQUEST_STATUS_APPROVED         LeaveRequestStatus = 2
+	LeaveRequestStatus_LEAVE_REQUEST_STATUS_REJECTED         LeaveRequestStatus = 3
+	LeaveRequestStatus_LEAVE_REQUEST_STATUS_CANCELLED        LeaveRequestStatus = 4
+	LeaveRequestStatus_LEAVE_REQUEST_STATUS_AWAITING_SIGNING LeaveRequestStatus = 5
 )
 
 // Enum value maps for LeaveRequestStatus.
@@ -46,13 +47,15 @@ var (
 		2: "LEAVE_REQUEST_STATUS_APPROVED",
 		3: "LEAVE_REQUEST_STATUS_REJECTED",
 		4: "LEAVE_REQUEST_STATUS_CANCELLED",
+		5: "LEAVE_REQUEST_STATUS_AWAITING_SIGNING",
 	}
 	LeaveRequestStatus_value = map[string]int32{
-		"LEAVE_REQUEST_STATUS_UNSPECIFIED": 0,
-		"LEAVE_REQUEST_STATUS_PENDING":     1,
-		"LEAVE_REQUEST_STATUS_APPROVED":    2,
-		"LEAVE_REQUEST_STATUS_REJECTED":    3,
-		"LEAVE_REQUEST_STATUS_CANCELLED":   4,
+		"LEAVE_REQUEST_STATUS_UNSPECIFIED":      0,
+		"LEAVE_REQUEST_STATUS_PENDING":          1,
+		"LEAVE_REQUEST_STATUS_APPROVED":         2,
+		"LEAVE_REQUEST_STATUS_REJECTED":         3,
+		"LEAVE_REQUEST_STATUS_CANCELLED":        4,
+		"LEAVE_REQUEST_STATUS_AWAITING_SIGNING": 5,
 	}
 )
 
@@ -106,6 +109,7 @@ type LeaveRequest struct {
 	AbsenceTypeColor *string                `protobuf:"bytes,32,opt,name=absence_type_color,json=absenceTypeColor,proto3,oneof" json:"absence_type_color,omitempty"`
 	ReviewerName     *string                `protobuf:"bytes,33,opt,name=reviewer_name,json=reviewerName,proto3,oneof" json:"reviewer_name,omitempty"`
 	OrgUnitName      *string                `protobuf:"bytes,34,opt,name=org_unit_name,json=orgUnitName,proto3,oneof" json:"org_unit_name,omitempty"`
+	SigningRequestId *string                `protobuf:"bytes,35,opt,name=signing_request_id,json=signingRequestId,proto3,oneof" json:"signing_request_id,omitempty"`
 	CreatedAt        *timestamppb.Timestamp `protobuf:"bytes,20,opt,name=created_at,json=createdAt,proto3,oneof" json:"created_at,omitempty"`
 	UpdatedAt        *timestamppb.Timestamp `protobuf:"bytes,21,opt,name=updated_at,json=updatedAt,proto3,oneof" json:"updated_at,omitempty"`
 	CreatedBy        *uint32                `protobuf:"varint,22,opt,name=created_by,json=createdBy,proto3,oneof" json:"created_by,omitempty"`
@@ -273,6 +277,13 @@ func (x *LeaveRequest) GetReviewerName() string {
 func (x *LeaveRequest) GetOrgUnitName() string {
 	if x != nil && x.OrgUnitName != nil {
 		return *x.OrgUnitName
+	}
+	return ""
+}
+
+func (x *LeaveRequest) GetSigningRequestId() string {
+	if x != nil && x.SigningRequestId != nil {
+		return *x.SigningRequestId
 	}
 	return ""
 }
@@ -880,11 +891,14 @@ func (x *DeleteLeaveRequestRequest) GetId() string {
 
 // ApproveLeaveRequestRequest approves a pending leave request
 type ApproveLeaveRequestRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	ReviewNotes   *string                `protobuf:"bytes,2,opt,name=review_notes,json=reviewNotes,proto3,oneof" json:"review_notes,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	Id             string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	ReviewNotes    *string                `protobuf:"bytes,2,opt,name=review_notes,json=reviewNotes,proto3,oneof" json:"review_notes,omitempty"`
+	ApproverEmail  *string                `protobuf:"bytes,3,opt,name=approver_email,json=approverEmail,proto3,oneof" json:"approver_email,omitempty"`
+	ApproverName   *string                `protobuf:"bytes,4,opt,name=approver_name,json=approverName,proto3,oneof" json:"approver_name,omitempty"`
+	RequesterEmail *string                `protobuf:"bytes,5,opt,name=requester_email,json=requesterEmail,proto3,oneof" json:"requester_email,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
 }
 
 func (x *ApproveLeaveRequestRequest) Reset() {
@@ -927,6 +941,27 @@ func (x *ApproveLeaveRequestRequest) GetId() string {
 func (x *ApproveLeaveRequestRequest) GetReviewNotes() string {
 	if x != nil && x.ReviewNotes != nil {
 		return *x.ReviewNotes
+	}
+	return ""
+}
+
+func (x *ApproveLeaveRequestRequest) GetApproverEmail() string {
+	if x != nil && x.ApproverEmail != nil {
+		return *x.ApproverEmail
+	}
+	return ""
+}
+
+func (x *ApproveLeaveRequestRequest) GetApproverName() string {
+	if x != nil && x.ApproverName != nil {
+		return *x.ApproverName
+	}
+	return ""
+}
+
+func (x *ApproveLeaveRequestRequest) GetRequesterEmail() string {
+	if x != nil && x.RequesterEmail != nil {
+		return *x.RequesterEmail
 	}
 	return ""
 }
@@ -1410,8 +1445,7 @@ var File_hr_service_v1_leave_proto protoreflect.FileDescriptor
 
 const file_hr_service_v1_leave_proto_rawDesc = "" +
 	"\n" +
-	"\x19hr/service/v1/leave.proto\x12\rhr.service.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a\x1cgoogle/protobuf/struct.proto\"\xc9\n" +
-	"\n" +
+	"\x19hr/service/v1/leave.proto\x12\rhr.service.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a\x1cgoogle/protobuf/struct.proto\"\x93\v\n" +
 	"\fLeaveRequest\x12\x13\n" +
 	"\x02id\x18\x01 \x01(\tH\x00R\x02id\x88\x01\x01\x12 \n" +
 	"\ttenant_id\x18\x02 \x01(\rH\x01R\btenantId\x88\x01\x01\x12\x1c\n" +
@@ -1436,15 +1470,16 @@ const file_hr_service_v1_leave_proto_rawDesc = "" +
 	"\x11absence_type_name\x18\x1f \x01(\tH\x0eR\x0fabsenceTypeName\x88\x01\x01\x121\n" +
 	"\x12absence_type_color\x18  \x01(\tH\x0fR\x10absenceTypeColor\x88\x01\x01\x12(\n" +
 	"\rreviewer_name\x18! \x01(\tH\x10R\freviewerName\x88\x01\x01\x12'\n" +
-	"\rorg_unit_name\x18\" \x01(\tH\x11R\vorgUnitName\x88\x01\x01\x12>\n" +
+	"\rorg_unit_name\x18\" \x01(\tH\x11R\vorgUnitName\x88\x01\x01\x121\n" +
+	"\x12signing_request_id\x18# \x01(\tH\x12R\x10signingRequestId\x88\x01\x01\x12>\n" +
 	"\n" +
-	"created_at\x18\x14 \x01(\v2\x1a.google.protobuf.TimestampH\x12R\tcreatedAt\x88\x01\x01\x12>\n" +
+	"created_at\x18\x14 \x01(\v2\x1a.google.protobuf.TimestampH\x13R\tcreatedAt\x88\x01\x01\x12>\n" +
 	"\n" +
-	"updated_at\x18\x15 \x01(\v2\x1a.google.protobuf.TimestampH\x13R\tupdatedAt\x88\x01\x01\x12\"\n" +
+	"updated_at\x18\x15 \x01(\v2\x1a.google.protobuf.TimestampH\x14R\tupdatedAt\x88\x01\x01\x12\"\n" +
 	"\n" +
-	"created_by\x18\x16 \x01(\rH\x14R\tcreatedBy\x88\x01\x01\x12\"\n" +
+	"created_by\x18\x16 \x01(\rH\x15R\tcreatedBy\x88\x01\x01\x12\"\n" +
 	"\n" +
-	"updated_by\x18\x17 \x01(\rH\x15R\tupdatedBy\x88\x01\x01B\x05\n" +
+	"updated_by\x18\x17 \x01(\rH\x16R\tupdatedBy\x88\x01\x01B\x05\n" +
 	"\x03_idB\f\n" +
 	"\n" +
 	"_tenant_idB\n" +
@@ -1465,7 +1500,8 @@ const file_hr_service_v1_leave_proto_rawDesc = "" +
 	"\x12_absence_type_nameB\x15\n" +
 	"\x13_absence_type_colorB\x10\n" +
 	"\x0e_reviewer_nameB\x10\n" +
-	"\x0e_org_unit_nameB\r\n" +
+	"\x0e_org_unit_nameB\x15\n" +
+	"\x13_signing_request_idB\r\n" +
 	"\v_created_atB\r\n" +
 	"\v_updated_atB\r\n" +
 	"\v_created_byB\r\n" +
@@ -1547,12 +1583,18 @@ const file_hr_service_v1_leave_proto_rawDesc = "" +
 	"\rleave_request\x18\x01 \x01(\v2\x1b.hr.service.v1.LeaveRequestR\fleaveRequest\"7\n" +
 	"\x19DeleteLeaveRequestRequest\x12\x1a\n" +
 	"\x02id\x18\x01 \x01(\tB\n" +
-	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\x02id\"q\n" +
+	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\x02id\"\xae\x02\n" +
 	"\x1aApproveLeaveRequestRequest\x12\x1a\n" +
 	"\x02id\x18\x01 \x01(\tB\n" +
 	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\x02id\x12&\n" +
-	"\freview_notes\x18\x02 \x01(\tH\x00R\vreviewNotes\x88\x01\x01B\x0f\n" +
-	"\r_review_notes\"_\n" +
+	"\freview_notes\x18\x02 \x01(\tH\x00R\vreviewNotes\x88\x01\x01\x12*\n" +
+	"\x0eapprover_email\x18\x03 \x01(\tH\x01R\rapproverEmail\x88\x01\x01\x12(\n" +
+	"\rapprover_name\x18\x04 \x01(\tH\x02R\fapproverName\x88\x01\x01\x12,\n" +
+	"\x0frequester_email\x18\x05 \x01(\tH\x03R\x0erequesterEmail\x88\x01\x01B\x0f\n" +
+	"\r_review_notesB\x11\n" +
+	"\x0f_approver_emailB\x10\n" +
+	"\x0e_approver_nameB\x12\n" +
+	"\x10_requester_email\"_\n" +
 	"\x1bApproveLeaveRequestResponse\x12@\n" +
 	"\rleave_request\x18\x01 \x01(\v2\x1b.hr.service.v1.LeaveRequestR\fleaveRequest\"p\n" +
 	"\x19RejectLeaveRequestRequest\x12\x1a\n" +
@@ -1596,13 +1638,14 @@ const file_hr_service_v1_leave_proto_rawDesc = "" +
 	"\n" +
 	"\b_user_id\"Q\n" +
 	"\x19GetCalendarEventsResponse\x124\n" +
-	"\x06events\x18\x01 \x03(\v2\x1c.hr.service.v1.CalendarEventR\x06events*\xc6\x01\n" +
+	"\x06events\x18\x01 \x03(\v2\x1c.hr.service.v1.CalendarEventR\x06events*\xf1\x01\n" +
 	"\x12LeaveRequestStatus\x12$\n" +
 	" LEAVE_REQUEST_STATUS_UNSPECIFIED\x10\x00\x12 \n" +
 	"\x1cLEAVE_REQUEST_STATUS_PENDING\x10\x01\x12!\n" +
 	"\x1dLEAVE_REQUEST_STATUS_APPROVED\x10\x02\x12!\n" +
 	"\x1dLEAVE_REQUEST_STATUS_REJECTED\x10\x03\x12\"\n" +
-	"\x1eLEAVE_REQUEST_STATUS_CANCELLED\x10\x042\xf4\t\n" +
+	"\x1eLEAVE_REQUEST_STATUS_CANCELLED\x10\x04\x12)\n" +
+	"%LEAVE_REQUEST_STATUS_AWAITING_SIGNING\x10\x052\xf4\t\n" +
 	"\x0eHrLeaveService\x12\x88\x01\n" +
 	"\x12CreateLeaveRequest\x12(.hr.service.v1.CreateLeaveRequestRequest\x1a).hr.service.v1.CreateLeaveRequestResponse\"\x1d\x82\xd3\xe4\x93\x02\x17:\x01*\"\x12/v1/leave-requests\x12\x81\x01\n" +
 	"\x0fGetLeaveRequest\x12%.hr.service.v1.GetLeaveRequestRequest\x1a&.hr.service.v1.GetLeaveRequestResponse\"\x1f\x82\xd3\xe4\x93\x02\x19\x12\x17/v1/leave-requests/{id}\x12\x82\x01\n" +
