@@ -25,16 +25,14 @@ func NewUserService(ctx *bootstrap.Context, adminClient *client.AdminClient) *Us
 }
 
 func (s *UserService) ListUsers(ctx context.Context, req *hrV1.ListHrUsersRequest) (*hrV1.ListHrUsersResponse, error) {
-	tenantID := getTenantID(ctx)
-
-	resp, err := s.adminClient.ListUsers(ctx, tenantID)
+	resp, err := s.adminClient.ListUsers(ctx)
 	if err != nil {
 		s.log.Errorf("Failed to list users from admin-service: %v", err)
 		return nil, err
 	}
 
-	items := make([]*hrV1.HrUser, 0, len(resp.GetItems()))
-	for _, u := range resp.GetItems() {
+	items := make([]*hrV1.HrUser, 0, len(resp.Items))
+	for _, u := range resp.Items {
 		items = append(items, &hrV1.HrUser{
 			Id:            u.GetId(),
 			Username:      u.GetUsername(),

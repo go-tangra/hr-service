@@ -9,7 +9,7 @@ require (
 	github.com/go-sql-driver/mysql v1.9.3
 	github.com/go-tangra/go-tangra-common v0.5.0
 	github.com/go-tangra/go-tangra-paperless v1.6.0
-	github.com/go-tangra/go-tangra-portal v1.5.0
+	github.com/go-tangra/go-tangra-portal v1.5.1-0.20260304182242-a150df8fecaf
 	github.com/google/uuid v1.6.0
 	github.com/google/wire v0.7.0
 	github.com/jackc/pgx/v5 v5.8.0
@@ -42,6 +42,7 @@ require (
 	github.com/clipperhouse/stringish v0.1.1 // indirect
 	github.com/clipperhouse/uax29/v2 v2.3.0 // indirect
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
+	github.com/envoyproxy/protoc-gen-validate v1.3.0 // indirect
 	github.com/fatih/color v1.18.0 // indirect
 	github.com/fsnotify/fsnotify v1.9.0 // indirect
 	github.com/go-kratos/aegis v0.2.0 // indirect
