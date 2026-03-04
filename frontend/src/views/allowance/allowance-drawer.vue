@@ -21,15 +21,8 @@ import { $t } from 'shell/locales';
 import { useHrAllowanceStore } from '../../stores/hr-allowance.state';
 import { useHrAbsenceTypeStore } from '../../stores/hr-absence-type.state';
 import { hrApi } from '../../api/client';
-import { useAccessStore } from 'shell/vben/stores';
-
 const allowanceStore = useHrAllowanceStore();
 const absenceTypeStore = useHrAbsenceTypeStore();
-const accessStore = useAccessStore();
-
-const canListUsers = computed(() =>
-  new Set(accessStore.accessCodes).has('hr.users.list'),
-);
 
 interface PortalUser {
   id: number;
@@ -83,19 +76,12 @@ function getUserDisplayName(user: PortalUser): string {
 
 async function loadOptions() {
   try {
-    const promises: Promise<unknown>[] = [
+    const [typesResp, usersResp] = await Promise.all([
       absenceTypeStore.listAbsenceTypes(undefined, null),
-    ];
-    if (canListUsers.value) {
-      promises.push(
-        hrApi.get<{ items: PortalUser[] }>('/users?noPaging=true'),
-      );
-    }
-    const [typesResp, usersResp] = await Promise.all(promises);
+      hrApi.get<{ items: PortalUser[] }>('/users?noPaging=true'),
+    ]);
     absenceTypes.value = (typesResp as { items: AbsenceType[] }).items || [];
-    users.value = usersResp
-      ? (usersResp as { items: PortalUser[] }).items || []
-      : [];
+    users.value = (usersResp as { items: PortalUser[] }).items || [];
   } catch {
     // silently fail
   }

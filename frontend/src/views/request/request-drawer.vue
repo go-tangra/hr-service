@@ -21,7 +21,7 @@ import {
 import type { LeaveRequest, AbsenceType, BalanceEntry } from '../../api/services';
 import { toTimestamp, fromTimestamp } from '../../api/services';
 import { $t } from 'shell/locales';
-import { useUserStore, useAccessStore } from 'shell/vben/stores';
+import { useUserStore } from 'shell/vben/stores';
 import { useHrLeaveStore } from '../../stores/hr-leave.state';
 import { useHrAbsenceTypeStore } from '../../stores/hr-absence-type.state';
 import { useHrAllowanceStore } from '../../stores/hr-allowance.state';
@@ -31,11 +31,6 @@ const leaveStore = useHrLeaveStore();
 const absenceTypeStore = useHrAbsenceTypeStore();
 const allowanceStore = useHrAllowanceStore();
 const userStore = useUserStore();
-const accessStore = useAccessStore();
-
-const canListUsers = computed(() =>
-  new Set(accessStore.accessCodes).has('hr.users.list'),
-);
 
 interface PortalUser {
   id: number;
@@ -137,19 +132,12 @@ function onUserSelect(userId: number) {
 
 async function loadOptions() {
   try {
-    const promises: Promise<unknown>[] = [
+    const [typesResp, usersResp] = await Promise.all([
       absenceTypeStore.listAbsenceTypes(undefined, null),
-    ];
-    if (canListUsers.value) {
-      promises.push(
-        hrApi.get<{ items: PortalUser[] }>('/users?noPaging=true'),
-      );
-    }
-    const [typesResp, usersResp] = await Promise.all(promises);
+      hrApi.get<{ items: PortalUser[] }>('/users?noPaging=true'),
+    ]);
     absenceTypes.value = (typesResp as { items: AbsenceType[] }).items || [];
-    users.value = usersResp
-      ? (usersResp as { items: PortalUser[] }).items || []
-      : [];
+    users.value = (usersResp as { items: PortalUser[] }).items || [];
   } catch {
     // silently fail
   }
