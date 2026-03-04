@@ -41,10 +41,18 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 	}
 	leaveService := service.NewLeaveService(context, leaveRequestRepo, leaveAllowanceRepo, absenceTypeRepo, paperlessClient)
 	allowanceService := service.NewAllowanceService(context, leaveAllowanceRepo, absenceTypeRepo)
-	grpcServer := server.NewGRPCServer(context, certManager, auditLogRepo, systemService, absenceTypeService, leaveService, allowanceService)
-	httpServer := server.NewHTTPServer(context)
-	redisClient, cleanup3, err := data.NewRedisClient(context)
+	adminClient, cleanup3, err := client.NewAdminClient(context)
 	if err != nil {
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
+	userService := service.NewUserService(context, adminClient)
+	grpcServer := server.NewGRPCServer(context, certManager, auditLogRepo, systemService, absenceTypeService, leaveService, allowanceService, userService)
+	httpServer := server.NewHTTPServer(context)
+	redisClient, cleanup4, err := data.NewRedisClient(context)
+	if err != nil {
+		cleanup3()
 		cleanup2()
 		cleanup()
 		return nil, nil, err
@@ -53,6 +61,7 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 	subscriber := event.NewSubscriber(context, redisClient, handler)
 	app := newApp(context, grpcServer, httpServer, subscriber)
 	return app, func() {
+		cleanup4()
 		cleanup3()
 		cleanup2()
 		cleanup()

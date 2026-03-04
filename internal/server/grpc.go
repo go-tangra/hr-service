@@ -54,6 +54,7 @@ func NewGRPCServer(
 	absenceTypeSvc *service.AbsenceTypeService,
 	leaveSvc *service.LeaveService,
 	allowanceSvc *service.AllowanceService,
+	userSvc *service.UserService,
 ) *grpc.Server {
 	cfg := ctx.GetConfig()
 	logger := ctx.GetLogger()
@@ -127,6 +128,7 @@ func NewGRPCServer(
 	hrV1.RegisterRedactedHrAbsenceTypeServiceServer(srv, absenceTypeSvc, nil)
 	hrV1.RegisterRedactedHrLeaveServiceServer(srv, leaveSvc, nil)
 	hrV1.RegisterRedactedHrAllowanceServiceServer(srv, allowanceSvc, nil)
+	hrV1.RegisterRedactedHrUserServiceServer(srv, userSvc, nil)
 
 	return srv
 }

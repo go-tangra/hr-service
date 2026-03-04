@@ -18,7 +18,9 @@ var ProviderSet = wire.NewSet(
 	service.NewAbsenceTypeService,
 	service.NewLeaveService,
 	service.NewAllowanceService,
+	service.NewUserService,
 	client.NewPaperlessClient,
+	client.NewAdminClient,
 	event.NewHandler,
 	event.NewSubscriber,
 )

@@ -115,6 +115,9 @@ permission_groups:
       - name: Manage Allowances
         code: hr.allowance.manage
         description: Create, update, and delete leave allowances
+      - name: List Users
+        code: hr.users.list
+        description: View user list for assigning leave requests and allowances
 
 roles:
   - name: HR Administrator
@@ -130,6 +133,7 @@ roles:
       - hr.absence_type.manage
       - hr.allowance.view
       - hr.allowance.manage
+      - hr.users.list
 
   - name: HR Employee
     code: hr.employee
@@ -140,6 +144,7 @@ roles:
       - hr.request.view
       - hr.request.manage
       - hr.allowance.view
+      - hr.users.list
 
   - name: HR Viewer
     code: hr.viewer
