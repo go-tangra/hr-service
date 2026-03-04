@@ -153,6 +153,9 @@ func (r *LeaveAllowanceRepo) Update(ctx context.Context, id string, updates map[
 	if notes, ok := updates["notes"].(string); ok {
 		update = update.SetNotes(notes)
 	}
+	if userName, ok := updates["user_name"].(string); ok {
+		update = update.SetUserName(userName)
+	}
 
 	update = update.SetUpdateTime(time.Now())
 

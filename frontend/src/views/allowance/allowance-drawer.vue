@@ -91,8 +91,12 @@ async function handleSubmit() {
   loading.value = true;
   try {
     if (isCreateMode.value) {
+      const selectedUser = users.value.find(
+        (u) => u.id === formState.value.userId,
+      );
       await allowanceStore.createAllowance({
         userId: formState.value.userId,
+        userName: selectedUser ? getUserDisplayName(selectedUser) : undefined,
         absenceTypeId: formState.value.absenceTypeId,
         year: formState.value.year,
         totalDays: formState.value.totalDays,

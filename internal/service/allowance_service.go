@@ -118,6 +118,9 @@ func (s *AllowanceService) UpdateAllowance(ctx context.Context, req *hrV1.Update
 		if req.Data.Notes != nil {
 			updates["notes"] = *req.Data.Notes
 		}
+		if req.Data.UserName != nil {
+			updates["user_name"] = *req.Data.UserName
+		}
 	}
 
 	entity, err := s.allowanceRepo.Update(ctx, req.GetId(), updates)
