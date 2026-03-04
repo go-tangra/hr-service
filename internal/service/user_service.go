@@ -34,12 +34,12 @@ func (s *UserService) ListUsers(ctx context.Context, req *hrV1.ListHrUsersReques
 	items := make([]*hrV1.HrUser, 0, len(resp.Items))
 	for _, u := range resp.Items {
 		items = append(items, &hrV1.HrUser{
-			Id:            u.GetId(),
-			Username:      u.GetUsername(),
-			Realname:      u.GetRealname(),
-			Email:         u.GetEmail(),
-			OrgUnitNames:  u.GetOrgUnitNames(),
-			PositionNames: u.GetPositionNames(),
+			Id:            u.Id,
+			Username:      u.Username,
+			Realname:      u.Realname,
+			Email:         u.Email,
+			OrgUnitNames:  u.OrgUnitNames,
+			PositionNames: u.PositionNames,
 		})
 	}
 
