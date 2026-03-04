@@ -8,7 +8,7 @@ import { useHrLeaveStore } from '../../stores/hr-leave.state';
 import { useHrAbsenceTypeStore } from '../../stores/hr-absence-type.state';
 import type { CalendarEvent, AbsenceType } from '../../api/services';
 import { toTimestamp, fromTimestamp } from '../../api/services';
-import { adminApi } from '../../api/client';
+import { hrApi } from '../../api/client';
 import RequestDrawer from '../request/request-drawer.vue';
 
 type ViewMode = 'week' | '2weeks' | 'month';
@@ -173,7 +173,7 @@ function scrollToToday() {
 // --- Data loading ---
 async function loadUsers() {
   try {
-    const resp = await adminApi.get<{ items: PortalUser[] }>('/users', { noPaging: true });
+    const resp = await hrApi.get<{ items: PortalUser[] }>('/users?noPaging=true');
     users.value = resp.items || [];
     const unitSet = new Set<string>();
     for (const user of users.value) {
