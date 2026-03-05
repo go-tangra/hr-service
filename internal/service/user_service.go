@@ -6,6 +6,7 @@ import (
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/tx7do/kratos-bootstrap/bootstrap"
 
+	adminstubpb "github.com/go-tangra/go-tangra-common/gen/go/common/admin_stub/v1"
 	"github.com/go-tangra/go-tangra-hr/internal/client"
 	hrV1 "github.com/go-tangra/go-tangra-hr/gen/go/hr/service/v1"
 )
@@ -33,6 +34,10 @@ func (s *UserService) ListUsers(ctx context.Context, req *hrV1.ListHrUsersReques
 
 	items := make([]*hrV1.HrUser, 0, len(resp.Items))
 	for _, u := range resp.Items {
+		// Skip users with "Pending Activation" status
+		if u.Status != nil && u.GetStatus() == adminstubpb.AdminUser_PENDING {
+			continue
+		}
 		items = append(items, &hrV1.HrUser{
 			Id:            u.Id,
 			Username:      u.Username,
