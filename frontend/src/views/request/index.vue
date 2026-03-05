@@ -2,7 +2,7 @@
 import { h } from 'vue';
 
 import { Page, useVbenModal, type VbenFormProps } from 'shell/vben/common-ui';
-import { LucideEye, LucideTrash, LucideCheck, LucideX, LucideFileDown } from 'shell/vben/icons';
+import { LucideEye, LucideTrash, LucideCheck, LucideX, LucideFileDownload } from 'shell/vben/icons';
 
 import { notification, Space, Button, Tag, Tooltip } from 'ant-design-vue';
 
@@ -260,7 +260,7 @@ async function handleDelete(row: LeaveRequest) {
             <Button
               type="link"
               size="small"
-              :icon="h(LucideFileDown)"
+              :icon="h(LucideFileDownload)"
               style="color: #1890ff"
               @click.stop="handleDownloadSigned(row)"
             />
