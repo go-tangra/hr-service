@@ -20,15 +20,16 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	HrLeaveService_CreateLeaveRequest_FullMethodName  = "/hr.service.v1.HrLeaveService/CreateLeaveRequest"
-	HrLeaveService_GetLeaveRequest_FullMethodName     = "/hr.service.v1.HrLeaveService/GetLeaveRequest"
-	HrLeaveService_ListLeaveRequests_FullMethodName   = "/hr.service.v1.HrLeaveService/ListLeaveRequests"
-	HrLeaveService_UpdateLeaveRequest_FullMethodName  = "/hr.service.v1.HrLeaveService/UpdateLeaveRequest"
-	HrLeaveService_DeleteLeaveRequest_FullMethodName  = "/hr.service.v1.HrLeaveService/DeleteLeaveRequest"
-	HrLeaveService_ApproveLeaveRequest_FullMethodName = "/hr.service.v1.HrLeaveService/ApproveLeaveRequest"
-	HrLeaveService_RejectLeaveRequest_FullMethodName  = "/hr.service.v1.HrLeaveService/RejectLeaveRequest"
-	HrLeaveService_CancelLeaveRequest_FullMethodName  = "/hr.service.v1.HrLeaveService/CancelLeaveRequest"
-	HrLeaveService_GetCalendarEvents_FullMethodName   = "/hr.service.v1.HrLeaveService/GetCalendarEvents"
+	HrLeaveService_CreateLeaveRequest_FullMethodName   = "/hr.service.v1.HrLeaveService/CreateLeaveRequest"
+	HrLeaveService_GetLeaveRequest_FullMethodName      = "/hr.service.v1.HrLeaveService/GetLeaveRequest"
+	HrLeaveService_ListLeaveRequests_FullMethodName    = "/hr.service.v1.HrLeaveService/ListLeaveRequests"
+	HrLeaveService_UpdateLeaveRequest_FullMethodName   = "/hr.service.v1.HrLeaveService/UpdateLeaveRequest"
+	HrLeaveService_DeleteLeaveRequest_FullMethodName   = "/hr.service.v1.HrLeaveService/DeleteLeaveRequest"
+	HrLeaveService_ApproveLeaveRequest_FullMethodName  = "/hr.service.v1.HrLeaveService/ApproveLeaveRequest"
+	HrLeaveService_RejectLeaveRequest_FullMethodName   = "/hr.service.v1.HrLeaveService/RejectLeaveRequest"
+	HrLeaveService_CancelLeaveRequest_FullMethodName   = "/hr.service.v1.HrLeaveService/CancelLeaveRequest"
+	HrLeaveService_GetCalendarEvents_FullMethodName    = "/hr.service.v1.HrLeaveService/GetCalendarEvents"
+	HrLeaveService_GetSignedDocumentUrl_FullMethodName = "/hr.service.v1.HrLeaveService/GetSignedDocumentUrl"
 )
 
 // HrLeaveServiceClient is the client API for HrLeaveService service.
@@ -46,6 +47,7 @@ type HrLeaveServiceClient interface {
 	RejectLeaveRequest(ctx context.Context, in *RejectLeaveRequestRequest, opts ...grpc.CallOption) (*RejectLeaveRequestResponse, error)
 	CancelLeaveRequest(ctx context.Context, in *CancelLeaveRequestRequest, opts ...grpc.CallOption) (*CancelLeaveRequestResponse, error)
 	GetCalendarEvents(ctx context.Context, in *GetCalendarEventsRequest, opts ...grpc.CallOption) (*GetCalendarEventsResponse, error)
+	GetSignedDocumentUrl(ctx context.Context, in *GetSignedDocumentUrlRequest, opts ...grpc.CallOption) (*GetSignedDocumentUrlResponse, error)
 }
 
 type hrLeaveServiceClient struct {
@@ -146,6 +148,16 @@ func (c *hrLeaveServiceClient) GetCalendarEvents(ctx context.Context, in *GetCal
 	return out, nil
 }
 
+func (c *hrLeaveServiceClient) GetSignedDocumentUrl(ctx context.Context, in *GetSignedDocumentUrlRequest, opts ...grpc.CallOption) (*GetSignedDocumentUrlResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetSignedDocumentUrlResponse)
+	err := c.cc.Invoke(ctx, HrLeaveService_GetSignedDocumentUrl_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // HrLeaveServiceServer is the server API for HrLeaveService service.
 // All implementations must embed UnimplementedHrLeaveServiceServer
 // for forward compatibility.
@@ -161,6 +173,7 @@ type HrLeaveServiceServer interface {
 	RejectLeaveRequest(context.Context, *RejectLeaveRequestRequest) (*RejectLeaveRequestResponse, error)
 	CancelLeaveRequest(context.Context, *CancelLeaveRequestRequest) (*CancelLeaveRequestResponse, error)
 	GetCalendarEvents(context.Context, *GetCalendarEventsRequest) (*GetCalendarEventsResponse, error)
+	GetSignedDocumentUrl(context.Context, *GetSignedDocumentUrlRequest) (*GetSignedDocumentUrlResponse, error)
 	mustEmbedUnimplementedHrLeaveServiceServer()
 }
 
@@ -197,6 +210,9 @@ func (UnimplementedHrLeaveServiceServer) CancelLeaveRequest(context.Context, *Ca
 }
 func (UnimplementedHrLeaveServiceServer) GetCalendarEvents(context.Context, *GetCalendarEventsRequest) (*GetCalendarEventsResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetCalendarEvents not implemented")
+}
+func (UnimplementedHrLeaveServiceServer) GetSignedDocumentUrl(context.Context, *GetSignedDocumentUrlRequest) (*GetSignedDocumentUrlResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetSignedDocumentUrl not implemented")
 }
 func (UnimplementedHrLeaveServiceServer) mustEmbedUnimplementedHrLeaveServiceServer() {}
 func (UnimplementedHrLeaveServiceServer) testEmbeddedByValue()                        {}
@@ -381,6 +397,24 @@ func _HrLeaveService_GetCalendarEvents_Handler(srv interface{}, ctx context.Cont
 	return interceptor(ctx, in, info, handler)
 }
 
+func _HrLeaveService_GetSignedDocumentUrl_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetSignedDocumentUrlRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(HrLeaveServiceServer).GetSignedDocumentUrl(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: HrLeaveService_GetSignedDocumentUrl_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(HrLeaveServiceServer).GetSignedDocumentUrl(ctx, req.(*GetSignedDocumentUrlRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // HrLeaveService_ServiceDesc is the grpc.ServiceDesc for HrLeaveService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -423,6 +457,10 @@ var HrLeaveService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetCalendarEvents",
 			Handler:    _HrLeaveService_GetCalendarEvents_Handler,
+		},
+		{
+			MethodName: "GetSignedDocumentUrl",
+			Handler:    _HrLeaveService_GetSignedDocumentUrl_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -132,3 +132,15 @@ func (c *PaperlessClient) CreateSigningRequest(
 	c.log.Infof("Created signing request: %s", resp.Request.Id)
 	return resp.Request.Id, nil
 }
+
+// DownloadSignedDocument returns a presigned download URL for a signed document
+func (c *PaperlessClient) DownloadSignedDocument(ctx context.Context, signingRequestID string) (string, error) {
+	resp, err := c.client.DownloadSignedDocument(ctx, &paperlesspb.DownloadSignedDocumentRequest{
+		Id: signingRequestID,
+	})
+	if err != nil {
+		c.log.Errorf("Failed to download signed document: %v", err)
+		return "", err
+	}
+	return resp.GetUrl(), nil
+}

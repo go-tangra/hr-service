@@ -12,7 +12,7 @@ import type { LeaveRequest } from '../../api/services';
 import { fromTimestamp } from '../../api/services';
 import { $t } from 'shell/locales';
 import { useHrLeaveStore } from '../../stores/hr-leave.state';
-import { paperlessApi } from '../../api/client';
+import { hrApi } from '../../api/client';
 
 import RequestDrawer from './request-drawer.vue';
 import ReviewModal from './review-modal.vue';
@@ -193,9 +193,9 @@ function handleReject(row: LeaveRequest) {
 }
 
 async function handleDownloadSigned(row: LeaveRequest) {
-  if (!row.signingRequestId) return;
+  if (!row.id) return;
   try {
-    const resp = await paperlessApi.get<{ url: string }>(`/signing/requests/${row.signingRequestId}/download`);
+    const resp = await hrApi.get<{ url: string }>(`/leave-requests/${row.id}/signed-document`);
     if (resp.url) {
       window.open(resp.url, '_blank');
     }

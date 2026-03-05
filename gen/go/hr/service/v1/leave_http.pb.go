@@ -26,6 +26,7 @@ const OperationHrLeaveServiceCreateLeaveRequest = "/hr.service.v1.HrLeaveService
 const OperationHrLeaveServiceDeleteLeaveRequest = "/hr.service.v1.HrLeaveService/DeleteLeaveRequest"
 const OperationHrLeaveServiceGetCalendarEvents = "/hr.service.v1.HrLeaveService/GetCalendarEvents"
 const OperationHrLeaveServiceGetLeaveRequest = "/hr.service.v1.HrLeaveService/GetLeaveRequest"
+const OperationHrLeaveServiceGetSignedDocumentUrl = "/hr.service.v1.HrLeaveService/GetSignedDocumentUrl"
 const OperationHrLeaveServiceListLeaveRequests = "/hr.service.v1.HrLeaveService/ListLeaveRequests"
 const OperationHrLeaveServiceRejectLeaveRequest = "/hr.service.v1.HrLeaveService/RejectLeaveRequest"
 const OperationHrLeaveServiceUpdateLeaveRequest = "/hr.service.v1.HrLeaveService/UpdateLeaveRequest"
@@ -37,6 +38,7 @@ type HrLeaveServiceHTTPServer interface {
 	DeleteLeaveRequest(context.Context, *DeleteLeaveRequestRequest) (*emptypb.Empty, error)
 	GetCalendarEvents(context.Context, *GetCalendarEventsRequest) (*GetCalendarEventsResponse, error)
 	GetLeaveRequest(context.Context, *GetLeaveRequestRequest) (*GetLeaveRequestResponse, error)
+	GetSignedDocumentUrl(context.Context, *GetSignedDocumentUrlRequest) (*GetSignedDocumentUrlResponse, error)
 	ListLeaveRequests(context.Context, *ListLeaveRequestsRequest) (*ListLeaveRequestsResponse, error)
 	RejectLeaveRequest(context.Context, *RejectLeaveRequestRequest) (*RejectLeaveRequestResponse, error)
 	UpdateLeaveRequest(context.Context, *UpdateLeaveRequestRequest) (*UpdateLeaveRequestResponse, error)
@@ -53,6 +55,7 @@ func RegisterHrLeaveServiceHTTPServer(s *http.Server, srv HrLeaveServiceHTTPServ
 	r.POST("/v1/leave-requests/{id}/reject", _HrLeaveService_RejectLeaveRequest0_HTTP_Handler(srv))
 	r.POST("/v1/leave-requests/{id}/cancel", _HrLeaveService_CancelLeaveRequest0_HTTP_Handler(srv))
 	r.GET("/v1/calendar", _HrLeaveService_GetCalendarEvents0_HTTP_Handler(srv))
+	r.GET("/v1/leave-requests/{leave_request_id}/signed-document", _HrLeaveService_GetSignedDocumentUrl0_HTTP_Handler(srv))
 }
 
 func _HrLeaveService_CreateLeaveRequest0_HTTP_Handler(srv HrLeaveServiceHTTPServer) func(ctx http.Context) error {
@@ -259,6 +262,28 @@ func _HrLeaveService_GetCalendarEvents0_HTTP_Handler(srv HrLeaveServiceHTTPServe
 	}
 }
 
+func _HrLeaveService_GetSignedDocumentUrl0_HTTP_Handler(srv HrLeaveServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in GetSignedDocumentUrlRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindVars(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationHrLeaveServiceGetSignedDocumentUrl)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.GetSignedDocumentUrl(ctx, req.(*GetSignedDocumentUrlRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*GetSignedDocumentUrlResponse)
+		return ctx.Result(200, reply)
+	}
+}
+
 type HrLeaveServiceHTTPClient interface {
 	ApproveLeaveRequest(ctx context.Context, req *ApproveLeaveRequestRequest, opts ...http.CallOption) (rsp *ApproveLeaveRequestResponse, err error)
 	CancelLeaveRequest(ctx context.Context, req *CancelLeaveRequestRequest, opts ...http.CallOption) (rsp *CancelLeaveRequestResponse, err error)
@@ -266,6 +291,7 @@ type HrLeaveServiceHTTPClient interface {
 	DeleteLeaveRequest(ctx context.Context, req *DeleteLeaveRequestRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	GetCalendarEvents(ctx context.Context, req *GetCalendarEventsRequest, opts ...http.CallOption) (rsp *GetCalendarEventsResponse, err error)
 	GetLeaveRequest(ctx context.Context, req *GetLeaveRequestRequest, opts ...http.CallOption) (rsp *GetLeaveRequestResponse, err error)
+	GetSignedDocumentUrl(ctx context.Context, req *GetSignedDocumentUrlRequest, opts ...http.CallOption) (rsp *GetSignedDocumentUrlResponse, err error)
 	ListLeaveRequests(ctx context.Context, req *ListLeaveRequestsRequest, opts ...http.CallOption) (rsp *ListLeaveRequestsResponse, err error)
 	RejectLeaveRequest(ctx context.Context, req *RejectLeaveRequestRequest, opts ...http.CallOption) (rsp *RejectLeaveRequestResponse, err error)
 	UpdateLeaveRequest(ctx context.Context, req *UpdateLeaveRequestRequest, opts ...http.CallOption) (rsp *UpdateLeaveRequestResponse, err error)
@@ -349,6 +375,19 @@ func (c *HrLeaveServiceHTTPClientImpl) GetLeaveRequest(ctx context.Context, in *
 	pattern := "/v1/leave-requests/{id}"
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationHrLeaveServiceGetLeaveRequest))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+func (c *HrLeaveServiceHTTPClientImpl) GetSignedDocumentUrl(ctx context.Context, in *GetSignedDocumentUrlRequest, opts ...http.CallOption) (*GetSignedDocumentUrlResponse, error) {
+	var out GetSignedDocumentUrlResponse
+	pattern := "/v1/leave-requests/{leave_request_id}/signed-document"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationHrLeaveServiceGetSignedDocumentUrl))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
 	if err != nil {

@@ -2588,6 +2588,216 @@ var _ interface {
 	ErrorName() string
 } = CalendarEventValidationError{}
 
+// Validate checks the field values on GetSignedDocumentUrlRequest with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetSignedDocumentUrlRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetSignedDocumentUrlRequest with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetSignedDocumentUrlRequestMultiError, or nil if none found.
+func (m *GetSignedDocumentUrlRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetSignedDocumentUrlRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for LeaveRequestId
+
+	if len(errors) > 0 {
+		return GetSignedDocumentUrlRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetSignedDocumentUrlRequestMultiError is an error wrapping multiple
+// validation errors returned by GetSignedDocumentUrlRequest.ValidateAll() if
+// the designated constraints aren't met.
+type GetSignedDocumentUrlRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetSignedDocumentUrlRequestMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetSignedDocumentUrlRequestMultiError) AllErrors() []error { return m }
+
+// GetSignedDocumentUrlRequestValidationError is the validation error returned
+// by GetSignedDocumentUrlRequest.Validate if the designated constraints
+// aren't met.
+type GetSignedDocumentUrlRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetSignedDocumentUrlRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetSignedDocumentUrlRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetSignedDocumentUrlRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetSignedDocumentUrlRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetSignedDocumentUrlRequestValidationError) ErrorName() string {
+	return "GetSignedDocumentUrlRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetSignedDocumentUrlRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetSignedDocumentUrlRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetSignedDocumentUrlRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetSignedDocumentUrlRequestValidationError{}
+
+// Validate checks the field values on GetSignedDocumentUrlResponse with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetSignedDocumentUrlResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetSignedDocumentUrlResponse with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetSignedDocumentUrlResponseMultiError, or nil if none found.
+func (m *GetSignedDocumentUrlResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetSignedDocumentUrlResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Url
+
+	if len(errors) > 0 {
+		return GetSignedDocumentUrlResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetSignedDocumentUrlResponseMultiError is an error wrapping multiple
+// validation errors returned by GetSignedDocumentUrlResponse.ValidateAll() if
+// the designated constraints aren't met.
+type GetSignedDocumentUrlResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetSignedDocumentUrlResponseMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetSignedDocumentUrlResponseMultiError) AllErrors() []error { return m }
+
+// GetSignedDocumentUrlResponseValidationError is the validation error returned
+// by GetSignedDocumentUrlResponse.Validate if the designated constraints
+// aren't met.
+type GetSignedDocumentUrlResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetSignedDocumentUrlResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetSignedDocumentUrlResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetSignedDocumentUrlResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetSignedDocumentUrlResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetSignedDocumentUrlResponseValidationError) ErrorName() string {
+	return "GetSignedDocumentUrlResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetSignedDocumentUrlResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetSignedDocumentUrlResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetSignedDocumentUrlResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetSignedDocumentUrlResponseValidationError{}
+
 // Validate checks the field values on GetCalendarEventsRequest with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.

@@ -149,6 +149,17 @@ func (s *redactedHrLeaveServiceServer) GetCalendarEvents(ctx context.Context, in
 	return res, err
 }
 
+// GetSignedDocumentUrl is the redacted wrapper for the actual HrLeaveServiceServer.GetSignedDocumentUrl method
+// Unary RPC
+func (s *redactedHrLeaveServiceServer) GetSignedDocumentUrl(ctx context.Context, in *GetSignedDocumentUrlRequest) (*GetSignedDocumentUrlResponse, error) {
+	res, err := s.srv.GetSignedDocumentUrl(ctx, in)
+	if !s.bypass.CheckInternal(ctx) {
+		// Apply redaction to the response
+		redact.Apply(res)
+	}
+	return res, err
+}
+
 // Redact method implementation for LeaveRequest
 func (x *LeaveRequest) Redact() string {
 	if x == nil {
@@ -440,6 +451,26 @@ func (x *CalendarEvent) Redact() string {
 	// Safe field: Status
 
 	// Safe field: OrgUnitName
+	return x.String()
+}
+
+// Redact method implementation for GetSignedDocumentUrlRequest
+func (x *GetSignedDocumentUrlRequest) Redact() string {
+	if x == nil {
+		return ""
+	}
+
+	// Safe field: LeaveRequestId
+	return x.String()
+}
+
+// Redact method implementation for GetSignedDocumentUrlResponse
+func (x *GetSignedDocumentUrlResponse) Redact() string {
+	if x == nil {
+		return ""
+	}
+
+	// Safe field: Url
 	return x.String()
 }
 

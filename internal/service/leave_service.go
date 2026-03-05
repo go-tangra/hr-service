@@ -523,6 +523,40 @@ func (s *LeaveService) GetCalendarEvents(ctx context.Context, req *hrV1.GetCalen
 	}, nil
 }
 
+func (s *LeaveService) GetSignedDocumentUrl(ctx context.Context, req *hrV1.GetSignedDocumentUrlRequest) (*hrV1.GetSignedDocumentUrlResponse, error) {
+	if err := checkPermission(ctx, "hr.request.view"); err != nil {
+		return nil, err
+	}
+
+	// Look up the leave request
+	entity, err := s.leaveRequestRepo.GetByID(ctx, req.GetLeaveRequestId())
+	if err != nil {
+		return nil, err
+	}
+	if entity == nil {
+		return nil, hrV1.ErrorLeaveRequestNotFound("leave request not found")
+	}
+	if entity.SigningRequestID == "" {
+		return nil, hrV1.ErrorBadRequest("leave request has no signed document")
+	}
+
+	// Check if user is a participant or has manage permission
+	callerID := getUserID(ctx)
+	isParticipant := entity.UserID == callerID || entity.ReviewedBy == callerID
+	if !isParticipant && !hasPermission(ctx, "hr.request.manage") {
+		return nil, hrV1.ErrorBadRequest("you are not a participant of this leave request")
+	}
+
+	url, err := s.paperlessClient.DownloadSignedDocument(ctx, entity.SigningRequestID)
+	if err != nil {
+		return nil, hrV1.ErrorInternalServerError("failed to get signed document URL")
+	}
+
+	return &hrV1.GetSignedDocumentUrlResponse{
+		Url: url,
+	}, nil
+}
+
 func leaveRequestToProto(e *ent.LeaveRequest) *hrV1.LeaveRequest {
 	if e == nil {
 		return nil
