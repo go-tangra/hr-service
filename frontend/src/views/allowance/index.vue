@@ -13,8 +13,10 @@ import { $t } from 'shell/locales';
 import { useHrAllowanceStore } from '../../stores/hr-allowance.state';
 
 import AllowanceDrawer from './allowance-drawer.vue';
+import { usePermission } from '../../composables/use-permission';
 
 const allowanceStore = useHrAllowanceStore();
+const { canManageAllowances } = usePermission();
 
 const formOptions: VbenFormProps = {
   collapsed: false,
@@ -171,7 +173,7 @@ function computeRemaining(row: LeaveAllowance): number {
   <Page auto-content-height>
     <Grid :table-title="$t('hr.page.allowance.title')">
       <template #toolbar-tools>
-        <Button class="mr-2" type="primary" @click="handleCreate">
+        <Button v-if="canManageAllowances" class="mr-2" type="primary" @click="handleCreate">
           {{ $t('hr.page.allowance.create') }}
         </Button>
       </template>
@@ -190,6 +192,7 @@ function computeRemaining(row: LeaveAllowance): number {
             @click.stop="handleView(row)"
           />
           <Button
+            v-if="canManageAllowances"
             type="link"
             size="small"
             :icon="h(LucidePencil)"
@@ -197,6 +200,7 @@ function computeRemaining(row: LeaveAllowance): number {
             @click.stop="handleEdit(row)"
           />
           <a-popconfirm
+            v-if="canManageAllowances"
             :cancel-text="$t('ui.button.cancel')"
             :ok-text="$t('ui.button.ok')"
             :title="$t('hr.page.allowance.confirmDelete')"

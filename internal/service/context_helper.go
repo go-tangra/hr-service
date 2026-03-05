@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"strconv"
+	"strings"
 
 	"github.com/go-kratos/kratos/v2/transport"
 )
@@ -37,4 +38,14 @@ func getUsername(ctx context.Context) string {
 		return tr.RequestHeader().Get("x-md-global-username")
 	}
 	return ""
+}
+
+// getRoles extracts roles from gRPC metadata (comma-separated)
+func getRoles(ctx context.Context) []string {
+	if tr, ok := transport.FromServerContext(ctx); ok {
+		if v := tr.RequestHeader().Get("x-md-global-roles"); v != "" {
+			return strings.Split(v, ",")
+		}
+	}
+	return nil
 }

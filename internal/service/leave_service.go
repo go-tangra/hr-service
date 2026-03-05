@@ -38,6 +38,10 @@ func NewLeaveService(ctx *bootstrap.Context, leaveRequestRepo *data.LeaveRequest
 }
 
 func (s *LeaveService) CreateLeaveRequest(ctx context.Context, req *hrV1.CreateLeaveRequestRequest) (*hrV1.CreateLeaveRequestResponse, error) {
+	if err := checkPermission(ctx, "hr.request.manage"); err != nil {
+		return nil, err
+	}
+
 	tenantID := req.GetTenantId()
 	userID := req.GetUserId()
 
@@ -135,6 +139,10 @@ func (s *LeaveService) CreateLeaveRequest(ctx context.Context, req *hrV1.CreateL
 }
 
 func (s *LeaveService) GetLeaveRequest(ctx context.Context, req *hrV1.GetLeaveRequestRequest) (*hrV1.GetLeaveRequestResponse, error) {
+	if err := checkPermission(ctx, "hr.request.view"); err != nil {
+		return nil, err
+	}
+
 	entity, err := s.leaveRequestRepo.GetByID(ctx, req.GetId())
 	if err != nil {
 		return nil, err
@@ -149,6 +157,10 @@ func (s *LeaveService) GetLeaveRequest(ctx context.Context, req *hrV1.GetLeaveRe
 }
 
 func (s *LeaveService) ListLeaveRequests(ctx context.Context, req *hrV1.ListLeaveRequestsRequest) (*hrV1.ListLeaveRequestsResponse, error) {
+	if err := checkPermission(ctx, "hr.request.view"); err != nil {
+		return nil, err
+	}
+
 	filters := make(map[string]interface{})
 	if req.UserId != nil {
 		filters["user_id"] = *req.UserId
@@ -194,6 +206,10 @@ func (s *LeaveService) ListLeaveRequests(ctx context.Context, req *hrV1.ListLeav
 }
 
 func (s *LeaveService) UpdateLeaveRequest(ctx context.Context, req *hrV1.UpdateLeaveRequestRequest) (*hrV1.UpdateLeaveRequestResponse, error) {
+	if err := checkPermission(ctx, "hr.request.manage"); err != nil {
+		return nil, err
+	}
+
 	updates := make(map[string]interface{})
 
 	if req.Data != nil {
@@ -222,6 +238,10 @@ func (s *LeaveService) UpdateLeaveRequest(ctx context.Context, req *hrV1.UpdateL
 }
 
 func (s *LeaveService) DeleteLeaveRequest(ctx context.Context, req *hrV1.DeleteLeaveRequestRequest) (*emptypb.Empty, error) {
+	if err := checkPermission(ctx, "hr.request.manage"); err != nil {
+		return nil, err
+	}
+
 	err := s.leaveRequestRepo.Delete(ctx, req.GetId())
 	if err != nil {
 		return nil, err
@@ -230,6 +250,10 @@ func (s *LeaveService) DeleteLeaveRequest(ctx context.Context, req *hrV1.DeleteL
 }
 
 func (s *LeaveService) ApproveLeaveRequest(ctx context.Context, req *hrV1.ApproveLeaveRequestRequest) (*hrV1.ApproveLeaveRequestResponse, error) {
+	if err := checkPermission(ctx, "hr.request.approve"); err != nil {
+		return nil, err
+	}
+
 	existing, err := s.leaveRequestRepo.GetByID(ctx, req.GetId())
 	if err != nil {
 		return nil, err
@@ -366,6 +390,10 @@ func (s *LeaveService) approveImmediate(ctx context.Context, existing *ent.Leave
 }
 
 func (s *LeaveService) RejectLeaveRequest(ctx context.Context, req *hrV1.RejectLeaveRequestRequest) (*hrV1.RejectLeaveRequestResponse, error) {
+	if err := checkPermission(ctx, "hr.request.approve"); err != nil {
+		return nil, err
+	}
+
 	existing, err := s.leaveRequestRepo.GetByID(ctx, req.GetId())
 	if err != nil {
 		return nil, err
@@ -399,6 +427,10 @@ func (s *LeaveService) RejectLeaveRequest(ctx context.Context, req *hrV1.RejectL
 }
 
 func (s *LeaveService) CancelLeaveRequest(ctx context.Context, req *hrV1.CancelLeaveRequestRequest) (*hrV1.CancelLeaveRequestResponse, error) {
+	if err := checkPermission(ctx, "hr.request.manage"); err != nil {
+		return nil, err
+	}
+
 	existing, err := s.leaveRequestRepo.GetByID(ctx, req.GetId())
 	if err != nil {
 		return nil, err
@@ -438,6 +470,10 @@ func (s *LeaveService) CancelLeaveRequest(ctx context.Context, req *hrV1.CancelL
 }
 
 func (s *LeaveService) GetCalendarEvents(ctx context.Context, req *hrV1.GetCalendarEventsRequest) (*hrV1.GetCalendarEventsResponse, error) {
+	if err := checkPermission(ctx, "hr.calendar.view"); err != nil {
+		return nil, err
+	}
+
 	startDate, _ := time.Parse(time.RFC3339, req.GetStartDate())
 	endDate, _ := time.Parse(time.RFC3339, req.GetEndDate())
 	if startDate.IsZero() {

@@ -31,6 +31,10 @@ func NewAllowanceService(ctx *bootstrap.Context, allowanceRepo *data.LeaveAllowa
 }
 
 func (s *AllowanceService) CreateAllowance(ctx context.Context, req *hrV1.CreateAllowanceRequest) (*hrV1.CreateAllowanceResponse, error) {
+	if err := checkPermission(ctx, "hr.allowance.manage"); err != nil {
+		return nil, err
+	}
+
 	opts := []func(*ent.LeaveAllowanceCreate){}
 
 	if req.CarriedOver != nil {
@@ -57,6 +61,10 @@ func (s *AllowanceService) CreateAllowance(ctx context.Context, req *hrV1.Create
 }
 
 func (s *AllowanceService) GetAllowance(ctx context.Context, req *hrV1.GetAllowanceRequest) (*hrV1.GetAllowanceResponse, error) {
+	if err := checkPermission(ctx, "hr.allowance.view"); err != nil {
+		return nil, err
+	}
+
 	entity, err := s.allowanceRepo.GetByID(ctx, req.GetId())
 	if err != nil {
 		return nil, err
@@ -71,6 +79,10 @@ func (s *AllowanceService) GetAllowance(ctx context.Context, req *hrV1.GetAllowa
 }
 
 func (s *AllowanceService) ListAllowances(ctx context.Context, req *hrV1.ListAllowancesRequest) (*hrV1.ListAllowancesResponse, error) {
+	if err := checkPermission(ctx, "hr.allowance.view"); err != nil {
+		return nil, err
+	}
+
 	filters := make(map[string]interface{})
 	if req.UserId != nil {
 		filters["user_id"] = *req.UserId
@@ -106,6 +118,10 @@ func (s *AllowanceService) ListAllowances(ctx context.Context, req *hrV1.ListAll
 }
 
 func (s *AllowanceService) UpdateAllowance(ctx context.Context, req *hrV1.UpdateAllowanceRequest) (*hrV1.UpdateAllowanceResponse, error) {
+	if err := checkPermission(ctx, "hr.allowance.manage"); err != nil {
+		return nil, err
+	}
+
 	updates := make(map[string]interface{})
 
 	if req.Data != nil {
@@ -140,6 +156,10 @@ func (s *AllowanceService) UpdateAllowance(ctx context.Context, req *hrV1.Update
 }
 
 func (s *AllowanceService) DeleteAllowance(ctx context.Context, req *hrV1.DeleteAllowanceRequest) (*emptypb.Empty, error) {
+	if err := checkPermission(ctx, "hr.allowance.manage"); err != nil {
+		return nil, err
+	}
+
 	err := s.allowanceRepo.Delete(ctx, req.GetId())
 	if err != nil {
 		return nil, err
@@ -148,6 +168,10 @@ func (s *AllowanceService) DeleteAllowance(ctx context.Context, req *hrV1.Delete
 }
 
 func (s *AllowanceService) GetUserBalance(ctx context.Context, req *hrV1.GetUserBalanceRequest) (*hrV1.GetUserBalanceResponse, error) {
+	if err := checkPermission(ctx, "hr.allowance.view"); err != nil {
+		return nil, err
+	}
+
 	year := int(req.GetYear())
 	if year == 0 {
 		year = time.Now().Year()

@@ -16,8 +16,10 @@ import { paperlessApi } from '../../api/client';
 
 import RequestDrawer from './request-drawer.vue';
 import ReviewModal from './review-modal.vue';
+import { usePermission } from '../../composables/use-permission';
 
 const leaveStore = useHrLeaveStore();
+const { canManageRequests, canApproveRequests } = usePermission();
 
 function statusColor(status?: string): string {
   switch (status) {
@@ -220,7 +222,7 @@ async function handleDelete(row: LeaveRequest) {
   <Page auto-content-height>
     <Grid :table-title="$t('hr.page.request.title')">
       <template #toolbar-tools>
-        <Button class="mr-2" type="primary" @click="handleCreate">
+        <Button v-if="canManageRequests" class="mr-2" type="primary" @click="handleCreate">
           {{ $t('hr.page.request.create') }}
         </Button>
       </template>
@@ -239,7 +241,7 @@ async function handleDelete(row: LeaveRequest) {
             @click.stop="handleView(row)"
           />
           <Button
-            v-if="row.status === 'LEAVE_REQUEST_STATUS_PENDING'"
+            v-if="canApproveRequests && row.status === 'LEAVE_REQUEST_STATUS_PENDING'"
             type="link"
             size="small"
             :icon="h(LucideCheck)"
@@ -248,7 +250,7 @@ async function handleDelete(row: LeaveRequest) {
             @click.stop="handleApprove(row)"
           />
           <Button
-            v-if="row.status === 'LEAVE_REQUEST_STATUS_PENDING'"
+            v-if="canApproveRequests && row.status === 'LEAVE_REQUEST_STATUS_PENDING'"
             type="link"
             size="small"
             :icon="h(LucideX)"
@@ -266,6 +268,7 @@ async function handleDelete(row: LeaveRequest) {
             />
           </Tooltip>
           <a-popconfirm
+            v-if="canManageRequests"
             :cancel-text="$t('ui.button.cancel')"
             :ok-text="$t('ui.button.ok')"
             :title="$t('hr.page.request.confirmDelete')"

@@ -18,6 +18,10 @@ menus:
     authority:
       - platform:admin
       - tenant:manager
+      - hr.admin
+      - hr.employee
+      - hr.client
+      - hr.viewer
 
   - id: hr-calendar
     parent_id: hr
@@ -30,6 +34,10 @@ menus:
     authority:
       - platform:admin
       - tenant:manager
+      - hr.admin
+      - hr.employee
+      - hr.client
+      - hr.viewer
 
   - id: hr-requests
     parent_id: hr
@@ -42,6 +50,10 @@ menus:
     authority:
       - platform:admin
       - tenant:manager
+      - hr.admin
+      - hr.employee
+      - hr.client
+      - hr.viewer
 
   - id: hr-allowances
     parent_id: hr
@@ -54,6 +66,9 @@ menus:
     authority:
       - platform:admin
       - tenant:manager
+      - hr.admin
+      - hr.employee
+      - hr.viewer
 
   - id: hr-absence-types
     parent_id: hr
@@ -66,6 +81,8 @@ menus:
     authority:
       - platform:admin
       - tenant:manager
+      - hr.admin
+      - hr.viewer
 
 dashboard_widgets:
   - id: hr.pending_requests
@@ -155,3 +172,11 @@ roles:
       - hr.request.view
       - hr.absence_type.view
       - hr.allowance.view
+
+  - name: HR Client
+    code: hr.client
+    description: Read-only access to calendar and own leave requests
+    is_system: true
+    permissions:
+      - hr.calendar.view
+      - hr.request.view

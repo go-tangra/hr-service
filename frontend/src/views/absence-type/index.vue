@@ -13,8 +13,10 @@ import { $t } from 'shell/locales';
 import { useHrAbsenceTypeStore } from '../../stores/hr-absence-type.state';
 
 import AbsenceTypeDrawer from './absence-type-drawer.vue';
+import { usePermission } from '../../composables/use-permission';
 
 const absenceTypeStore = useHrAbsenceTypeStore();
+const { canManageAbsenceTypes } = usePermission();
 
 const formOptions: VbenFormProps = {
   collapsed: false,
@@ -168,7 +170,7 @@ async function handleDelete(row: AbsenceType) {
   <Page auto-content-height>
     <Grid :table-title="$t('hr.page.absenceType.title')">
       <template #toolbar-tools>
-        <Button class="mr-2" type="primary" @click="handleCreate">
+        <Button v-if="canManageAbsenceTypes" class="mr-2" type="primary" @click="handleCreate">
           {{ $t('hr.page.absenceType.create') }}
         </Button>
       </template>
@@ -212,6 +214,7 @@ async function handleDelete(row: AbsenceType) {
             @click.stop="handleView(row)"
           />
           <Button
+            v-if="canManageAbsenceTypes"
             type="link"
             size="small"
             :icon="h(LucidePencil)"
@@ -219,6 +222,7 @@ async function handleDelete(row: AbsenceType) {
             @click.stop="handleEdit(row)"
           />
           <a-popconfirm
+            v-if="canManageAbsenceTypes"
             :cancel-text="$t('ui.button.cancel')"
             :ok-text="$t('ui.button.ok')"
             :title="$t('hr.page.absenceType.confirmDelete')"

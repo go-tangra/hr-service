@@ -1,5 +1,9 @@
 import type { RouteRecordRaw } from 'vue-router';
 
+const HR_ALL_ROLES = ['platform:admin', 'tenant:manager', 'hr.admin', 'hr.employee', 'hr.client', 'hr.viewer'];
+const HR_NO_CLIENT = ['platform:admin', 'tenant:manager', 'hr.admin', 'hr.employee', 'hr.viewer'];
+const HR_ADMIN_ONLY = ['platform:admin', 'tenant:manager', 'hr.admin', 'hr.viewer'];
+
 const routes: RouteRecordRaw[] = [
   {
     path: '/hr',
@@ -11,7 +15,7 @@ const routes: RouteRecordRaw[] = [
       icon: 'lucide:calendar-days',
       title: 'hr.menu.moduleName',
       keepAlive: true,
-      authority: ['platform:admin', 'tenant:manager'],
+      authority: HR_ALL_ROLES,
     },
     children: [
       {
@@ -20,7 +24,7 @@ const routes: RouteRecordRaw[] = [
         meta: {
           icon: 'lucide:calendar',
           title: 'hr.menu.calendar',
-          authority: ['platform:admin', 'tenant:manager'],
+          authority: HR_ALL_ROLES,
         },
         component: () => import('./views/calendar/index.vue'),
       },
@@ -30,7 +34,7 @@ const routes: RouteRecordRaw[] = [
         meta: {
           icon: 'lucide:clock',
           title: 'hr.menu.requests',
-          authority: ['platform:admin', 'tenant:manager'],
+          authority: HR_ALL_ROLES,
         },
         component: () => import('./views/request/index.vue'),
       },
@@ -40,7 +44,7 @@ const routes: RouteRecordRaw[] = [
         meta: {
           icon: 'lucide:list',
           title: 'hr.menu.absenceTypes',
-          authority: ['platform:admin', 'tenant:manager'],
+          authority: HR_ADMIN_ONLY,
         },
         component: () => import('./views/absence-type/index.vue'),
       },
@@ -50,7 +54,7 @@ const routes: RouteRecordRaw[] = [
         meta: {
           icon: 'lucide:calculator',
           title: 'hr.menu.allowances',
-          authority: ['platform:admin', 'tenant:manager'],
+          authority: HR_NO_CLIENT,
         },
         component: () => import('./views/allowance/index.vue'),
       },

@@ -28,6 +28,10 @@ func NewAbsenceTypeService(ctx *bootstrap.Context, absenceTypeRepo *data.Absence
 }
 
 func (s *AbsenceTypeService) CreateAbsenceType(ctx context.Context, req *hrV1.CreateAbsenceTypeRequest) (*hrV1.CreateAbsenceTypeResponse, error) {
+	if err := checkPermission(ctx, "hr.absence_type.manage"); err != nil {
+		return nil, err
+	}
+
 	opts := []func(*ent.AbsenceTypeCreate){}
 
 	if req.Description != nil {
@@ -72,6 +76,10 @@ func (s *AbsenceTypeService) CreateAbsenceType(ctx context.Context, req *hrV1.Cr
 }
 
 func (s *AbsenceTypeService) GetAbsenceType(ctx context.Context, req *hrV1.GetAbsenceTypeRequest) (*hrV1.GetAbsenceTypeResponse, error) {
+	if err := checkPermission(ctx, "hr.absence_type.view"); err != nil {
+		return nil, err
+	}
+
 	entity, err := s.absenceTypeRepo.GetByID(ctx, req.GetId())
 	if err != nil {
 		return nil, err
@@ -86,6 +94,10 @@ func (s *AbsenceTypeService) GetAbsenceType(ctx context.Context, req *hrV1.GetAb
 }
 
 func (s *AbsenceTypeService) ListAbsenceTypes(ctx context.Context, req *hrV1.ListAbsenceTypesRequest) (*hrV1.ListAbsenceTypesResponse, error) {
+	if err := checkPermission(ctx, "hr.absence_type.view"); err != nil {
+		return nil, err
+	}
+
 	filters := make(map[string]interface{})
 	if req.Query != nil {
 		filters["query"] = *req.Query
@@ -115,6 +127,10 @@ func (s *AbsenceTypeService) ListAbsenceTypes(ctx context.Context, req *hrV1.Lis
 }
 
 func (s *AbsenceTypeService) UpdateAbsenceType(ctx context.Context, req *hrV1.UpdateAbsenceTypeRequest) (*hrV1.UpdateAbsenceTypeResponse, error) {
+	if err := checkPermission(ctx, "hr.absence_type.manage"); err != nil {
+		return nil, err
+	}
+
 	updates := make(map[string]interface{})
 
 	if req.Data != nil {
@@ -164,6 +180,10 @@ func (s *AbsenceTypeService) UpdateAbsenceType(ctx context.Context, req *hrV1.Up
 }
 
 func (s *AbsenceTypeService) DeleteAbsenceType(ctx context.Context, req *hrV1.DeleteAbsenceTypeRequest) (*emptypb.Empty, error) {
+	if err := checkPermission(ctx, "hr.absence_type.manage"); err != nil {
+		return nil, err
+	}
+
 	err := s.absenceTypeRepo.Delete(ctx, req.GetId())
 	if err != nil {
 		return nil, err

@@ -10,6 +10,7 @@ import type { CalendarEvent, AbsenceType } from '../../api/services';
 import { toTimestamp, fromTimestamp } from '../../api/services';
 import { hrApi } from '../../api/client';
 import RequestDrawer from '../request/request-drawer.vue';
+import { usePermission } from '../../composables/use-permission';
 
 type ViewMode = 'week' | '2weeks' | 'month';
 
@@ -26,6 +27,7 @@ const leaveStore = useHrLeaveStore();
 const absenceTypeStore = useHrAbsenceTypeStore();
 const userStore = useUserStore();
 const currentUserId = computed(() => userStore.userInfo?.id ?? 0);
+const { canManageRequests } = usePermission();
 
 // --- State ---
 const viewMode = ref<ViewMode>('month');
@@ -322,6 +324,7 @@ const todayMarkerLeft = computed(() => {
 // --- Drag-to-create ---
 function onCellMouseDown(userId: number, dayIndex: number, e: MouseEvent) {
   if (e.button !== 0) return;
+  if (!canManageRequests.value) return;
   // Only allow drag-to-create on the current user's own row
   if (userId !== currentUserId.value) return;
   isDragging.value = true;
@@ -498,7 +501,7 @@ onUnmounted(() => {
             {{ unit }}
           </SelectOption>
         </Select>
-        <Button type="primary" @click="handleNewRequest">
+        <Button v-if="canManageRequests" type="primary" @click="handleNewRequest">
           + {{ $t('hr.page.calendar.newRequest') }}
         </Button>
       </div>
@@ -608,7 +611,7 @@ onUnmounted(() => {
                   weekend: day.isWeekend,
                   today: day.isToday,
                   'drag-highlight': isDragHighlighted(row.user.id, di),
-                  'own-row': row.user.id === currentUserId,
+                  'own-row': canManageRequests && row.user.id === currentUserId,
                 }"
                 :style="{ width: `${dayWidth}px`, minWidth: `${dayWidth}px` }"
                 @mousedown="onCellMouseDown(row.user.id, di, $event)"
