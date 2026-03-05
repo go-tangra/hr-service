@@ -309,6 +309,7 @@ func (s *LeaveService) approveWithSigning(ctx context.Context, existing *ent.Lea
 
 	// Prefill template fields with leave request data
 	fieldValues := []*paperlesspb.SigningFieldValueInput{
+		{FieldId: "Name", Value: existing.UserName},
 		{FieldId: "StartDate", Value: existing.StartDate.Format("2006-01-02")},
 		{FieldId: "EndDate", Value: existing.EndDate.Format("2006-01-02")},
 		{FieldId: "TotalDays", Value: fmt.Sprintf("%d", int(existing.Days))},
