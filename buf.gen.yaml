@@ -15,9 +15,6 @@ managed:
     - file_option: go_package
       path: hr/service/v1
       value: github.com/go-tangra/go-tangra-hr/gen/go/hr/service/v1;hrpb
-    - file_option: go_package
-      path: admin_stub/v1
-      value: github.com/go-tangra/go-tangra-hr/gen/go/admin_stub/v1;adminstubpb
 
 plugins:
   - local: protoc-gen-go
