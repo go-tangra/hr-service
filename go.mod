@@ -7,7 +7,7 @@ require (
 	entgo.io/ent v0.14.5
 	github.com/go-kratos/kratos/v2 v2.9.2
 	github.com/go-sql-driver/mysql v1.9.3
-	github.com/go-tangra/go-tangra-common v0.6.1-0.20260305000000-local
+	github.com/go-tangra/go-tangra-common v1.5.1-0.20260305080352-17097a8bd066
 	github.com/go-tangra/go-tangra-paperless v1.6.0
 	github.com/google/uuid v1.6.0
 	github.com/google/wire v0.7.0
@@ -113,5 +113,3 @@ require (
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20260128011058-8636f8732409 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
-
-replace github.com/go-tangra/go-tangra-common => ../go-tangra-common
