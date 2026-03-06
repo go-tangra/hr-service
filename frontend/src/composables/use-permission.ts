@@ -1,9 +1,11 @@
 import { computed } from 'vue';
-import { useAccessStore } from 'shell/vben/stores';
+import { useAccessStore, useUserStore } from 'shell/vben/stores';
 
 export function usePermission() {
   const accessStore = useAccessStore();
-  const can = (code: string) => accessStore.accessCodes.includes(code);
+  const userStore = useUserStore();
+  const isAdmin = computed(() => userStore.userRoles?.includes('platform:admin') || userStore.userRoles?.includes('tenant:manager'));
+  const can = (code: string) => isAdmin.value || accessStore.accessCodes.includes(code);
 
   return {
     canManageRequests: computed(() => can('hr.request.manage')),
