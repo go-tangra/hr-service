@@ -10,6 +10,7 @@ import (
 
 	"github.com/go-tangra/go-tangra-hr/internal/client"
 	"github.com/go-tangra/go-tangra-hr/internal/event"
+	"github.com/go-tangra/go-tangra-hr/internal/metrics"
 	"github.com/go-tangra/go-tangra-hr/internal/service"
 )
 
@@ -25,4 +26,5 @@ var ProviderSet = wire.NewSet(
 	client.NewAdminClient,
 	event.NewHandler,
 	event.NewSubscriber,
+	metrics.NewCollector,
 )

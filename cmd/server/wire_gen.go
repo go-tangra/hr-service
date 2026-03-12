@@ -7,11 +7,15 @@
 package main
 
 import (
+	gocontext "context"
+
 	"github.com/go-kratos/kratos/v2"
+	"github.com/go-tangra/go-tangra-common/viewer"
 	"github.com/go-tangra/go-tangra-hr/internal/cert"
 	"github.com/go-tangra/go-tangra-hr/internal/client"
 	"github.com/go-tangra/go-tangra-hr/internal/data"
 	"github.com/go-tangra/go-tangra-hr/internal/event"
+	"github.com/go-tangra/go-tangra-hr/internal/metrics"
 	"github.com/go-tangra/go-tangra-hr/internal/server"
 	"github.com/go-tangra/go-tangra-hr/internal/service"
 	"github.com/tx7do/kratos-bootstrap/bootstrap"
@@ -54,7 +58,8 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 		return nil, nil, err
 	}
 	userService := service.NewUserService(context, adminClient)
-	grpcServer := server.NewGRPCServer(context, v, auditLogRepo, systemService, absenceTypeService, leaveService, allowanceService, userService)
+	collector := metrics.NewCollector(context)
+	grpcServer := server.NewGRPCServer(context, v, collector, auditLogRepo, systemService, absenceTypeService, leaveService, allowanceService, userService)
 	httpServer := server.NewHTTPServer(context)
 	redisClient, cleanup4, err := data.NewRedisClient(context)
 	if err != nil {
@@ -65,8 +70,15 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 	}
 	handler := event.NewHandler(context, leaveRequestRepo, leaveAllowanceRepo, absenceTypeRepo)
 	subscriber := event.NewSubscriber(context, redisClient, handler)
+
+	// Seed Prometheus metrics from database
+	statisticsRepo := data.NewStatisticsRepo(context, entClient)
+	seedCtx := viewer.NewSystemViewerContext(gocontext.Background())
+	collector.Seed(seedCtx, statisticsRepo)
+
 	app := newApp(context, grpcServer, httpServer, subscriber, registrationClient)
 	return app, func() {
+		collector.Stop(gocontext.Background())
 		cleanup4()
 		cleanup3()
 		cleanup2()
