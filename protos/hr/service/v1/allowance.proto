@@ -50,12 +50,14 @@ message CreateAllowanceRequest {
 
   optional int32 year = 4 [
     json_name = "year",
-    (google.api.field_behavior) = REQUIRED
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).int32 = { gte: 2000, lte: 2099 }
   ];
 
   optional double total_days = 5 [
     json_name = "totalDays",
-    (google.api.field_behavior) = REQUIRED
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).double = { gt: 0.0, lte: 365.0 }
   ];
 
   optional double carried_over = 6 [json_name = "carriedOver"];
@@ -87,7 +89,10 @@ message ListAllowancesRequest {
 
   // Filters
   optional uint32 user_id = 10 [json_name = "userId"];
-  optional int32 year = 11 [json_name = "year"];
+  optional int32 year = 11 [
+    json_name = "year",
+    (buf.validate.field).int32 = { gte: 2000, lte: 2099 }
+  ];
   optional string absence_type_id = 12 [json_name = "absenceTypeId"];
 }
 
@@ -135,7 +140,10 @@ message GetUserBalanceRequest {
     json_name = "userId",
     (google.api.field_behavior) = REQUIRED
   ];
-  optional int32 year = 2 [json_name = "year"];
+  optional int32 year = 2 [
+    json_name = "year",
+    (buf.validate.field).int32 = { gte: 2000, lte: 2099 }
+  ];
 }
 
 message GetUserBalanceResponse {

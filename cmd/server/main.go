@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"time"
 
 	"github.com/go-kratos/kratos/v2"
 	"github.com/go-kratos/kratos/v2/log"
@@ -36,6 +35,7 @@ func newApp(
 	gs *grpc.Server,
 	hs *kratosHttp.Server,
 	eventSubscriber *event.Subscriber,
+	regClient *registration.Client,
 ) *kratos.App {
 	// Start the event subscriber and store reference for cleanup
 	globalEventSubscriber = eventSubscriber
@@ -45,22 +45,22 @@ func newApp(
 		}
 	}
 
-	globalRegHelper = registration.StartRegistration(ctx, ctx.GetLogger(), &registration.Config{
-		ModuleID:          moduleID,
-		ModuleName:        moduleName,
-		Version:           version,
-		Description:       description,
-		GRPCEndpoint:      registration.GetGRPCAdvertiseAddr(ctx, "0.0.0.0:10200"),
-		AdminEndpoint:     registration.GetEnvOrDefault("ADMIN_GRPC_ENDPOINT", ""),
-		FrontendEntryUrl:  registration.GetEnvOrDefault("FRONTEND_ENTRY_URL", ""),
-		HttpEndpoint:      registration.GetEnvOrDefault("HTTP_ADVERTISE_ADDR", ""),
-		OpenapiSpec:       assets.OpenApiData,
-		ProtoDescriptor:   assets.DescriptorData,
-		MenusYaml:         assets.MenusData,
-		HeartbeatInterval: 30 * time.Second,
-		RetryInterval:     5 * time.Second,
-		MaxRetries:        60,
-	})
+	if regClient != nil {
+		// Populate the full registration config on the pre-created client
+		regClient.SetConfig(&registration.Config{
+			ModuleID:         moduleID,
+			ModuleName:       moduleName,
+			Version:          version,
+			Description:      description,
+			GRPCEndpoint:     registration.GetGRPCAdvertiseAddr(ctx, "0.0.0.0:10200"),
+			FrontendEntryUrl: registration.GetEnvOrDefault("FRONTEND_ENTRY_URL", ""),
+			HttpEndpoint:     registration.GetEnvOrDefault("HTTP_ADVERTISE_ADDR", ""),
+			OpenapiSpec:      assets.OpenApiData,
+			ProtoDescriptor:  assets.DescriptorData,
+			MenusYaml:        assets.MenusData,
+		})
+		globalRegHelper = registration.StartRegistrationWithClient(ctx.GetLogger(), regClient)
+	}
 
 	return bootstrap.NewApp(ctx, gs, hs)
 }
@@ -86,7 +86,11 @@ func runApp() error {
 	ctx.RegisterCustomConfig("hr", &hrCnf.HR{})
 
 	defer stopServices()
-	defer globalRegHelper.Stop()
+	defer func() {
+		if globalRegHelper != nil {
+			globalRegHelper.Stop()
+		}
+	}()
 
 	return bootstrap.RunApp(ctx, initApp)
 }

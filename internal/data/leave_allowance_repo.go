@@ -182,6 +182,64 @@ func (r *LeaveAllowanceRepo) AddUsedDays(ctx context.Context, id string, days fl
 	return nil
 }
 
+// DeductWithBalanceCheck atomically verifies sufficient balance and deducts days in a single transaction.
+// Returns the allowance ID on success, or an error if balance is insufficient or not found.
+func (r *LeaveAllowanceRepo) DeductWithBalanceCheck(ctx context.Context, tenantID uint32, userID uint32, absenceTypeID string, year int, days float64) (string, error) {
+	tx, err := r.entClient.Client().Tx(ctx)
+	if err != nil {
+		r.log.Errorf("begin transaction failed: %s", err.Error())
+		return "", hrV1.ErrorInternalServerError("failed to check allowance")
+	}
+
+	// Lock the row with ForUpdate to prevent concurrent modifications
+	allowance, err := tx.LeaveAllowance.Query().
+		Where(
+			leaveallowance.TenantID(tenantID),
+			leaveallowance.UserID(userID),
+			leaveallowance.AbsenceTypeID(absenceTypeID),
+			leaveallowance.Year(year),
+		).
+		ForUpdate().
+		Only(ctx)
+	if err != nil {
+		if rbErr := tx.Rollback(); rbErr != nil {
+			r.log.Errorf("rollback failed: %s", rbErr.Error())
+		}
+		if ent.IsNotFound(err) {
+			return "", nil // no allowance configured
+		}
+		r.log.Errorf("lock allowance row failed: %s", err.Error())
+		return "", hrV1.ErrorInternalServerError("failed to check allowance")
+	}
+
+	remaining := allowance.TotalDays + allowance.CarriedOver - allowance.UsedDays
+	if days > remaining {
+		if rbErr := tx.Rollback(); rbErr != nil {
+			r.log.Errorf("rollback failed: %s", rbErr.Error())
+		}
+		return "", hrV1.ErrorInsufficientAllowance("insufficient allowance: %.1f days requested, %.1f days remaining", days, remaining)
+	}
+
+	_, err = tx.LeaveAllowance.UpdateOneID(allowance.ID).
+		AddUsedDays(days).
+		SetUpdateTime(time.Now()).
+		Save(ctx)
+	if err != nil {
+		if rbErr := tx.Rollback(); rbErr != nil {
+			r.log.Errorf("rollback failed: %s", rbErr.Error())
+		}
+		r.log.Errorf("deduct allowance failed: %s", err.Error())
+		return "", hrV1.ErrorInternalServerError("failed to deduct allowance")
+	}
+
+	if err := tx.Commit(); err != nil {
+		r.log.Errorf("commit allowance deduction failed: %s", err.Error())
+		return "", hrV1.ErrorInternalServerError("failed to deduct allowance")
+	}
+
+	return allowance.ID, nil
+}
+
 func (r *LeaveAllowanceRepo) Delete(ctx context.Context, id string) error {
 	err := r.entClient.Client().LeaveAllowance.DeleteOneID(id).Exec(ctx)
 	if err != nil {

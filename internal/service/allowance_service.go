@@ -47,7 +47,7 @@ func (s *AllowanceService) CreateAllowance(ctx context.Context, req *hrV1.Create
 		opts = append(opts, func(c *ent.LeaveAllowanceCreate) { c.SetUserName(*req.UserName) })
 	}
 
-	entity, err := s.allowanceRepo.Create(ctx, req.GetTenantId(), req.GetUserId(), req.GetAbsenceTypeId(), int(req.GetYear()), req.GetTotalDays(), opts...)
+	entity, err := s.allowanceRepo.Create(ctx, getTenantID(ctx), req.GetUserId(), req.GetAbsenceTypeId(), int(req.GetYear()), req.GetTotalDays(), opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -71,6 +71,9 @@ func (s *AllowanceService) GetAllowance(ctx context.Context, req *hrV1.GetAllowa
 	}
 	if entity == nil {
 		return nil, hrV1.ErrorAllowanceNotFound("leave allowance not found")
+	}
+	if err := checkTenantAccess(ctx, entity.TenantID, hrV1.ErrorAllowanceNotFound("leave allowance not found")); err != nil {
+		return nil, err
 	}
 
 	return &hrV1.GetAllowanceResponse{
@@ -101,7 +104,7 @@ func (s *AllowanceService) ListAllowances(ctx context.Context, req *hrV1.ListAll
 		pageSize = 0
 	}
 
-	entities, total, err := s.allowanceRepo.List(ctx, req.GetTenantId(), page, pageSize, filters)
+	entities, total, err := s.allowanceRepo.List(ctx, getTenantID(ctx), page, pageSize, filters)
 	if err != nil {
 		return nil, err
 	}
@@ -119,6 +122,18 @@ func (s *AllowanceService) ListAllowances(ctx context.Context, req *hrV1.ListAll
 
 func (s *AllowanceService) UpdateAllowance(ctx context.Context, req *hrV1.UpdateAllowanceRequest) (*hrV1.UpdateAllowanceResponse, error) {
 	if err := checkPermission(ctx, "hr.allowance.manage"); err != nil {
+		return nil, err
+	}
+
+	// Verify tenant access before updating
+	existing, err := s.allowanceRepo.GetByID(ctx, req.GetId())
+	if err != nil {
+		return nil, err
+	}
+	if existing == nil {
+		return nil, hrV1.ErrorAllowanceNotFound("leave allowance not found")
+	}
+	if err := checkTenantAccess(ctx, existing.TenantID, hrV1.ErrorAllowanceNotFound("leave allowance not found")); err != nil {
 		return nil, err
 	}
 
@@ -160,7 +175,19 @@ func (s *AllowanceService) DeleteAllowance(ctx context.Context, req *hrV1.Delete
 		return nil, err
 	}
 
-	err := s.allowanceRepo.Delete(ctx, req.GetId())
+	// Verify tenant access before deleting
+	existing, err := s.allowanceRepo.GetByID(ctx, req.GetId())
+	if err != nil {
+		return nil, err
+	}
+	if existing == nil {
+		return nil, hrV1.ErrorAllowanceNotFound("leave allowance not found")
+	}
+	if err := checkTenantAccess(ctx, existing.TenantID, hrV1.ErrorAllowanceNotFound("leave allowance not found")); err != nil {
+		return nil, err
+	}
+
+	err = s.allowanceRepo.Delete(ctx, req.GetId())
 	if err != nil {
 		return nil, err
 	}
@@ -170,6 +197,11 @@ func (s *AllowanceService) DeleteAllowance(ctx context.Context, req *hrV1.Delete
 func (s *AllowanceService) GetUserBalance(ctx context.Context, req *hrV1.GetUserBalanceRequest) (*hrV1.GetUserBalanceResponse, error) {
 	if err := checkPermission(ctx, "hr.allowance.view"); err != nil {
 		return nil, err
+	}
+
+	// Non-admin users can only view their own balance
+	if !hasPermission(ctx, "hr.allowance.manage") && req.GetUserId() != getUserID(ctx) {
+		return nil, hrV1.ErrorBadRequest("you can only view your own leave balance")
 	}
 
 	year := int(req.GetYear())

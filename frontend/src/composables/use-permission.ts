@@ -9,6 +9,7 @@ export function usePermission() {
 
   return {
     canManageRequests: computed(() => can('hr.request.manage')),
+    canDeleteRequests: computed(() => can('hr.request.delete')),
     canApproveRequests: computed(() => can('hr.request.approve')),
     canManageAllowances: computed(() => can('hr.allowance.manage')),
     canManageAbsenceTypes: computed(() => can('hr.absence_type.manage')),

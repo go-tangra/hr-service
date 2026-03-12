@@ -65,7 +65,7 @@ func (s *AbsenceTypeService) CreateAbsenceType(ctx context.Context, req *hrV1.Cr
 		opts = append(opts, func(c *ent.AbsenceTypeCreate) { c.SetSigningTemplateID(*req.SigningTemplateId) })
 	}
 
-	entity, err := s.absenceTypeRepo.Create(ctx, req.GetTenantId(), req.GetName(), opts...)
+	entity, err := s.absenceTypeRepo.Create(ctx, getTenantID(ctx), req.GetName(), opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -86,6 +86,9 @@ func (s *AbsenceTypeService) GetAbsenceType(ctx context.Context, req *hrV1.GetAb
 	}
 	if entity == nil {
 		return nil, hrV1.ErrorAbsenceTypeNotFound("absence type not found")
+	}
+	if err := checkTenantAccess(ctx, entity.TenantID, hrV1.ErrorAbsenceTypeNotFound("absence type not found")); err != nil {
+		return nil, err
 	}
 
 	return &hrV1.GetAbsenceTypeResponse{
@@ -110,7 +113,7 @@ func (s *AbsenceTypeService) ListAbsenceTypes(ctx context.Context, req *hrV1.Lis
 		pageSize = 0
 	}
 
-	entities, total, err := s.absenceTypeRepo.List(ctx, req.GetTenantId(), page, pageSize, filters)
+	entities, total, err := s.absenceTypeRepo.List(ctx, getTenantID(ctx), page, pageSize, filters)
 	if err != nil {
 		return nil, err
 	}
@@ -128,6 +131,18 @@ func (s *AbsenceTypeService) ListAbsenceTypes(ctx context.Context, req *hrV1.Lis
 
 func (s *AbsenceTypeService) UpdateAbsenceType(ctx context.Context, req *hrV1.UpdateAbsenceTypeRequest) (*hrV1.UpdateAbsenceTypeResponse, error) {
 	if err := checkPermission(ctx, "hr.absence_type.manage"); err != nil {
+		return nil, err
+	}
+
+	// Verify tenant access before updating
+	existing, err := s.absenceTypeRepo.GetByID(ctx, req.GetId())
+	if err != nil {
+		return nil, err
+	}
+	if existing == nil {
+		return nil, hrV1.ErrorAbsenceTypeNotFound("absence type not found")
+	}
+	if err := checkTenantAccess(ctx, existing.TenantID, hrV1.ErrorAbsenceTypeNotFound("absence type not found")); err != nil {
 		return nil, err
 	}
 
@@ -184,7 +199,19 @@ func (s *AbsenceTypeService) DeleteAbsenceType(ctx context.Context, req *hrV1.De
 		return nil, err
 	}
 
-	err := s.absenceTypeRepo.Delete(ctx, req.GetId())
+	// Verify tenant access before deleting
+	existing, err := s.absenceTypeRepo.GetByID(ctx, req.GetId())
+	if err != nil {
+		return nil, err
+	}
+	if existing == nil {
+		return nil, hrV1.ErrorAbsenceTypeNotFound("absence type not found")
+	}
+	if err := checkTenantAccess(ctx, existing.TenantID, hrV1.ErrorAbsenceTypeNotFound("absence type not found")); err != nil {
+		return nil, err
+	}
+
+	err = s.absenceTypeRepo.Delete(ctx, req.GetId())
 	if err != nil {
 		return nil, err
 	}

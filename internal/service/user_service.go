@@ -26,6 +26,10 @@ func NewUserService(ctx *bootstrap.Context, adminClient *client.AdminClient) *Us
 }
 
 func (s *UserService) ListUsers(ctx context.Context, req *hrV1.ListHrUsersRequest) (*hrV1.ListHrUsersResponse, error) {
+	if err := checkPermission(ctx, "hr.users.list"); err != nil {
+		return nil, err
+	}
+
 	resp, err := s.adminClient.ListUsers(ctx)
 	if err != nil {
 		s.log.Errorf("Failed to list users from admin-service: %v", err)

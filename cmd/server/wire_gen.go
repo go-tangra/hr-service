@@ -20,7 +20,7 @@ import (
 // Injectors from wire.go:
 
 func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
-	certManager, err := cert.NewCertManager(context)
+	v, err := cert.NewCertManager(context)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -34,21 +34,27 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 	systemService := service.NewSystemService(context, absenceTypeRepo, leaveRequestRepo)
 	absenceTypeService := service.NewAbsenceTypeService(context, absenceTypeRepo)
 	leaveAllowanceRepo := data.NewLeaveAllowanceRepo(context, entClient)
-	paperlessClient, cleanup2, err := client.NewPaperlessClient(context)
+	registrationClient, err := client.NewRegistrationClient(context)
+	if err != nil {
+		cleanup()
+		return nil, nil, err
+	}
+	moduleDialer := client.NewModuleDialer(context, registrationClient)
+	paperlessClient, cleanup2, err := client.NewPaperlessClient(context, moduleDialer)
 	if err != nil {
 		cleanup()
 		return nil, nil, err
 	}
 	leaveService := service.NewLeaveService(context, leaveRequestRepo, leaveAllowanceRepo, absenceTypeRepo, paperlessClient)
 	allowanceService := service.NewAllowanceService(context, leaveAllowanceRepo, absenceTypeRepo)
-	adminClient, cleanup3, err := client.NewAdminClient(context)
+	adminClient, cleanup3, err := client.NewAdminClient(context, v)
 	if err != nil {
 		cleanup2()
 		cleanup()
 		return nil, nil, err
 	}
 	userService := service.NewUserService(context, adminClient)
-	grpcServer := server.NewGRPCServer(context, certManager, auditLogRepo, systemService, absenceTypeService, leaveService, allowanceService, userService)
+	grpcServer := server.NewGRPCServer(context, v, auditLogRepo, systemService, absenceTypeService, leaveService, allowanceService, userService)
 	httpServer := server.NewHTTPServer(context)
 	redisClient, cleanup4, err := data.NewRedisClient(context)
 	if err != nil {
@@ -59,7 +65,7 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 	}
 	handler := event.NewHandler(context, leaveRequestRepo, leaveAllowanceRepo, absenceTypeRepo)
 	subscriber := event.NewSubscriber(context, redisClient, handler)
-	app := newApp(context, grpcServer, httpServer, subscriber)
+	app := newApp(context, grpcServer, httpServer, subscriber, registrationClient)
 	return app, func() {
 		cleanup4()
 		cleanup3()

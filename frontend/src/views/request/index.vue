@@ -19,7 +19,7 @@ import ReviewModal from './review-modal.vue';
 import { usePermission } from '../../composables/use-permission';
 
 const leaveStore = useHrLeaveStore();
-const { canManageRequests, canApproveRequests } = usePermission();
+const { canManageRequests, canDeleteRequests, canApproveRequests } = usePermission();
 
 function statusColor(status?: string): string {
   switch (status) {
@@ -268,7 +268,7 @@ async function handleDelete(row: LeaveRequest) {
             />
           </Tooltip>
           <a-popconfirm
-            v-if="canManageRequests"
+            v-if="canDeleteRequests"
             :cancel-text="$t('ui.button.cancel')"
             :ok-text="$t('ui.button.ok')"
             :title="$t('hr.page.request.confirmDelete')"

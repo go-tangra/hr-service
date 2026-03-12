@@ -117,6 +117,9 @@ permission_groups:
       - name: Manage Leave Requests
         code: hr.request.manage
         description: Create, update, and delete leave requests
+      - name: Delete Leave Requests
+        code: hr.request.delete
+        description: Delete leave requests (admin only)
       - name: Approve Leave Requests
         code: hr.request.approve
         description: Approve or reject leave requests
@@ -145,6 +148,7 @@ roles:
       - hr.calendar.view
       - hr.request.view
       - hr.request.manage
+      - hr.request.delete
       - hr.request.approve
       - hr.absence_type.view
       - hr.absence_type.manage

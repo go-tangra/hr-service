@@ -39,7 +39,11 @@ func (s *SystemService) HealthCheck(ctx context.Context, req *hrV1.HealthCheckRe
 }
 
 func (s *SystemService) GetStats(ctx context.Context, req *hrV1.GetStatsRequest) (*hrV1.GetStatsResponse, error) {
-	tenantID := req.GetTenantId()
+	if err := checkPermission(ctx, "hr.request.view"); err != nil {
+		return nil, err
+	}
+
+	tenantID := getTenantID(ctx)
 	response := &hrV1.GetStatsResponse{}
 
 	if count, err := s.absenceTypeRepo.Count(ctx, tenantID); err == nil {

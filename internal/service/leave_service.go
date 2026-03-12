@@ -14,7 +14,7 @@ import (
 	"github.com/go-tangra/go-tangra-hr/internal/data"
 	"github.com/go-tangra/go-tangra-hr/internal/data/ent"
 	hrV1 "github.com/go-tangra/go-tangra-hr/gen/go/hr/service/v1"
-	paperlesspb "github.com/go-tangra/go-tangra-paperless/gen/go/paperless/service/v1"
+	paperlesspb "buf.build/gen/go/go-tangra/paperless/protocolbuffers/go/paperless/service/v1"
 )
 
 type LeaveService struct {
@@ -42,8 +42,13 @@ func (s *LeaveService) CreateLeaveRequest(ctx context.Context, req *hrV1.CreateL
 		return nil, err
 	}
 
-	tenantID := req.GetTenantId()
+	tenantID := getTenantID(ctx)
 	userID := req.GetUserId()
+
+	// Non-admin users can only create leave requests for themselves
+	if !hasPermission(ctx, "hr.request.approve") && userID != getUserID(ctx) {
+		return nil, hrV1.ErrorBadRequest("you can only create leave requests for yourself")
+	}
 
 	// Validate absence type exists
 	absType, err := s.absenceTypeRepo.GetByID(ctx, req.GetAbsenceTypeId())
@@ -54,6 +59,9 @@ func (s *LeaveService) CreateLeaveRequest(ctx context.Context, req *hrV1.CreateL
 		return nil, hrV1.ErrorAbsenceTypeNotFound("absence type not found")
 	}
 
+	if req.GetStartDate() == nil || req.GetEndDate() == nil {
+		return nil, hrV1.ErrorValidationFailed("start_date and end_date are required")
+	}
 	startDate := req.GetStartDate().AsTime()
 	endDate := req.GetEndDate().AsTime()
 
@@ -76,7 +84,7 @@ func (s *LeaveService) CreateLeaveRequest(ctx context.Context, req *hrV1.CreateL
 		return nil, hrV1.ErrorOverlapExists("overlapping leave request exists for this period")
 	}
 
-	// Check allowance balance if type deducts from allowance
+	// Check allowance balance if type deducts from allowance (pre-check, non-atomic)
 	if absType.DeductsFromAllowance {
 		allowance, err := s.allowanceRepo.GetByUserAndTypeAndYear(ctx, tenantID, userID, req.GetAbsenceTypeId(), startDate.Year())
 		if err != nil {
@@ -87,7 +95,7 @@ func (s *LeaveService) CreateLeaveRequest(ctx context.Context, req *hrV1.CreateL
 		}
 		remaining := allowance.TotalDays + allowance.CarriedOver - allowance.UsedDays
 		if days > remaining {
-			return nil, hrV1.ErrorInsufficientAllowance(fmt.Sprintf("insufficient allowance: %.1f days requested, %.1f days remaining", days, remaining))
+			return nil, hrV1.ErrorInsufficientAllowance("insufficient allowance: %.1f days requested, %.1f days remaining", days, remaining)
 		}
 	}
 
@@ -95,6 +103,19 @@ func (s *LeaveService) CreateLeaveRequest(ctx context.Context, req *hrV1.CreateL
 	status := "pending"
 	if !absType.RequiresApproval {
 		status = "approved"
+	}
+
+	// If auto-approved and deducts from allowance, atomically deduct before creating the request
+	var deductedAllowanceID string
+	if status == "approved" && absType.DeductsFromAllowance {
+		aid, err := s.allowanceRepo.DeductWithBalanceCheck(ctx, tenantID, userID, req.GetAbsenceTypeId(), startDate.Year(), days)
+		if err != nil {
+			return nil, err
+		}
+		if aid == "" {
+			return nil, hrV1.ErrorInsufficientAllowance("no leave allowance configured for this type and year")
+		}
+		deductedAllowanceID = aid
 	}
 
 	opts := []func(*ent.LeaveRequestCreate){}
@@ -119,15 +140,13 @@ func (s *LeaveService) CreateLeaveRequest(ctx context.Context, req *hrV1.CreateL
 
 	entity, err := s.leaveRequestRepo.Create(ctx, tenantID, userID, req.GetAbsenceTypeId(), startDate, endDate, days, status, opts...)
 	if err != nil {
-		return nil, err
-	}
-
-	// If auto-approved and deducts from allowance, deduct immediately
-	if status == "approved" && absType.DeductsFromAllowance {
-		allowance, _ := s.allowanceRepo.GetByUserAndTypeAndYear(ctx, tenantID, userID, req.GetAbsenceTypeId(), startDate.Year())
-		if allowance != nil {
-			_ = s.allowanceRepo.AddUsedDays(ctx, allowance.ID, days)
+		// If we already deducted allowance, refund it
+		if deductedAllowanceID != "" {
+			if refundErr := s.allowanceRepo.AddUsedDays(ctx, deductedAllowanceID, -days); refundErr != nil {
+				s.log.Errorf("Failed to refund allowance %s after create failure: %v", deductedAllowanceID, refundErr)
+			}
 		}
+		return nil, err
 	}
 
 	// Re-fetch with edges
@@ -149,6 +168,9 @@ func (s *LeaveService) GetLeaveRequest(ctx context.Context, req *hrV1.GetLeaveRe
 	}
 	if entity == nil {
 		return nil, hrV1.ErrorLeaveRequestNotFound("leave request not found")
+	}
+	if err := checkTenantAccess(ctx, entity.TenantID, hrV1.ErrorLeaveRequestNotFound("leave request not found")); err != nil {
+		return nil, err
 	}
 
 	return &hrV1.GetLeaveRequestResponse{
@@ -189,7 +211,7 @@ func (s *LeaveService) ListLeaveRequests(ctx context.Context, req *hrV1.ListLeav
 		pageSize = 0
 	}
 
-	entities, total, err := s.leaveRequestRepo.List(ctx, req.GetTenantId(), page, pageSize, filters)
+	entities, total, err := s.leaveRequestRepo.List(ctx, getTenantID(ctx), page, pageSize, filters)
 	if err != nil {
 		return nil, err
 	}
@@ -207,6 +229,18 @@ func (s *LeaveService) ListLeaveRequests(ctx context.Context, req *hrV1.ListLeav
 
 func (s *LeaveService) UpdateLeaveRequest(ctx context.Context, req *hrV1.UpdateLeaveRequestRequest) (*hrV1.UpdateLeaveRequestResponse, error) {
 	if err := checkPermission(ctx, "hr.request.manage"); err != nil {
+		return nil, err
+	}
+
+	// Verify tenant access before updating
+	existing, err := s.leaveRequestRepo.GetByID(ctx, req.GetId())
+	if err != nil {
+		return nil, err
+	}
+	if existing == nil {
+		return nil, hrV1.ErrorLeaveRequestNotFound("leave request not found")
+	}
+	if err := checkTenantAccess(ctx, existing.TenantID, hrV1.ErrorLeaveRequestNotFound("leave request not found")); err != nil {
 		return nil, err
 	}
 
@@ -238,11 +272,23 @@ func (s *LeaveService) UpdateLeaveRequest(ctx context.Context, req *hrV1.UpdateL
 }
 
 func (s *LeaveService) DeleteLeaveRequest(ctx context.Context, req *hrV1.DeleteLeaveRequestRequest) (*emptypb.Empty, error) {
-	if err := checkPermission(ctx, "hr.request.manage"); err != nil {
+	if err := checkPermission(ctx, "hr.request.delete"); err != nil {
 		return nil, err
 	}
 
-	err := s.leaveRequestRepo.Delete(ctx, req.GetId())
+	// Verify tenant access before deleting
+	existing, err := s.leaveRequestRepo.GetByID(ctx, req.GetId())
+	if err != nil {
+		return nil, err
+	}
+	if existing == nil {
+		return nil, hrV1.ErrorLeaveRequestNotFound("leave request not found")
+	}
+	if err := checkTenantAccess(ctx, existing.TenantID, hrV1.ErrorLeaveRequestNotFound("leave request not found")); err != nil {
+		return nil, err
+	}
+
+	err = s.leaveRequestRepo.Delete(ctx, req.GetId())
 	if err != nil {
 		return nil, err
 	}
@@ -260,6 +306,9 @@ func (s *LeaveService) ApproveLeaveRequest(ctx context.Context, req *hrV1.Approv
 	}
 	if existing == nil {
 		return nil, hrV1.ErrorLeaveRequestNotFound("leave request not found")
+	}
+	if err := checkTenantAccess(ctx, existing.TenantID, hrV1.ErrorLeaveRequestNotFound("leave request not found")); err != nil {
+		return nil, err
 	}
 	if existing.Status.String() != "pending" {
 		return nil, hrV1.ErrorBadRequest("only pending requests can be approved")
@@ -289,31 +338,33 @@ func (s *LeaveService) approveWithSigning(ctx context.Context, existing *ent.Lea
 	}
 
 	// Build signing recipients: approver signs first, then employee
-	approverName := getUsername(ctx)
-	if req.ApproverName != nil && *req.ApproverName != "" {
-		approverName = *req.ApproverName
-	}
+	// Internal signing: use user IDs so recipients must be logged in
+	approverID := getUserID(ctx)
+	employeeID := existing.UserID
 
 	recipients := []*paperlesspb.SigningRecipientInput{
 		{
-			Email:        req.GetApproverEmail(),
-			Name:         approverName,
+			UserId:       &approverID,
 			SigningOrder: 1,
 		},
 		{
-			Email:        existing.UserEmail,
-			Name:         existing.UserName,
+			UserId:       &employeeID,
 			SigningOrder: 2,
 		},
 	}
 
 	// Prefill template fields with leave request data
+	// Field names must match the signing template field names exactly:
+	//   "Date 1"  (prefill_stage=1) — today's date
+	//   "Name1"   (prefill_stage=1) — approver / company representative name
+	//   "Name2"   (prefill_stage=1) — employee name
+	//   "Title"   (prefill_stage=1) — employee job title
+	approverName := getUsername(ctx)
 	fieldValues := []*paperlesspb.SigningFieldValueInput{
-		{FieldId: "Name", Value: existing.UserName},
-		{FieldId: "StartDate", Value: existing.StartDate.Format("2006-01-02")},
-		{FieldId: "EndDate", Value: existing.EndDate.Format("2006-01-02")},
-		{FieldId: "TotalDays", Value: fmt.Sprintf("%d", int(existing.Days))},
-		{FieldId: "Today", Value: time.Now().Format("02.01.2006")},
+		{FieldId: "Date 1", Value: time.Now().Format("02.01.2006")},
+		{FieldId: "Name1", Value: approverName},
+		{FieldId: "Name2", Value: existing.UserName},
+		{FieldId: "Title", Value: existing.UserName}, // TODO: use actual job title when available
 	}
 
 	requestName := fmt.Sprintf("Leave Request - %s (%s to %s)",
@@ -336,17 +387,25 @@ func (s *LeaveService) approveWithSigning(ctx context.Context, existing *ent.Lea
 		recipients,
 		fieldValues,
 		message,
+		paperlesspb.SigningRequestType_SIGNING_REQUEST_TYPE_INTERNAL,
 	)
 	if err != nil {
 		// Roll back to pending on failure
 		s.log.Errorf("Failed to create signing request, rolling back to pending: %v", err)
-		_, _ = s.leaveRequestRepo.UpdateStatus(ctx, existing.ID, "pending", 0, "", "")
+		if _, rollbackErr := s.leaveRequestRepo.UpdateStatus(ctx, existing.ID, "pending", 0, "", ""); rollbackErr != nil {
+			s.log.Errorf("CRITICAL: Failed to roll back leave %s from awaiting_signing to pending: %v", existing.ID, rollbackErr)
+		}
 		return nil, hrV1.ErrorInternalServerError("failed to create signing request")
 	}
 
 	// Store the signing request ID on the leave request
 	if err := s.leaveRequestRepo.SetSigningRequestID(ctx, existing.ID, signingRequestID); err != nil {
-		s.log.Errorf("Failed to store signing_request_id: %v", err)
+		s.log.Errorf("Failed to store signing_request_id for leave %s: %v", existing.ID, err)
+		// Roll back: without the signing request ID, we can't track the signing flow
+		if _, rollbackErr := s.leaveRequestRepo.UpdateStatus(ctx, existing.ID, "pending", 0, "", ""); rollbackErr != nil {
+			s.log.Errorf("CRITICAL: Failed to roll back leave %s after signing_request_id storage failure: %v", existing.ID, rollbackErr)
+		}
+		return nil, hrV1.ErrorInternalServerError("failed to initiate signing workflow")
 	}
 
 	// Re-fetch with edges
@@ -362,21 +421,16 @@ func (s *LeaveService) approveWithSigning(ctx context.Context, existing *ent.Lea
 
 // approveImmediate performs standard approval without signing
 func (s *LeaveService) approveImmediate(ctx context.Context, existing *ent.LeaveRequest, id string, reviewNotes string) (*hrV1.ApproveLeaveRequestResponse, error) {
-	entity, err := s.leaveRequestRepo.UpdateStatus(ctx, id, "approved", getUserID(ctx), getUsername(ctx), reviewNotes)
-	if err != nil {
+	// Atomically deduct from allowance BEFORE approving, to prevent race conditions
+	if err := deductAllowance(ctx, s.allowanceRepo, existing); err != nil {
 		return nil, err
 	}
 
-	// Deduct from allowance if the absence type requires it
-	if existing.Edges.AbsenceType != nil && existing.Edges.AbsenceType.DeductsFromAllowance {
-		var tid uint32
-		if existing.TenantID != nil {
-			tid = *existing.TenantID
-		}
-		allowance, _ := s.allowanceRepo.GetByUserAndTypeAndYear(ctx, tid, existing.UserID, existing.AbsenceTypeID, existing.StartDate.Year())
-		if allowance != nil {
-			_ = s.allowanceRepo.AddUsedDays(ctx, allowance.ID, existing.Days)
-		}
+	entity, err := s.leaveRequestRepo.UpdateStatus(ctx, id, "approved", getUserID(ctx), getUsername(ctx), reviewNotes)
+	if err != nil {
+		// Refund allowance if status update fails
+		refundAllowance(ctx, s.log, s.allowanceRepo, existing)
+		return nil, err
 	}
 
 	// Re-fetch with edges
@@ -401,6 +455,9 @@ func (s *LeaveService) RejectLeaveRequest(ctx context.Context, req *hrV1.RejectL
 	}
 	if existing == nil {
 		return nil, hrV1.ErrorLeaveRequestNotFound("leave request not found")
+	}
+	if err := checkTenantAccess(ctx, existing.TenantID, hrV1.ErrorLeaveRequestNotFound("leave request not found")); err != nil {
+		return nil, err
 	}
 	if existing.Status.String() != "pending" {
 		return nil, hrV1.ErrorBadRequest("only pending requests can be rejected")
@@ -439,6 +496,9 @@ func (s *LeaveService) CancelLeaveRequest(ctx context.Context, req *hrV1.CancelL
 	if existing == nil {
 		return nil, hrV1.ErrorLeaveRequestNotFound("leave request not found")
 	}
+	if err := checkTenantAccess(ctx, existing.TenantID, hrV1.ErrorLeaveRequestNotFound("leave request not found")); err != nil {
+		return nil, err
+	}
 
 	wasApproved := existing.Status.String() == "approved"
 
@@ -447,16 +507,9 @@ func (s *LeaveService) CancelLeaveRequest(ctx context.Context, req *hrV1.CancelL
 		return nil, err
 	}
 
-	// Refund allowance if was previously approved and deducts from allowance
-	if wasApproved && existing.Edges.AbsenceType != nil && existing.Edges.AbsenceType.DeductsFromAllowance {
-		var tid uint32
-		if existing.TenantID != nil {
-			tid = *existing.TenantID
-		}
-		allowance, _ := s.allowanceRepo.GetByUserAndTypeAndYear(ctx, tid, existing.UserID, existing.AbsenceTypeID, existing.StartDate.Year())
-		if allowance != nil {
-			_ = s.allowanceRepo.AddUsedDays(ctx, allowance.ID, -existing.Days)
-		}
+	// Refund allowance if was previously approved
+	if wasApproved {
+		refundAllowance(ctx, s.log, s.allowanceRepo, existing)
 	}
 
 	// Re-fetch with edges
@@ -475,13 +528,16 @@ func (s *LeaveService) GetCalendarEvents(ctx context.Context, req *hrV1.GetCalen
 		return nil, err
 	}
 
-	startDate, _ := time.Parse(time.RFC3339, req.GetStartDate())
-	endDate, _ := time.Parse(time.RFC3339, req.GetEndDate())
-	if startDate.IsZero() {
-		startDate = time.Now().AddDate(0, -1, 0)
+	if req.GetStartDate() == "" || req.GetEndDate() == "" {
+		return nil, hrV1.ErrorValidationFailed("start_date and end_date are required")
 	}
-	if endDate.IsZero() {
-		endDate = time.Now().AddDate(0, 2, 0)
+	startDate, err := time.Parse(time.RFC3339, req.GetStartDate())
+	if err != nil {
+		return nil, hrV1.ErrorValidationFailed("invalid start_date format, expected RFC3339")
+	}
+	endDate, err := time.Parse(time.RFC3339, req.GetEndDate())
+	if err != nil {
+		return nil, hrV1.ErrorValidationFailed("invalid end_date format, expected RFC3339")
 	}
 	orgUnitName := ""
 	if req.OrgUnitName != nil {
@@ -492,7 +548,7 @@ func (s *LeaveService) GetCalendarEvents(ctx context.Context, req *hrV1.GetCalen
 		userID = *req.UserId
 	}
 
-	entities, err := s.leaveRequestRepo.GetCalendarEvents(ctx, req.GetTenantId(), startDate, endDate, orgUnitName, userID)
+	entities, err := s.leaveRequestRepo.GetCalendarEvents(ctx, getTenantID(ctx), startDate, endDate, orgUnitName, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -536,6 +592,9 @@ func (s *LeaveService) GetSignedDocumentUrl(ctx context.Context, req *hrV1.GetSi
 	}
 	if entity == nil {
 		return nil, hrV1.ErrorLeaveRequestNotFound("leave request not found")
+	}
+	if err := checkTenantAccess(ctx, entity.TenantID, hrV1.ErrorLeaveRequestNotFound("leave request not found")); err != nil {
+		return nil, err
 	}
 	if entity.SigningRequestID == "" {
 		return nil, hrV1.ErrorBadRequest("leave request has no signed document")

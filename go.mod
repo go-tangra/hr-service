@@ -3,12 +3,13 @@ module github.com/go-tangra/go-tangra-hr
 go 1.25.4
 
 require (
-	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.36.11-20251209175733-2a1774d88802.1
+	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.36.11-20260209202127-80ab13bee0bf.1
+	buf.build/gen/go/go-tangra/paperless/grpc/go v1.6.1-20260312082110-e6107deb6aee.1
+	buf.build/gen/go/go-tangra/paperless/protocolbuffers/go v1.36.11-20260312082110-e6107deb6aee.1
 	entgo.io/ent v0.14.5
 	github.com/go-kratos/kratos/v2 v2.9.2
 	github.com/go-sql-driver/mysql v1.9.3
-	github.com/go-tangra/go-tangra-common v1.5.1-0.20260305080352-17097a8bd066
-	github.com/go-tangra/go-tangra-paperless v1.6.0
+	github.com/go-tangra/go-tangra-common v1.6.0
 	github.com/google/uuid v1.6.0
 	github.com/google/wire v0.7.0
 	github.com/jackc/pgx/v5 v5.8.0
@@ -28,6 +29,8 @@ require (
 
 require (
 	ariga.io/atlas v1.0.0 // indirect
+	buf.build/gen/go/kratos/apis/protocolbuffers/go v1.36.11-20230105082401-c2de25f14fa4.1 // indirect
+	buf.build/gen/go/menta2k-org/redact/protocolbuffers/go v1.36.11-20251106144841-73f00ca72edd.1 // indirect
 	dario.cat/mergo v1.0.2 // indirect
 	filippo.io/edwards25519 v1.1.0 // indirect
 	github.com/XSAM/otelsql v0.41.0 // indirect

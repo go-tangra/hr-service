@@ -54,15 +54,15 @@ func (h *Handler) HandleSigningCompleted(ctx context.Context, data *SigningReque
 		return err
 	}
 
-	// Deduct from allowance if the absence type requires it
+	// Atomically deduct from allowance if the absence type requires it
 	if leaveReq.Edges.AbsenceType != nil && leaveReq.Edges.AbsenceType.DeductsFromAllowance {
 		var tid uint32
 		if leaveReq.TenantID != nil {
 			tid = *leaveReq.TenantID
 		}
-		allowance, _ := h.allowanceRepo.GetByUserAndTypeAndYear(ctx, tid, leaveReq.UserID, leaveReq.AbsenceTypeID, leaveReq.StartDate.Year())
-		if allowance != nil {
-			_ = h.allowanceRepo.AddUsedDays(ctx, allowance.ID, leaveReq.Days)
+		if _, err := h.allowanceRepo.DeductWithBalanceCheck(ctx, tid, leaveReq.UserID, leaveReq.AbsenceTypeID, leaveReq.StartDate.Year(), leaveReq.Days); err != nil {
+			h.log.Errorf("Failed to deduct allowance for leave %s after signing: %v", leaveReq.ID, err)
+			return err
 		}
 	}
 

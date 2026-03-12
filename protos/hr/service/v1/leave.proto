@@ -79,7 +79,10 @@ message CreateLeaveRequestRequest {
     (google.api.field_behavior) = REQUIRED
   ];
 
-  optional double days = 6 [json_name = "days"];
+  optional double days = 6 [
+    json_name = "days",
+    (buf.validate.field).double = { gte: 0.0, lte: 365.0 }
+  ];
   optional string reason = 7 [json_name = "reason"];
   optional string notes = 8 [json_name = "notes"];
   google.protobuf.Struct metadata = 9 [json_name = "metadata"];

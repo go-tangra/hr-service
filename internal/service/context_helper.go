@@ -40,6 +40,20 @@ func getUsername(ctx context.Context) string {
 	return ""
 }
 
+// checkTenantAccess verifies the entity belongs to the caller's tenant.
+// Returns a "not found" error if tenant doesn't match (to avoid leaking resource existence across tenants).
+// System callers (tenantID == 0) bypass the check.
+func checkTenantAccess(ctx context.Context, entityTenantID *uint32, notFoundErr error) error {
+	callerTenantID := getTenantID(ctx)
+	if callerTenantID == 0 {
+		return nil // system caller, no tenant restriction
+	}
+	if entityTenantID == nil || *entityTenantID != callerTenantID {
+		return notFoundErr
+	}
+	return nil
+}
+
 // getRoles extracts roles from gRPC metadata (comma-separated)
 func getRoles(ctx context.Context) []string {
 	if tr, ok := transport.FromServerContext(ctx); ok {

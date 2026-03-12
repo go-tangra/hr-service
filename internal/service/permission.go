@@ -16,6 +16,7 @@ var rolePermissions = map[string][]string{
 		"hr.calendar.view",
 		"hr.request.view",
 		"hr.request.manage",
+		"hr.request.delete",
 		"hr.request.approve",
 		"hr.absence_type.view",
 		"hr.absence_type.manage",
