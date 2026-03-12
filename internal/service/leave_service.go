@@ -354,17 +354,16 @@ func (s *LeaveService) approveWithSigning(ctx context.Context, existing *ent.Lea
 	}
 
 	// Prefill template fields with leave request data
-	// Field names must match the signing template field names exactly:
-	//   "Date 1"  (prefill_stage=1) — today's date
-	//   "Name1"   (prefill_stage=1) — approver / company representative name
-	//   "Name2"   (prefill_stage=1) — employee name
-	//   "Title"   (prefill_stage=1) — employee job title
-	approverName := getUsername(ctx)
+	// Field names must match the signing template "Заявление Платен Отпуск" fields exactly:
+	//   "TotalDays"  (prefill_stage=1) — number of leave days
+	//   "StartDate"  (prefill_stage=1) — leave start date
+	//   "EndDate"    (prefill_stage=1) — leave end date
+	//   "Today"      (prefill_stage=1) — today's date
 	fieldValues := []*paperlesspb.SigningFieldValueInput{
-		{FieldId: "Date 1", Value: time.Now().Format("02.01.2006")},
-		{FieldId: "Name1", Value: approverName},
-		{FieldId: "Name2", Value: existing.UserName},
-		{FieldId: "Title", Value: existing.UserName}, // TODO: use actual job title when available
+		{FieldId: "TotalDays", Value: fmt.Sprintf("%d", int(existing.Days))},
+		{FieldId: "StartDate", Value: existing.StartDate.Format("2006-01-02")},
+		{FieldId: "EndDate", Value: existing.EndDate.Format("2006-01-02")},
+		{FieldId: "Today", Value: time.Now().Format("02.01.2006")},
 	}
 
 	requestName := fmt.Sprintf("Leave Request - %s (%s to %s)",
