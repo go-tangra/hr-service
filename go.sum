@@ -6,10 +6,10 @@ buf.build/gen/go/go-tangra/paperless/grpc/go v1.6.1-20260312082110-e6107deb6aee.
 buf.build/gen/go/go-tangra/paperless/grpc/go v1.6.1-20260312082110-e6107deb6aee.1/go.mod h1:EZsft2P3fJs/eRnn3SQ4/SYe+EqEcxbjfctGJ6jA+EU=
 buf.build/gen/go/go-tangra/paperless/protocolbuffers/go v1.36.11-20260312082110-e6107deb6aee.1 h1:Fxb9cIANvjH1hKuROCkW6cmUWNSjq8Ee6cM2mRgj0iY=
 buf.build/gen/go/go-tangra/paperless/protocolbuffers/go v1.36.11-20260312082110-e6107deb6aee.1/go.mod h1:tTKPBTUrRwpTIcEdLHlHitmkIgxsb4/MqQ+ThlImGiU=
-buf.build/gen/go/kratos/apis/protocolbuffers/go v1.36.11-20230105082401-c2de25f14fa4.1 h1:IBwWd3JFh1+FTbOo3hqkaRWV2lNtf5PgO5EeKoKVNRk=
-buf.build/gen/go/kratos/apis/protocolbuffers/go v1.36.11-20230105082401-c2de25f14fa4.1/go.mod h1:gM66M7mY0ODAZlA36ffizVqU3CMJMmy5eKaOlMHeRPo=
-buf.build/gen/go/menta2k-org/redact/protocolbuffers/go v1.36.11-20251106144841-73f00ca72edd.1 h1:ispO1s+7N6k+Ek2lGVNA0KJtuSbFKFgYKgH9F06h17c=
-buf.build/gen/go/menta2k-org/redact/protocolbuffers/go v1.36.11-20251106144841-73f00ca72edd.1/go.mod h1:cp511Jjkc8CFv+ucSZ+b+v98SO+dhPsH4PjSLeMsOyU=
+buf.build/gen/go/kratos/apis/protocolbuffers/go v1.36.10-20230105082401-c2de25f14fa4.1 h1:mwnlP1KTH4BXFSty5XsowZmB0eUIp98Uxx5buUmNJ1c=
+buf.build/gen/go/kratos/apis/protocolbuffers/go v1.36.10-20230105082401-c2de25f14fa4.1/go.mod h1:hQZ7isYk0/YE72yMHFS2sUuF+18X6HHtsXtkiTTsaq4=
+buf.build/gen/go/menta2k-org/redact/protocolbuffers/go v1.36.11-20251106143824-2e42b69270f4.1 h1:+zGT6Cd7WxBtmzdkx31oNv09TFN/Ze2I0PPoGP8/x4s=
+buf.build/gen/go/menta2k-org/redact/protocolbuffers/go v1.36.11-20251106143824-2e42b69270f4.1/go.mod h1:cp511Jjkc8CFv+ucSZ+b+v98SO+dhPsH4PjSLeMsOyU=
 cel.dev/expr v0.24.0 h1:56OvJKSH3hDGL0ml5uSxZmz3/3Pq4tJ+fb1unVLAFcY=
 cel.dev/expr v0.24.0/go.mod h1:hLPLo1W4QUmuYdA72RBX06QTs6MXw941piREPl3Yfiw=
 dario.cat/mergo v1.0.2 h1:85+piFYR1tMbRrLcDwR18y4UKJ3aH1Tbzi24VRW1TK8=

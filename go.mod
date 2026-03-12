@@ -30,8 +30,8 @@ require (
 
 require (
 	ariga.io/atlas v1.0.0 // indirect
-	buf.build/gen/go/kratos/apis/protocolbuffers/go v1.36.11-20230105082401-c2de25f14fa4.1 // indirect
-	buf.build/gen/go/menta2k-org/redact/protocolbuffers/go v1.36.11-20251106144841-73f00ca72edd.1 // indirect
+	buf.build/gen/go/kratos/apis/protocolbuffers/go v1.36.10-20230105082401-c2de25f14fa4.1 // indirect
+	buf.build/gen/go/menta2k-org/redact/protocolbuffers/go v1.36.11-20251106143824-2e42b69270f4.1 // indirect
 	dario.cat/mergo v1.0.2 // indirect
 	filippo.io/edwards25519 v1.1.0 // indirect
 	github.com/XSAM/otelsql v0.41.0 // indirect
@@ -122,4 +122,11 @@ require (
 	golang.org/x/tools v0.41.0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20260128011058-8636f8732409 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
+)
+
+exclude (
+	// Conflicts with github.com/go-kratos/kratos/v2 (dual proto registration of errors/errors.proto)
+	buf.build/gen/go/kratos/apis/protocolbuffers/go v1.36.11-20230105082401-c2de25f14fa4.1
+	// Conflicts with github.com/menta2k/protoc-gen-redact/v3 (dual proto registration of redact/v3/redact.proto)
+	buf.build/gen/go/menta2k-org/redact/protocolbuffers/go v1.36.11-20251106144841-73f00ca72edd.1
 )
