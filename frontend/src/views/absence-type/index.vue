@@ -8,7 +8,7 @@ import { notification, Space, Button, Tag } from 'ant-design-vue';
 
 import { useVbenVxeGrid } from 'shell/adapter/vxe-table';
 import type { VxeGridProps } from 'shell/adapter/vxe-table';
-import type { AbsenceType } from '../../api/services';
+import type { AbsenceType } from '../../api/client';
 import { $t } from 'shell/locales';
 import { useHrAbsenceTypeStore } from '../../stores/hr-absence-type.state';
 

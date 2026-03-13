@@ -18,28 +18,17 @@ import {
   Tag,
 } from 'ant-design-vue';
 
-import type { LeaveRequest, AbsenceType, BalanceEntry } from '../../api/services';
-import { toTimestamp, fromTimestamp } from '../../api/services';
+import { toTimestamp, fromTimestamp, userService, type LeaveRequest, type AbsenceType, type BalanceEntry, type HrUser } from '../../api/client';
 import { $t } from 'shell/locales';
 import { useUserStore } from 'shell/vben/stores';
 import { useHrLeaveStore } from '../../stores/hr-leave.state';
 import { useHrAbsenceTypeStore } from '../../stores/hr-absence-type.state';
 import { useHrAllowanceStore } from '../../stores/hr-allowance.state';
-import { hrApi } from '../../api/client';
 
 const leaveStore = useHrLeaveStore();
 const absenceTypeStore = useHrAbsenceTypeStore();
 const allowanceStore = useHrAllowanceStore();
 const userStore = useUserStore();
-
-interface PortalUser {
-  id: number;
-  username?: string;
-  realname?: string;
-  email?: string;
-  orgUnitNames?: string[];
-  positionNames?: string[];
-}
 
 const data = ref<{
   mode: 'create' | 'edit' | 'view';
@@ -47,7 +36,7 @@ const data = ref<{
 }>();
 const loading = ref(false);
 const absenceTypes = ref<AbsenceType[]>([]);
-const users = ref<PortalUser[]>([]);
+const users = ref<HrUser[]>([]);
 
 const balanceEntries = ref<BalanceEntry[]>([]);
 
@@ -116,7 +105,7 @@ function statusLabel(status?: string): string {
   }
 }
 
-function getUserDisplayName(user: PortalUser): string {
+function getUserDisplayName(user: HrUser): string {
   return user.realname || user.username || '';
 }
 
@@ -134,10 +123,10 @@ async function loadOptions() {
   try {
     const [typesResp, usersResp] = await Promise.all([
       absenceTypeStore.listAbsenceTypes(undefined, null),
-      hrApi.get<{ items: PortalUser[] }>('/users?noPaging=true'),
+      userService.ListUsers({ noPaging: true }),
     ]);
     absenceTypes.value = (typesResp as { items: AbsenceType[] }).items || [];
-    users.value = (usersResp as { items: PortalUser[] }).items || [];
+    users.value = usersResp.items || [];
   } catch {
     // silently fail
   }

@@ -19,7 +19,7 @@ import {
   SelectOption,
 } from 'ant-design-vue';
 
-import type { AbsenceType } from '../../api/services';
+import type { AbsenceType } from '../../api/client';
 import { paperlessApi } from '../../api/client';
 import { $t } from 'shell/locales';
 import { useHrAbsenceTypeStore } from '../../stores/hr-absence-type.state';

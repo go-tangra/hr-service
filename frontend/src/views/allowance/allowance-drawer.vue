@@ -16,22 +16,13 @@ import {
   DescriptionsItem,
 } from 'ant-design-vue';
 
-import type { LeaveAllowance, AbsenceType } from '../../api/services';
+import { userService, type LeaveAllowance, type AbsenceType, type HrUser } from '../../api/client';
 import { $t } from 'shell/locales';
 import { useHrAllowanceStore } from '../../stores/hr-allowance.state';
 import { useHrAbsenceTypeStore } from '../../stores/hr-absence-type.state';
-import { hrApi } from '../../api/client';
+
 const allowanceStore = useHrAllowanceStore();
 const absenceTypeStore = useHrAbsenceTypeStore();
-
-interface PortalUser {
-  id: number;
-  username?: string;
-  realname?: string;
-  email?: string;
-  orgUnitNames?: string[];
-  positionNames?: string[];
-}
 
 const data = ref<{
   mode: 'create' | 'edit' | 'view';
@@ -39,7 +30,7 @@ const data = ref<{
 }>();
 const loading = ref(false);
 const absenceTypes = ref<AbsenceType[]>([]);
-const users = ref<PortalUser[]>([]);
+const users = ref<HrUser[]>([]);
 
 const formState = ref({
   userId: undefined as number | undefined,
@@ -70,7 +61,7 @@ const deductingTypes = computed(() =>
   absenceTypes.value.filter((t) => t.deductsFromAllowance),
 );
 
-function getUserDisplayName(user: PortalUser): string {
+function getUserDisplayName(user: HrUser): string {
   return user.realname || user.username || '';
 }
 
@@ -78,10 +69,10 @@ async function loadOptions() {
   try {
     const [typesResp, usersResp] = await Promise.all([
       absenceTypeStore.listAbsenceTypes(undefined, null),
-      hrApi.get<{ items: PortalUser[] }>('/users?noPaging=true'),
+      userService.ListUsers({ noPaging: true }),
     ]);
     absenceTypes.value = (typesResp as { items: AbsenceType[] }).items || [];
-    users.value = (usersResp as { items: PortalUser[] }).items || [];
+    users.value = usersResp.items || [];
   } catch {
     // silently fail
   }

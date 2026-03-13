@@ -8,22 +8,14 @@ import { notification, Space, Button, Tag, Tooltip, Modal, Input } from 'ant-des
 
 import { useVbenVxeGrid } from 'shell/adapter/vxe-table';
 import type { VxeGridProps } from 'shell/adapter/vxe-table';
-import type { LeaveRequest } from '../../api/services';
-import { fromTimestamp } from '../../api/services';
+import { fromTimestamp, userService, leaveService, type LeaveRequest } from '../../api/client';
 import { $t } from 'shell/locales';
 import { useHrLeaveStore } from '../../stores/hr-leave.state';
 import { useHrAbsenceTypeStore } from '../../stores/hr-absence-type.state';
-import { hrApi } from '../../api/client';
 
 import RequestDrawer from './request-drawer.vue';
 import ReviewModal from './review-modal.vue';
 import { usePermission } from '../../composables/use-permission';
-
-interface PortalUser {
-  id: number;
-  username?: string;
-  realname?: string;
-}
 
 const leaveStore = useHrLeaveStore();
 const absenceTypeStore = useHrAbsenceTypeStore();
@@ -35,16 +27,16 @@ const absenceTypeOptions = ref<{ label: string; value: string }[]>([]);
 async function loadFilterOptions() {
   try {
     const [usersResp, typesResp] = await Promise.all([
-      hrApi.get<{ items: PortalUser[] }>('/users?noPaging=true'),
+      userService.ListUsers({ noPaging: true }),
       absenceTypeStore.listAbsenceTypes(undefined, null),
     ]);
     userOptions.value = (usersResp.items || []).map((u) => ({
       label: u.realname || u.username || `User ${u.id}`,
-      value: u.id,
+      value: u.id!,
     }));
     absenceTypeOptions.value = (typesResp.items || []).map((t) => ({
-      label: t.name,
-      value: t.id,
+      label: t.name!,
+      value: t.id!,
     }));
   } catch { /* noop */ }
 }
@@ -259,7 +251,7 @@ function handleReject(row: LeaveRequest) {
 async function handleDownloadSigned(row: LeaveRequest) {
   if (!row.id) return;
   try {
-    const resp = await hrApi.get<{ url: string }>(`/leave-requests/${row.id}/signed-document`);
+    const resp = await leaveService.GetSignedDocumentUrl({ leaveRequestId: row.id });
     if (resp.url) {
       window.open(resp.url, '_blank');
     }

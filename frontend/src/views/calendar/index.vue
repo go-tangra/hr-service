@@ -6,22 +6,13 @@ import { useUserStore } from 'shell/vben/stores';
 import { $t } from 'shell/locales';
 import { useHrLeaveStore } from '../../stores/hr-leave.state';
 import { useHrAbsenceTypeStore } from '../../stores/hr-absence-type.state';
-import type { CalendarEvent, AbsenceType } from '../../api/services';
-import { toTimestamp, fromTimestamp } from '../../api/services';
-import { hrApi } from '../../api/client';
+import { toTimestamp, fromTimestamp, userService, type CalendarEvent, type AbsenceType, type HrUser } from '../../api/client';
 import RequestDrawer from '../request/request-drawer.vue';
 import { usePermission } from '../../composables/use-permission';
 
 type ViewMode = 'week' | '2weeks' | 'month';
 
-interface PortalUser {
-  id: number;
-  username?: string;
-  realname?: string;
-  avatar?: string;
-  orgUnitNames?: string[];
-  positionNames?: string[];
-}
+type PortalUser = HrUser;
 
 const leaveStore = useHrLeaveStore();
 const absenceTypeStore = useHrAbsenceTypeStore();
@@ -175,8 +166,8 @@ function scrollToToday() {
 // --- Data loading ---
 async function loadUsers() {
   try {
-    const resp = await hrApi.get<{ items: PortalUser[] }>('/users?noPaging=true');
-    users.value = resp.items || [];
+    const resp = await userService.ListUsers({ noPaging: true });
+    users.value = (resp.items || []) as PortalUser[];
     const unitSet = new Set<string>();
     for (const user of users.value) {
       if (user.orgUnitNames) {

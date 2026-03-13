@@ -1,10 +1,10 @@
 import { defineStore } from 'pinia';
 
-import { SystemService, type HrStats } from '../api/services';
+import { systemService, type GetStatsResponse } from '../api/client';
 
 export const useHrSystemStore = defineStore('hr-system', () => {
-  async function getStats(): Promise<{ stats: HrStats }> {
-    return await SystemService.getStats();
+  async function getStats(): Promise<GetStatsResponse> {
+    return await systemService.GetStats({});
   }
 
   function $reset() {}

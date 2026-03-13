@@ -1,23 +1,22 @@
 import { defineStore } from 'pinia';
 
 import {
-  AllowanceService,
+  allowanceService,
   type LeaveAllowance,
   type ListAllowancesResponse,
   type GetUserBalanceResponse,
-} from '../api/services';
-import type { Paging } from '../api/services';
+} from '../api/client';
 
 export const useHrAllowanceStore = defineStore('hr-allowance', () => {
   async function listAllowances(
-    paging?: Paging,
+    paging?: { page?: number; pageSize?: number },
     formValues?: {
       userId?: number;
       absenceTypeId?: string;
       year?: number;
     } | null,
   ): Promise<ListAllowancesResponse> {
-    return await AllowanceService.list({
+    return await allowanceService.ListAllowances({
       userId: formValues?.userId,
       absenceTypeId: formValues?.absenceTypeId,
       year: formValues?.year,
@@ -26,39 +25,35 @@ export const useHrAllowanceStore = defineStore('hr-allowance', () => {
     });
   }
 
-  async function getAllowance(
-    id: string,
-  ): Promise<{ allowance: LeaveAllowance }> {
-    return await AllowanceService.get(id);
+  async function getAllowance(id: string) {
+    return await allowanceService.GetAllowance({ id });
   }
 
-  async function createAllowance(
-    data: Partial<LeaveAllowance>,
-  ): Promise<{ allowance: LeaveAllowance }> {
-    return await AllowanceService.create(data);
+  async function createAllowance(data: Partial<LeaveAllowance>) {
+    return await allowanceService.CreateAllowance(data as any);
   }
 
   async function updateAllowance(
     id: string,
     data: Partial<LeaveAllowance>,
     updateMask: string[],
-  ): Promise<{ allowance: LeaveAllowance }> {
-    return await AllowanceService.update(id, {
+  ) {
+    return await allowanceService.UpdateAllowance({
       id,
       data: data as LeaveAllowance,
       updateMask: updateMask.join(','),
     });
   }
 
-  async function deleteAllowance(id: string): Promise<void> {
-    return await AllowanceService.delete(id);
+  async function deleteAllowance(id: string) {
+    return await allowanceService.DeleteAllowance({ id });
   }
 
   async function getUserBalance(
     userId: number,
     year?: number,
   ): Promise<GetUserBalanceResponse> {
-    return await AllowanceService.getUserBalance(userId, year);
+    return await allowanceService.GetUserBalance({ userId, year });
   }
 
   function $reset() {}

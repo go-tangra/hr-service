@@ -8,7 +8,7 @@ import { notification, Space, Button } from 'ant-design-vue';
 
 import { useVbenVxeGrid } from 'shell/adapter/vxe-table';
 import type { VxeGridProps } from 'shell/adapter/vxe-table';
-import type { LeaveAllowance } from '../../api/services';
+import type { LeaveAllowance } from '../../api/client';
 import { $t } from 'shell/locales';
 import { useHrAllowanceStore } from '../../stores/hr-allowance.state';
 

@@ -1,43 +1,39 @@
 /**
- * Auto-generated API client for HR module
+ * HR Module API Client
  *
- * This client uses the dynamic module routing:
- *   /admin/v1/modules/hr/v1/...
+ * Uses buf-generated TypeScript clients from protoc-gen-typescript-http.
+ * All types and service methods are auto-generated from protos.
  */
 
 import { useAccessStore } from 'shell/vben/stores';
 
-const MODULE_BASE_URL = '/admin/v1/modules/hr/v1';
+import {
+  createHrAbsenceTypeServiceClient,
+  createHrAllowanceServiceClient,
+  createHrLeaveServiceClient,
+  createHrSystemServiceClient,
+  createHrUserServiceClient,
+} from '../generated/api/hr/service/v1';
 
-export interface RequestOptions {
-  headers?: Record<string, string>;
-  signal?: AbortSignal;
-}
+const MODULE_BASE_URL = '/admin/v1/modules/hr';
 
-function getAuthHeaders(): Record<string, string> {
+type RequestType = {
+  path: string;
+  method: string;
+  body: string | null;
+};
+
+async function handler(req: RequestType): Promise<unknown> {
   const accessStore = useAccessStore();
   const token = accessStore.accessToken;
-  return token ? { Authorization: `Bearer ${token}` } : {};
-}
 
-async function request<T>(
-  method: string,
-  path: string,
-  body?: unknown,
-  options?: RequestOptions & { baseUrl?: string },
-): Promise<T> {
-  const base = options?.baseUrl ?? MODULE_BASE_URL;
-  const url = `${base}${path}`;
-
-  const response = await fetch(url, {
-    method,
+  const response = await fetch(`${MODULE_BASE_URL}/${req.path}`, {
+    method: req.method,
     headers: {
       'Content-Type': 'application/json',
-      ...getAuthHeaders(),
-      ...options?.headers,
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
     },
-    body: body ? JSON.stringify(body) : undefined,
-    signal: options?.signal,
+    body: req.body,
   });
 
   if (!response.ok) {
@@ -54,40 +50,47 @@ async function request<T>(
   return response.json();
 }
 
-export const hrApi = {
-  get: <T>(path: string, options?: RequestOptions) =>
-    request<T>('GET', path, undefined, options),
+// Generated typed service clients
+export const absenceTypeService = createHrAbsenceTypeServiceClient(handler);
+export const allowanceService = createHrAllowanceServiceClient(handler);
+export const leaveService = createHrLeaveServiceClient(handler);
+export const systemService = createHrSystemServiceClient(handler);
+export const userService = createHrUserServiceClient(handler);
 
-  post: <T>(path: string, body?: unknown, options?: RequestOptions) =>
-    request<T>('POST', path, body, options),
+// Re-export all generated types for convenience
+export type {
+  AbsenceType,
+  LeaveRequest,
+  LeaveAllowance,
+  LeaveRequestStatus,
+  CalendarEvent,
+  BalanceEntry,
+  HrUser,
+  ListAbsenceTypesResponse,
+  ListLeaveRequestsResponse,
+  ListAllowancesResponse,
+  GetCalendarEventsResponse,
+  GetUserBalanceResponse,
+  GetStatsResponse,
+  HrErrorReason,
+} from '../generated/api/hr/service/v1';
 
-  put: <T>(path: string, body?: unknown, options?: RequestOptions) =>
-    request<T>('PUT', path, body, options),
+/** Convert a YYYY-MM-DD date string to RFC 3339 timestamp for protobuf Timestamp fields */
+export function toTimestamp(date?: string): string | undefined {
+  if (!date) return undefined;
+  if (date.includes('T')) return date;
+  return `${date}T00:00:00Z`;
+}
 
-  patch: <T>(path: string, body?: unknown, options?: RequestOptions) =>
-    request<T>('PATCH', path, body, options),
+/** Extract YYYY-MM-DD from an RFC 3339 timestamp (for form inputs) */
+export function fromTimestamp(ts?: string): string {
+  if (!ts) return '';
+  return ts.split('T')[0] || '';
+}
 
-  delete: <T>(path: string, options?: RequestOptions) =>
-    request<T>('DELETE', path, undefined, options),
-};
-
-/** Client for admin/portal API calls (e.g. /admin/v1/users) */
-export const adminApi = {
-  get: <T>(path: string, params?: Record<string, unknown>) => {
-    const query = params
-      ? '?' + new URLSearchParams(
-          Object.entries(params)
-            .filter(([, v]) => v != null)
-            .map(([k, v]) => [k, String(v)]),
-        ).toString()
-      : '';
-    return request<T>('GET', `${path}${query}`, undefined, { baseUrl: '/admin/admin/v1' });
-  },
-};
-
-/** Client for paperless module API calls */
+/** Client for paperless module API calls (different base URL) */
 export const paperlessApi = {
-  get: <T>(path: string, params?: Record<string, unknown>) => {
+  get: async <T>(path: string, params?: Record<string, unknown>): Promise<T> => {
     const query = params
       ? '?' + new URLSearchParams(
           Object.entries(params)
@@ -95,8 +98,23 @@ export const paperlessApi = {
             .map(([k, v]) => [k, String(v)]),
         ).toString()
       : '';
-    return request<T>('GET', `${path}${query}`, undefined, { baseUrl: '/admin/v1/modules/paperless/v1' });
+    const accessStore = useAccessStore();
+    const token = accessStore.accessToken;
+    const response = await fetch(`/admin/v1/modules/paperless/v1${path}${query}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+    });
+    if (!response.ok) {
+      let message = `HTTP error! status: ${response.status}`;
+      try {
+        const errorBody = await response.json();
+        if (errorBody?.message) message = errorBody.message;
+      } catch {}
+      throw new Error(message);
+    }
+    return response.json();
   },
 };
-
-export default hrApi;

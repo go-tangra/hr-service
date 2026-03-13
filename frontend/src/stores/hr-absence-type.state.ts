@@ -1,52 +1,45 @@
 import { defineStore } from 'pinia';
 
 import {
-  AbsenceTypeService,
+  absenceTypeService,
   type AbsenceType,
   type ListAbsenceTypesResponse,
-} from '../api/services';
-import type { Paging } from '../api/services';
+} from '../api/client';
 
 export const useHrAbsenceTypeStore = defineStore('hr-absence-type', () => {
   async function listAbsenceTypes(
-    paging?: Paging,
-    formValues?: {
-      query?: string;
-    } | null,
+    paging?: { page?: number; pageSize?: number },
+    formValues?: { query?: string } | null,
   ): Promise<ListAbsenceTypesResponse> {
-    return await AbsenceTypeService.list({
+    return await absenceTypeService.ListAbsenceTypes({
       query: formValues?.query,
       page: paging?.page,
       pageSize: paging?.pageSize,
     });
   }
 
-  async function getAbsenceType(
-    id: string,
-  ): Promise<{ absenceType: AbsenceType }> {
-    return await AbsenceTypeService.get(id);
+  async function getAbsenceType(id: string) {
+    return await absenceTypeService.GetAbsenceType({ id });
   }
 
-  async function createAbsenceType(
-    data: Partial<AbsenceType>,
-  ): Promise<{ absenceType: AbsenceType }> {
-    return await AbsenceTypeService.create(data);
+  async function createAbsenceType(data: Partial<AbsenceType>) {
+    return await absenceTypeService.CreateAbsenceType(data as any);
   }
 
   async function updateAbsenceType(
     id: string,
     data: Partial<AbsenceType>,
     updateMask: string[],
-  ): Promise<{ absenceType: AbsenceType }> {
-    return await AbsenceTypeService.update(id, {
+  ) {
+    return await absenceTypeService.UpdateAbsenceType({
       id,
       data: data as AbsenceType,
       updateMask: updateMask.join(','),
     });
   }
 
-  async function deleteAbsenceType(id: string): Promise<void> {
-    return await AbsenceTypeService.delete(id);
+  async function deleteAbsenceType(id: string) {
+    return await absenceTypeService.DeleteAbsenceType({ id });
   }
 
   function $reset() {}

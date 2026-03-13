@@ -14,7 +14,7 @@ import {
 import { $t } from 'shell/locales';
 import { useUserStore } from 'shell/vben/stores';
 import { useHrLeaveStore } from '../../stores/hr-leave.state';
-import type { LeaveRequest } from '../../api/services';
+import type { LeaveRequest } from '../../api/client';
 
 const leaveStore = useHrLeaveStore();
 const userStore = useUserStore();
