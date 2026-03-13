@@ -87,7 +87,11 @@ func (s *AllowanceService) ListAllowances(ctx context.Context, req *hrV1.ListAll
 	}
 
 	filters := make(map[string]interface{})
-	if req.UserId != nil {
+
+	// Non-admin users can only see their own allowances
+	if !hasPermission(ctx, "hr.allowance.manage") {
+		filters["user_id"] = getUserID(ctx)
+	} else if req.UserId != nil {
 		filters["user_id"] = *req.UserId
 	}
 	if req.Year != nil {
