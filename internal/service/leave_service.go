@@ -663,10 +663,10 @@ func (s *LeaveService) GetSignedDocumentUrl(ctx context.Context, req *hrV1.GetSi
 		return nil, hrV1.ErrorBadRequest("leave request has no signed document")
 	}
 
-	// Check if user is a participant or has manage permission
+	// Check if user is a participant or has admin permission
 	callerID := getUserID(ctx)
 	isParticipant := entity.UserID == callerID || entity.ReviewedBy == callerID
-	if !isParticipant && !hasPermission(ctx, "hr.request.manage") {
+	if !isParticipant && !hasPermission(ctx, "hr.request.approve") {
 		return nil, hrV1.ErrorBadRequest("you are not a participant of this leave request")
 	}
 
