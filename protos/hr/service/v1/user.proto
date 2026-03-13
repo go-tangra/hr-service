@@ -12,6 +12,7 @@ message HrUser {
   string email = 4 [json_name = "email"];
   repeated string org_unit_names = 5 [json_name = "orgUnitNames"];
   repeated string position_names = 6 [json_name = "positionNames"];
+  optional string avatar = 7 [json_name = "avatar"];
 }
 
 message ListHrUsersRequest {

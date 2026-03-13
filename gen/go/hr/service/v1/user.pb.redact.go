@@ -66,6 +66,8 @@ func (x *HrUser) Redact() string {
 	// Safe field: OrgUnitNames
 
 	// Safe field: PositionNames
+
+	// Safe field: Avatar
 	return x.String()
 }
 

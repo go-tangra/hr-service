@@ -64,6 +64,10 @@ func (m *HrUser) validate(all bool) error {
 
 	// no validation rules for Email
 
+	if m.Avatar != nil {
+		// no validation rules for Avatar
+	}
+
 	if len(errors) > 0 {
 		return HrUserMultiError(errors)
 	}

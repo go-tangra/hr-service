@@ -49,6 +49,7 @@ func (s *UserService) ListUsers(ctx context.Context, req *hrV1.ListHrUsersReques
 			Email:         u.Email,
 			OrgUnitNames:  u.OrgUnitNames,
 			PositionNames: u.PositionNames,
+			Avatar:        u.Avatar,
 		})
 	}
 

@@ -31,6 +31,7 @@ type HrUser struct {
 	Email         string                 `protobuf:"bytes,4,opt,name=email,proto3" json:"email,omitempty"`
 	OrgUnitNames  []string               `protobuf:"bytes,5,rep,name=org_unit_names,json=orgUnitNames,proto3" json:"org_unit_names,omitempty"`
 	PositionNames []string               `protobuf:"bytes,6,rep,name=position_names,json=positionNames,proto3" json:"position_names,omitempty"`
+	Avatar        *string                `protobuf:"bytes,7,opt,name=avatar,proto3,oneof" json:"avatar,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -105,6 +106,13 @@ func (x *HrUser) GetPositionNames() []string {
 		return x.PositionNames
 	}
 	return nil
+}
+
+func (x *HrUser) GetAvatar() string {
+	if x != nil && x.Avatar != nil {
+		return *x.Avatar
+	}
+	return ""
 }
 
 type ListHrUsersRequest struct {
@@ -207,14 +215,16 @@ var File_hr_service_v1_user_proto protoreflect.FileDescriptor
 
 const file_hr_service_v1_user_proto_rawDesc = "" +
 	"\n" +
-	"\x18hr/service/v1/user.proto\x12\rhr.service.v1\x1a\x1cgoogle/api/annotations.proto\"\xb3\x01\n" +
+	"\x18hr/service/v1/user.proto\x12\rhr.service.v1\x1a\x1cgoogle/api/annotations.proto\"\xdb\x01\n" +
 	"\x06HrUser\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\rR\x02id\x12\x1a\n" +
 	"\busername\x18\x02 \x01(\tR\busername\x12\x1a\n" +
 	"\brealname\x18\x03 \x01(\tR\brealname\x12\x14\n" +
 	"\x05email\x18\x04 \x01(\tR\x05email\x12$\n" +
 	"\x0eorg_unit_names\x18\x05 \x03(\tR\forgUnitNames\x12%\n" +
-	"\x0eposition_names\x18\x06 \x03(\tR\rpositionNames\"D\n" +
+	"\x0eposition_names\x18\x06 \x03(\tR\rpositionNames\x12\x1b\n" +
+	"\x06avatar\x18\a \x01(\tH\x00R\x06avatar\x88\x01\x01B\t\n" +
+	"\a_avatar\"D\n" +
 	"\x12ListHrUsersRequest\x12 \n" +
 	"\tno_paging\x18\x01 \x01(\bH\x00R\bnoPaging\x88\x01\x01B\f\n" +
 	"\n" +
@@ -260,6 +270,7 @@ func file_hr_service_v1_user_proto_init() {
 	if File_hr_service_v1_user_proto != nil {
 		return
 	}
+	file_hr_service_v1_user_proto_msgTypes[0].OneofWrappers = []any{}
 	file_hr_service_v1_user_proto_msgTypes[1].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
