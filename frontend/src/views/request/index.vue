@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { h, ref } from 'vue';
+import { h, ref, onMounted } from 'vue';
 
 import { Page, useVbenModal, type VbenFormProps } from 'shell/vben/common-ui';
 import { LucideEye, LucideTrash, LucideCheck, LucideX, LucideFileDownload, LucideBan } from 'shell/vben/icons';
@@ -12,14 +12,44 @@ import type { LeaveRequest } from '../../api/services';
 import { fromTimestamp } from '../../api/services';
 import { $t } from 'shell/locales';
 import { useHrLeaveStore } from '../../stores/hr-leave.state';
+import { useHrAbsenceTypeStore } from '../../stores/hr-absence-type.state';
 import { hrApi } from '../../api/client';
 
 import RequestDrawer from './request-drawer.vue';
 import ReviewModal from './review-modal.vue';
 import { usePermission } from '../../composables/use-permission';
 
+interface PortalUser {
+  id: number;
+  username?: string;
+  realname?: string;
+}
+
 const leaveStore = useHrLeaveStore();
+const absenceTypeStore = useHrAbsenceTypeStore();
 const { canManageRequests, canDeleteRequests, canApproveRequests } = usePermission();
+
+const userOptions = ref<{ label: string; value: number }[]>([]);
+const absenceTypeOptions = ref<{ label: string; value: string }[]>([]);
+
+async function loadFilterOptions() {
+  try {
+    const [usersResp, typesResp] = await Promise.all([
+      hrApi.get<{ items: PortalUser[] }>('/users?noPaging=true'),
+      absenceTypeStore.listAbsenceTypes(undefined, null),
+    ]);
+    userOptions.value = (usersResp.items || []).map((u) => ({
+      label: u.realname || u.username || `User ${u.id}`,
+      value: u.id,
+    }));
+    absenceTypeOptions.value = (typesResp.items || []).map((t) => ({
+      label: t.name,
+      value: t.id,
+    }));
+  } catch { /* noop */ }
+}
+
+onMounted(() => loadFilterOptions());
 
 function statusColor(status?: string): string {
   switch (status) {
@@ -50,6 +80,30 @@ const formOptions: VbenFormProps = {
   showCollapseButton: false,
   submitOnEnter: true,
   schema: [
+    {
+      component: 'Select',
+      fieldName: 'userId',
+      label: $t('hr.page.request.userName'),
+      componentProps: {
+        placeholder: $t('ui.placeholder.select'),
+        allowClear: true,
+        showSearch: true,
+        optionFilterProp: 'label',
+        options: userOptions,
+      },
+    },
+    {
+      component: 'Select',
+      fieldName: 'absenceTypeId',
+      label: $t('hr.page.request.absenceTypeName'),
+      componentProps: {
+        placeholder: $t('ui.placeholder.select'),
+        allowClear: true,
+        showSearch: true,
+        optionFilterProp: 'label',
+        options: absenceTypeOptions,
+      },
+    },
     {
       component: 'Select',
       fieldName: 'status',
@@ -96,6 +150,8 @@ const gridOptions: VxeGridProps<LeaveRequest> = {
         const resp = await leaveStore.listLeaveRequests(
           { page: page.currentPage, pageSize: page.pageSize },
           {
+            userId: formValues?.userId,
+            absenceTypeId: formValues?.absenceTypeId,
             status: formValues?.status,
           },
         );

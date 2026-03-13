@@ -13,6 +13,7 @@ export const useHrLeaveStore = defineStore('hr-leave', () => {
     paging?: Paging,
     formValues?: {
       userId?: number;
+      absenceTypeId?: string;
       status?: string;
       startDate?: string;
       endDate?: string;
@@ -20,6 +21,7 @@ export const useHrLeaveStore = defineStore('hr-leave', () => {
   ): Promise<ListLeaveRequestsResponse> {
     return await LeaveService.list({
       userId: formValues?.userId,
+      absenceTypeId: formValues?.absenceTypeId,
       status: formValues?.status,
       startDate: formValues?.startDate,
       endDate: formValues?.endDate,
