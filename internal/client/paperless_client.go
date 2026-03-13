@@ -107,6 +107,25 @@ func (c *PaperlessClient) CreateSigningRequest(
 	return resp.Request.Id, nil
 }
 
+// RevokeSigningRequest revokes a completed signing request in paperless
+func (c *PaperlessClient) RevokeSigningRequest(ctx context.Context, signingRequestID string, reason string) error {
+	if err := c.resolve(); err != nil {
+		return err
+	}
+
+	_, err := c.client.RevokeSigningRequest(ctx, &paperlesspb.RevokeSigningRequestRequest{
+		Id:     signingRequestID,
+		Reason: reason,
+	})
+	if err != nil {
+		c.log.Errorf("Failed to revoke signing request %s: %v", signingRequestID, err)
+		return err
+	}
+
+	c.log.Infof("Revoked signing request: %s", signingRequestID)
+	return nil
+}
+
 // DownloadSignedDocument returns a presigned download URL for a signed document
 func (c *PaperlessClient) DownloadSignedDocument(ctx context.Context, signingRequestID string) (string, error) {
 	if err := c.resolve(); err != nil {

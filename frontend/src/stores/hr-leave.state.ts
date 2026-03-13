@@ -82,6 +82,13 @@ export const useHrLeaveStore = defineStore('hr-leave', () => {
     return await LeaveService.cancel(id);
   }
 
+  async function revokeLeaveRequest(
+    id: string,
+    reason?: string,
+  ): Promise<{ leaveRequest: LeaveRequest }> {
+    return await LeaveService.revoke(id, { reason });
+  }
+
   async function getCalendarEvents(params?: {
     startDate?: string;
     endDate?: string;
@@ -103,6 +110,7 @@ export const useHrLeaveStore = defineStore('hr-leave', () => {
     approveLeaveRequest,
     rejectLeaveRequest,
     cancelLeaveRequest,
+    revokeLeaveRequest,
     getCalendarEvents,
   };
 });

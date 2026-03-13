@@ -4,8 +4,8 @@ go 1.25.4
 
 require (
 	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.36.11-20260209202127-80ab13bee0bf.1
-	buf.build/gen/go/go-tangra/paperless/grpc/go v1.6.1-20260312082110-e6107deb6aee.1
-	buf.build/gen/go/go-tangra/paperless/protocolbuffers/go v1.36.11-20260312082110-e6107deb6aee.1
+	buf.build/gen/go/go-tangra/paperless/grpc/go v1.6.1-20260313065616-7f9c0522cc2d.1
+	buf.build/gen/go/go-tangra/paperless/protocolbuffers/go v1.36.11-20260313065616-7f9c0522cc2d.1
 	entgo.io/ent v0.14.5
 	github.com/go-kratos/kratos/v2 v2.9.2
 	github.com/go-sql-driver/mysql v1.9.3

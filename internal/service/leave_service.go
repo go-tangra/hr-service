@@ -524,6 +524,62 @@ func (s *LeaveService) CancelLeaveRequest(ctx context.Context, req *hrV1.CancelL
 	}, nil
 }
 
+func (s *LeaveService) RevokeLeaveRequest(ctx context.Context, req *hrV1.RevokeLeaveRequestRequest) (*hrV1.RevokeLeaveRequestResponse, error) {
+	if err := checkPermission(ctx, "hr.request.approve"); err != nil {
+		return nil, err
+	}
+
+	existing, err := s.leaveRequestRepo.GetByID(ctx, req.GetId())
+	if err != nil {
+		return nil, err
+	}
+	if existing == nil {
+		return nil, hrV1.ErrorLeaveRequestNotFound("leave request not found")
+	}
+	if err := checkTenantAccess(ctx, existing.TenantID, hrV1.ErrorLeaveRequestNotFound("leave request not found")); err != nil {
+		return nil, err
+	}
+
+	if existing.Status.String() != "approved" {
+		return nil, hrV1.ErrorBadRequest("only approved leave requests can be revoked")
+	}
+
+	// Update status to revoked
+	entity, err := s.leaveRequestRepo.UpdateStatus(ctx, req.GetId(), "revoked", 0, "", req.GetReason())
+	if err != nil {
+		return nil, err
+	}
+
+	// Refund allowance
+	refundAllowance(ctx, s.log, s.allowanceRepo, existing)
+
+	// If the absence type requires signing and we have a signing request, revoke it in paperless
+	if existing.SigningRequestID != "" && existing.Edges.AbsenceType != nil && existing.Edges.AbsenceType.RequiresSigning {
+		reason := req.GetReason()
+		if reason == "" {
+			reason = "Leave request revoked"
+		}
+		signingReqID := existing.SigningRequestID
+		leaveID := existing.ID
+		// Use the original context for metadata extraction; paperless client resolves its own connection
+		go func() {
+			if revokeErr := s.paperlessClient.RevokeSigningRequest(ctx, signingReqID, reason); revokeErr != nil {
+				s.log.Errorf("Failed to revoke signing request %s for leave %s: %v", signingReqID, leaveID, revokeErr)
+			}
+		}()
+	}
+
+	// Re-fetch with edges
+	entity2, _ := s.leaveRequestRepo.GetByID(ctx, entity.ID)
+	if entity2 != nil {
+		entity = entity2
+	}
+
+	return &hrV1.RevokeLeaveRequestResponse{
+		LeaveRequest: leaveRequestToProto(entity),
+	}, nil
+}
+
 func (s *LeaveService) GetCalendarEvents(ctx context.Context, req *hrV1.GetCalendarEventsRequest) (*hrV1.GetCalendarEventsResponse, error) {
 	if err := checkPermission(ctx, "hr.calendar.view"); err != nil {
 		return nil, err
@@ -680,6 +736,8 @@ func leaveStatusToProto(status string) hrV1.LeaveRequestStatus {
 		return hrV1.LeaveRequestStatus_LEAVE_REQUEST_STATUS_CANCELLED
 	case "awaiting_signing":
 		return hrV1.LeaveRequestStatus_LEAVE_REQUEST_STATUS_AWAITING_SIGNING
+	case "revoked":
+		return hrV1.LeaveRequestStatus_LEAVE_REQUEST_STATUS_REVOKED
 	default:
 		return hrV1.LeaveRequestStatus_LEAVE_REQUEST_STATUS_UNSPECIFIED
 	}
@@ -702,6 +760,8 @@ func leaveStatusToString(status hrV1.LeaveRequestStatus) string {
 		return "cancelled"
 	case hrV1.LeaveRequestStatus_LEAVE_REQUEST_STATUS_AWAITING_SIGNING:
 		return "awaiting_signing"
+	case hrV1.LeaveRequestStatus_LEAVE_REQUEST_STATUS_REVOKED:
+		return "revoked"
 	default:
 		return ""
 	}

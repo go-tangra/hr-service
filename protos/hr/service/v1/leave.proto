@@ -18,6 +18,7 @@ enum LeaveRequestStatus {
   LEAVE_REQUEST_STATUS_REJECTED = 3;
   LEAVE_REQUEST_STATUS_CANCELLED = 4;
   LEAVE_REQUEST_STATUS_AWAITING_SIGNING = 5;
+  LEAVE_REQUEST_STATUS_REVOKED = 6;
 }
 
 // LeaveRequest represents a user's leave/absence request
@@ -194,6 +195,20 @@ message CancelLeaveRequestResponse {
   LeaveRequest leave_request = 1 [json_name = "leaveRequest"];
 }
 
+// RevokeLeaveRequestRequest revokes an approved leave request
+message RevokeLeaveRequestRequest {
+  string id = 1 [
+    json_name = "id",
+    (buf.validate.field).string.min_len = 1,
+    (google.api.field_behavior) = REQUIRED
+  ];
+  optional string reason = 2 [json_name = "reason"];
+}
+
+message RevokeLeaveRequestResponse {
+  LeaveRequest leave_request = 1 [json_name = "leaveRequest"];
+}
+
 // CalendarEvent represents a leave request displayed on calendar
 message CalendarEvent {
   string id = 1 [json_name = "id"];
@@ -286,6 +301,13 @@ service HrLeaveService {
   rpc CancelLeaveRequest(CancelLeaveRequestRequest) returns (CancelLeaveRequestResponse) {
     option (google.api.http) = {
       post: "/v1/leave-requests/{id}/cancel"
+      body: "*"
+    };
+  }
+
+  rpc RevokeLeaveRequest(RevokeLeaveRequestRequest) returns (RevokeLeaveRequestResponse) {
+    option (google.api.http) = {
+      post: "/v1/leave-requests/{id}/revoke"
       body: "*"
     };
   }

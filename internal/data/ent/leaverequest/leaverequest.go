@@ -153,6 +153,7 @@ const (
 	StatusRejected        Status = "rejected"
 	StatusCancelled       Status = "cancelled"
 	StatusAwaitingSigning Status = "awaiting_signing"
+	StatusRevoked         Status = "revoked"
 )
 
 func (s Status) String() string {
@@ -162,7 +163,7 @@ func (s Status) String() string {
 // StatusValidator is a validator for the "status" field enum values. It is called by the builders before save.
 func StatusValidator(s Status) error {
 	switch s {
-	case StatusPending, StatusApproved, StatusRejected, StatusCancelled, StatusAwaitingSigning:
+	case StatusPending, StatusApproved, StatusRejected, StatusCancelled, StatusAwaitingSigning, StatusRevoked:
 		return nil
 	default:
 		return fmt.Errorf("leaverequest: invalid enum value for status field: %q", s)

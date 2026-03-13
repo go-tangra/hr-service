@@ -28,6 +28,7 @@ const (
 	HrLeaveService_ApproveLeaveRequest_FullMethodName  = "/hr.service.v1.HrLeaveService/ApproveLeaveRequest"
 	HrLeaveService_RejectLeaveRequest_FullMethodName   = "/hr.service.v1.HrLeaveService/RejectLeaveRequest"
 	HrLeaveService_CancelLeaveRequest_FullMethodName   = "/hr.service.v1.HrLeaveService/CancelLeaveRequest"
+	HrLeaveService_RevokeLeaveRequest_FullMethodName   = "/hr.service.v1.HrLeaveService/RevokeLeaveRequest"
 	HrLeaveService_GetCalendarEvents_FullMethodName    = "/hr.service.v1.HrLeaveService/GetCalendarEvents"
 	HrLeaveService_GetSignedDocumentUrl_FullMethodName = "/hr.service.v1.HrLeaveService/GetSignedDocumentUrl"
 )
@@ -46,6 +47,7 @@ type HrLeaveServiceClient interface {
 	ApproveLeaveRequest(ctx context.Context, in *ApproveLeaveRequestRequest, opts ...grpc.CallOption) (*ApproveLeaveRequestResponse, error)
 	RejectLeaveRequest(ctx context.Context, in *RejectLeaveRequestRequest, opts ...grpc.CallOption) (*RejectLeaveRequestResponse, error)
 	CancelLeaveRequest(ctx context.Context, in *CancelLeaveRequestRequest, opts ...grpc.CallOption) (*CancelLeaveRequestResponse, error)
+	RevokeLeaveRequest(ctx context.Context, in *RevokeLeaveRequestRequest, opts ...grpc.CallOption) (*RevokeLeaveRequestResponse, error)
 	GetCalendarEvents(ctx context.Context, in *GetCalendarEventsRequest, opts ...grpc.CallOption) (*GetCalendarEventsResponse, error)
 	GetSignedDocumentUrl(ctx context.Context, in *GetSignedDocumentUrlRequest, opts ...grpc.CallOption) (*GetSignedDocumentUrlResponse, error)
 }
@@ -138,6 +140,16 @@ func (c *hrLeaveServiceClient) CancelLeaveRequest(ctx context.Context, in *Cance
 	return out, nil
 }
 
+func (c *hrLeaveServiceClient) RevokeLeaveRequest(ctx context.Context, in *RevokeLeaveRequestRequest, opts ...grpc.CallOption) (*RevokeLeaveRequestResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(RevokeLeaveRequestResponse)
+	err := c.cc.Invoke(ctx, HrLeaveService_RevokeLeaveRequest_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *hrLeaveServiceClient) GetCalendarEvents(ctx context.Context, in *GetCalendarEventsRequest, opts ...grpc.CallOption) (*GetCalendarEventsResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(GetCalendarEventsResponse)
@@ -172,6 +184,7 @@ type HrLeaveServiceServer interface {
 	ApproveLeaveRequest(context.Context, *ApproveLeaveRequestRequest) (*ApproveLeaveRequestResponse, error)
 	RejectLeaveRequest(context.Context, *RejectLeaveRequestRequest) (*RejectLeaveRequestResponse, error)
 	CancelLeaveRequest(context.Context, *CancelLeaveRequestRequest) (*CancelLeaveRequestResponse, error)
+	RevokeLeaveRequest(context.Context, *RevokeLeaveRequestRequest) (*RevokeLeaveRequestResponse, error)
 	GetCalendarEvents(context.Context, *GetCalendarEventsRequest) (*GetCalendarEventsResponse, error)
 	GetSignedDocumentUrl(context.Context, *GetSignedDocumentUrlRequest) (*GetSignedDocumentUrlResponse, error)
 	mustEmbedUnimplementedHrLeaveServiceServer()
@@ -207,6 +220,9 @@ func (UnimplementedHrLeaveServiceServer) RejectLeaveRequest(context.Context, *Re
 }
 func (UnimplementedHrLeaveServiceServer) CancelLeaveRequest(context.Context, *CancelLeaveRequestRequest) (*CancelLeaveRequestResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method CancelLeaveRequest not implemented")
+}
+func (UnimplementedHrLeaveServiceServer) RevokeLeaveRequest(context.Context, *RevokeLeaveRequestRequest) (*RevokeLeaveRequestResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method RevokeLeaveRequest not implemented")
 }
 func (UnimplementedHrLeaveServiceServer) GetCalendarEvents(context.Context, *GetCalendarEventsRequest) (*GetCalendarEventsResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetCalendarEvents not implemented")
@@ -379,6 +395,24 @@ func _HrLeaveService_CancelLeaveRequest_Handler(srv interface{}, ctx context.Con
 	return interceptor(ctx, in, info, handler)
 }
 
+func _HrLeaveService_RevokeLeaveRequest_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RevokeLeaveRequestRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(HrLeaveServiceServer).RevokeLeaveRequest(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: HrLeaveService_RevokeLeaveRequest_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(HrLeaveServiceServer).RevokeLeaveRequest(ctx, req.(*RevokeLeaveRequestRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _HrLeaveService_GetCalendarEvents_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetCalendarEventsRequest)
 	if err := dec(in); err != nil {
@@ -453,6 +487,10 @@ var HrLeaveService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CancelLeaveRequest",
 			Handler:    _HrLeaveService_CancelLeaveRequest_Handler,
+		},
+		{
+			MethodName: "RevokeLeaveRequest",
+			Handler:    _HrLeaveService_RevokeLeaveRequest_Handler,
 		},
 		{
 			MethodName: "GetCalendarEvents",

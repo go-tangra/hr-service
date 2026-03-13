@@ -37,6 +37,7 @@ const (
 	LeaveRequestStatus_LEAVE_REQUEST_STATUS_REJECTED         LeaveRequestStatus = 3
 	LeaveRequestStatus_LEAVE_REQUEST_STATUS_CANCELLED        LeaveRequestStatus = 4
 	LeaveRequestStatus_LEAVE_REQUEST_STATUS_AWAITING_SIGNING LeaveRequestStatus = 5
+	LeaveRequestStatus_LEAVE_REQUEST_STATUS_REVOKED          LeaveRequestStatus = 6
 )
 
 // Enum value maps for LeaveRequestStatus.
@@ -48,6 +49,7 @@ var (
 		3: "LEAVE_REQUEST_STATUS_REJECTED",
 		4: "LEAVE_REQUEST_STATUS_CANCELLED",
 		5: "LEAVE_REQUEST_STATUS_AWAITING_SIGNING",
+		6: "LEAVE_REQUEST_STATUS_REVOKED",
 	}
 	LeaveRequestStatus_value = map[string]int32{
 		"LEAVE_REQUEST_STATUS_UNSPECIFIED":      0,
@@ -56,6 +58,7 @@ var (
 		"LEAVE_REQUEST_STATUS_REJECTED":         3,
 		"LEAVE_REQUEST_STATUS_CANCELLED":        4,
 		"LEAVE_REQUEST_STATUS_AWAITING_SIGNING": 5,
+		"LEAVE_REQUEST_STATUS_REVOKED":          6,
 	}
 )
 
@@ -1212,6 +1215,103 @@ func (x *CancelLeaveRequestResponse) GetLeaveRequest() *LeaveRequest {
 	return nil
 }
 
+// RevokeLeaveRequestRequest revokes an approved leave request
+type RevokeLeaveRequestRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Reason        *string                `protobuf:"bytes,2,opt,name=reason,proto3,oneof" json:"reason,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RevokeLeaveRequestRequest) Reset() {
+	*x = RevokeLeaveRequestRequest{}
+	mi := &file_hr_service_v1_leave_proto_msgTypes[16]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RevokeLeaveRequestRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RevokeLeaveRequestRequest) ProtoMessage() {}
+
+func (x *RevokeLeaveRequestRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_hr_service_v1_leave_proto_msgTypes[16]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RevokeLeaveRequestRequest.ProtoReflect.Descriptor instead.
+func (*RevokeLeaveRequestRequest) Descriptor() ([]byte, []int) {
+	return file_hr_service_v1_leave_proto_rawDescGZIP(), []int{16}
+}
+
+func (x *RevokeLeaveRequestRequest) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *RevokeLeaveRequestRequest) GetReason() string {
+	if x != nil && x.Reason != nil {
+		return *x.Reason
+	}
+	return ""
+}
+
+type RevokeLeaveRequestResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	LeaveRequest  *LeaveRequest          `protobuf:"bytes,1,opt,name=leave_request,json=leaveRequest,proto3" json:"leave_request,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RevokeLeaveRequestResponse) Reset() {
+	*x = RevokeLeaveRequestResponse{}
+	mi := &file_hr_service_v1_leave_proto_msgTypes[17]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RevokeLeaveRequestResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RevokeLeaveRequestResponse) ProtoMessage() {}
+
+func (x *RevokeLeaveRequestResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_hr_service_v1_leave_proto_msgTypes[17]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RevokeLeaveRequestResponse.ProtoReflect.Descriptor instead.
+func (*RevokeLeaveRequestResponse) Descriptor() ([]byte, []int) {
+	return file_hr_service_v1_leave_proto_rawDescGZIP(), []int{17}
+}
+
+func (x *RevokeLeaveRequestResponse) GetLeaveRequest() *LeaveRequest {
+	if x != nil {
+		return x.LeaveRequest
+	}
+	return nil
+}
+
 // CalendarEvent represents a leave request displayed on calendar
 type CalendarEvent struct {
 	state           protoimpl.MessageState `protogen:"open.v1"`
@@ -1232,7 +1332,7 @@ type CalendarEvent struct {
 
 func (x *CalendarEvent) Reset() {
 	*x = CalendarEvent{}
-	mi := &file_hr_service_v1_leave_proto_msgTypes[16]
+	mi := &file_hr_service_v1_leave_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1244,7 +1344,7 @@ func (x *CalendarEvent) String() string {
 func (*CalendarEvent) ProtoMessage() {}
 
 func (x *CalendarEvent) ProtoReflect() protoreflect.Message {
-	mi := &file_hr_service_v1_leave_proto_msgTypes[16]
+	mi := &file_hr_service_v1_leave_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1257,7 +1357,7 @@ func (x *CalendarEvent) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CalendarEvent.ProtoReflect.Descriptor instead.
 func (*CalendarEvent) Descriptor() ([]byte, []int) {
-	return file_hr_service_v1_leave_proto_rawDescGZIP(), []int{16}
+	return file_hr_service_v1_leave_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *CalendarEvent) GetId() string {
@@ -1348,7 +1448,7 @@ type GetSignedDocumentUrlRequest struct {
 
 func (x *GetSignedDocumentUrlRequest) Reset() {
 	*x = GetSignedDocumentUrlRequest{}
-	mi := &file_hr_service_v1_leave_proto_msgTypes[17]
+	mi := &file_hr_service_v1_leave_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1360,7 +1460,7 @@ func (x *GetSignedDocumentUrlRequest) String() string {
 func (*GetSignedDocumentUrlRequest) ProtoMessage() {}
 
 func (x *GetSignedDocumentUrlRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_hr_service_v1_leave_proto_msgTypes[17]
+	mi := &file_hr_service_v1_leave_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1373,7 +1473,7 @@ func (x *GetSignedDocumentUrlRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetSignedDocumentUrlRequest.ProtoReflect.Descriptor instead.
 func (*GetSignedDocumentUrlRequest) Descriptor() ([]byte, []int) {
-	return file_hr_service_v1_leave_proto_rawDescGZIP(), []int{17}
+	return file_hr_service_v1_leave_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *GetSignedDocumentUrlRequest) GetLeaveRequestId() string {
@@ -1392,7 +1492,7 @@ type GetSignedDocumentUrlResponse struct {
 
 func (x *GetSignedDocumentUrlResponse) Reset() {
 	*x = GetSignedDocumentUrlResponse{}
-	mi := &file_hr_service_v1_leave_proto_msgTypes[18]
+	mi := &file_hr_service_v1_leave_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1404,7 +1504,7 @@ func (x *GetSignedDocumentUrlResponse) String() string {
 func (*GetSignedDocumentUrlResponse) ProtoMessage() {}
 
 func (x *GetSignedDocumentUrlResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_hr_service_v1_leave_proto_msgTypes[18]
+	mi := &file_hr_service_v1_leave_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1417,7 +1517,7 @@ func (x *GetSignedDocumentUrlResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetSignedDocumentUrlResponse.ProtoReflect.Descriptor instead.
 func (*GetSignedDocumentUrlResponse) Descriptor() ([]byte, []int) {
-	return file_hr_service_v1_leave_proto_rawDescGZIP(), []int{18}
+	return file_hr_service_v1_leave_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *GetSignedDocumentUrlResponse) GetUrl() string {
@@ -1440,7 +1540,7 @@ type GetCalendarEventsRequest struct {
 
 func (x *GetCalendarEventsRequest) Reset() {
 	*x = GetCalendarEventsRequest{}
-	mi := &file_hr_service_v1_leave_proto_msgTypes[19]
+	mi := &file_hr_service_v1_leave_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1452,7 +1552,7 @@ func (x *GetCalendarEventsRequest) String() string {
 func (*GetCalendarEventsRequest) ProtoMessage() {}
 
 func (x *GetCalendarEventsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_hr_service_v1_leave_proto_msgTypes[19]
+	mi := &file_hr_service_v1_leave_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1465,7 +1565,7 @@ func (x *GetCalendarEventsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetCalendarEventsRequest.ProtoReflect.Descriptor instead.
 func (*GetCalendarEventsRequest) Descriptor() ([]byte, []int) {
-	return file_hr_service_v1_leave_proto_rawDescGZIP(), []int{19}
+	return file_hr_service_v1_leave_proto_rawDescGZIP(), []int{21}
 }
 
 func (x *GetCalendarEventsRequest) GetTenantId() uint32 {
@@ -1512,7 +1612,7 @@ type GetCalendarEventsResponse struct {
 
 func (x *GetCalendarEventsResponse) Reset() {
 	*x = GetCalendarEventsResponse{}
-	mi := &file_hr_service_v1_leave_proto_msgTypes[20]
+	mi := &file_hr_service_v1_leave_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1524,7 +1624,7 @@ func (x *GetCalendarEventsResponse) String() string {
 func (*GetCalendarEventsResponse) ProtoMessage() {}
 
 func (x *GetCalendarEventsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_hr_service_v1_leave_proto_msgTypes[20]
+	mi := &file_hr_service_v1_leave_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1537,7 +1637,7 @@ func (x *GetCalendarEventsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetCalendarEventsResponse.ProtoReflect.Descriptor instead.
 func (*GetCalendarEventsResponse) Descriptor() ([]byte, []int) {
-	return file_hr_service_v1_leave_proto_rawDescGZIP(), []int{20}
+	return file_hr_service_v1_leave_proto_rawDescGZIP(), []int{22}
 }
 
 func (x *GetCalendarEventsResponse) GetEvents() []*CalendarEvent {
@@ -1721,6 +1821,13 @@ const file_hr_service_v1_leave_proto_rawDesc = "" +
 	"\x02id\x18\x01 \x01(\tB\n" +
 	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\x02id\"^\n" +
 	"\x1aCancelLeaveRequestResponse\x12@\n" +
+	"\rleave_request\x18\x01 \x01(\v2\x1b.hr.service.v1.LeaveRequestR\fleaveRequest\"_\n" +
+	"\x19RevokeLeaveRequestRequest\x12\x1a\n" +
+	"\x02id\x18\x01 \x01(\tB\n" +
+	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\x02id\x12\x1b\n" +
+	"\x06reason\x18\x02 \x01(\tH\x00R\x06reason\x88\x01\x01B\t\n" +
+	"\a_reason\"^\n" +
+	"\x1aRevokeLeaveRequestResponse\x12@\n" +
 	"\rleave_request\x18\x01 \x01(\v2\x1b.hr.service.v1.LeaveRequestR\fleaveRequest\"\xa4\x03\n" +
 	"\rCalendarEvent\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x17\n" +
@@ -1756,14 +1863,15 @@ const file_hr_service_v1_leave_proto_rawDesc = "" +
 	"\n" +
 	"\b_user_id\"Q\n" +
 	"\x19GetCalendarEventsResponse\x124\n" +
-	"\x06events\x18\x01 \x03(\v2\x1c.hr.service.v1.CalendarEventR\x06events*\xf1\x01\n" +
+	"\x06events\x18\x01 \x03(\v2\x1c.hr.service.v1.CalendarEventR\x06events*\x93\x02\n" +
 	"\x12LeaveRequestStatus\x12$\n" +
 	" LEAVE_REQUEST_STATUS_UNSPECIFIED\x10\x00\x12 \n" +
 	"\x1cLEAVE_REQUEST_STATUS_PENDING\x10\x01\x12!\n" +
 	"\x1dLEAVE_REQUEST_STATUS_APPROVED\x10\x02\x12!\n" +
 	"\x1dLEAVE_REQUEST_STATUS_REJECTED\x10\x03\x12\"\n" +
 	"\x1eLEAVE_REQUEST_STATUS_CANCELLED\x10\x04\x12)\n" +
-	"%LEAVE_REQUEST_STATUS_AWAITING_SIGNING\x10\x052\xa5\v\n" +
+	"%LEAVE_REQUEST_STATUS_AWAITING_SIGNING\x10\x05\x12 \n" +
+	"\x1cLEAVE_REQUEST_STATUS_REVOKED\x10\x062\xbc\f\n" +
 	"\x0eHrLeaveService\x12\x88\x01\n" +
 	"\x12CreateLeaveRequest\x12(.hr.service.v1.CreateLeaveRequestRequest\x1a).hr.service.v1.CreateLeaveRequestResponse\"\x1d\x82\xd3\xe4\x93\x02\x17:\x01*\"\x12/v1/leave-requests\x12\x81\x01\n" +
 	"\x0fGetLeaveRequest\x12%.hr.service.v1.GetLeaveRequestRequest\x1a&.hr.service.v1.GetLeaveRequestResponse\"\x1f\x82\xd3\xe4\x93\x02\x19\x12\x17/v1/leave-requests/{id}\x12\x82\x01\n" +
@@ -1772,7 +1880,8 @@ const file_hr_service_v1_leave_proto_rawDesc = "" +
 	"\x12DeleteLeaveRequest\x12(.hr.service.v1.DeleteLeaveRequestRequest\x1a\x16.google.protobuf.Empty\"\x1f\x82\xd3\xe4\x93\x02\x19*\x17/v1/leave-requests/{id}\x12\x98\x01\n" +
 	"\x13ApproveLeaveRequest\x12).hr.service.v1.ApproveLeaveRequestRequest\x1a*.hr.service.v1.ApproveLeaveRequestResponse\"*\x82\xd3\xe4\x93\x02$:\x01*\"\x1f/v1/leave-requests/{id}/approve\x12\x94\x01\n" +
 	"\x12RejectLeaveRequest\x12(.hr.service.v1.RejectLeaveRequestRequest\x1a).hr.service.v1.RejectLeaveRequestResponse\")\x82\xd3\xe4\x93\x02#:\x01*\"\x1e/v1/leave-requests/{id}/reject\x12\x94\x01\n" +
-	"\x12CancelLeaveRequest\x12(.hr.service.v1.CancelLeaveRequestRequest\x1a).hr.service.v1.CancelLeaveRequestResponse\")\x82\xd3\xe4\x93\x02#:\x01*\"\x1e/v1/leave-requests/{id}/cancel\x12|\n" +
+	"\x12CancelLeaveRequest\x12(.hr.service.v1.CancelLeaveRequestRequest\x1a).hr.service.v1.CancelLeaveRequestResponse\")\x82\xd3\xe4\x93\x02#:\x01*\"\x1e/v1/leave-requests/{id}/cancel\x12\x94\x01\n" +
+	"\x12RevokeLeaveRequest\x12(.hr.service.v1.RevokeLeaveRequestRequest\x1a).hr.service.v1.RevokeLeaveRequestResponse\")\x82\xd3\xe4\x93\x02#:\x01*\"\x1e/v1/leave-requests/{id}/revoke\x12|\n" +
 	"\x11GetCalendarEvents\x12'.hr.service.v1.GetCalendarEventsRequest\x1a(.hr.service.v1.GetCalendarEventsResponse\"\x14\x82\xd3\xe4\x93\x02\x0e\x12\f/v1/calendar\x12\xae\x01\n" +
 	"\x14GetSignedDocumentUrl\x12*.hr.service.v1.GetSignedDocumentUrlRequest\x1a+.hr.service.v1.GetSignedDocumentUrlResponse\"=\x82\xd3\xe4\x93\x027\x125/v1/leave-requests/{leave_request_id}/signed-documentB\xb2\x01\n" +
 	"\x11com.hr.service.v1B\n" +
@@ -1791,7 +1900,7 @@ func file_hr_service_v1_leave_proto_rawDescGZIP() []byte {
 }
 
 var file_hr_service_v1_leave_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_hr_service_v1_leave_proto_msgTypes = make([]protoimpl.MessageInfo, 21)
+var file_hr_service_v1_leave_proto_msgTypes = make([]protoimpl.MessageInfo, 23)
 var file_hr_service_v1_leave_proto_goTypes = []any{
 	(LeaveRequestStatus)(0),              // 0: hr.service.v1.LeaveRequestStatus
 	(*LeaveRequest)(nil),                 // 1: hr.service.v1.LeaveRequest
@@ -1810,66 +1919,71 @@ var file_hr_service_v1_leave_proto_goTypes = []any{
 	(*RejectLeaveRequestResponse)(nil),   // 14: hr.service.v1.RejectLeaveRequestResponse
 	(*CancelLeaveRequestRequest)(nil),    // 15: hr.service.v1.CancelLeaveRequestRequest
 	(*CancelLeaveRequestResponse)(nil),   // 16: hr.service.v1.CancelLeaveRequestResponse
-	(*CalendarEvent)(nil),                // 17: hr.service.v1.CalendarEvent
-	(*GetSignedDocumentUrlRequest)(nil),  // 18: hr.service.v1.GetSignedDocumentUrlRequest
-	(*GetSignedDocumentUrlResponse)(nil), // 19: hr.service.v1.GetSignedDocumentUrlResponse
-	(*GetCalendarEventsRequest)(nil),     // 20: hr.service.v1.GetCalendarEventsRequest
-	(*GetCalendarEventsResponse)(nil),    // 21: hr.service.v1.GetCalendarEventsResponse
-	(*timestamppb.Timestamp)(nil),        // 22: google.protobuf.Timestamp
-	(*structpb.Struct)(nil),              // 23: google.protobuf.Struct
-	(*fieldmaskpb.FieldMask)(nil),        // 24: google.protobuf.FieldMask
-	(*emptypb.Empty)(nil),                // 25: google.protobuf.Empty
+	(*RevokeLeaveRequestRequest)(nil),    // 17: hr.service.v1.RevokeLeaveRequestRequest
+	(*RevokeLeaveRequestResponse)(nil),   // 18: hr.service.v1.RevokeLeaveRequestResponse
+	(*CalendarEvent)(nil),                // 19: hr.service.v1.CalendarEvent
+	(*GetSignedDocumentUrlRequest)(nil),  // 20: hr.service.v1.GetSignedDocumentUrlRequest
+	(*GetSignedDocumentUrlResponse)(nil), // 21: hr.service.v1.GetSignedDocumentUrlResponse
+	(*GetCalendarEventsRequest)(nil),     // 22: hr.service.v1.GetCalendarEventsRequest
+	(*GetCalendarEventsResponse)(nil),    // 23: hr.service.v1.GetCalendarEventsResponse
+	(*timestamppb.Timestamp)(nil),        // 24: google.protobuf.Timestamp
+	(*structpb.Struct)(nil),              // 25: google.protobuf.Struct
+	(*fieldmaskpb.FieldMask)(nil),        // 26: google.protobuf.FieldMask
+	(*emptypb.Empty)(nil),                // 27: google.protobuf.Empty
 }
 var file_hr_service_v1_leave_proto_depIdxs = []int32{
-	22, // 0: hr.service.v1.LeaveRequest.start_date:type_name -> google.protobuf.Timestamp
-	22, // 1: hr.service.v1.LeaveRequest.end_date:type_name -> google.protobuf.Timestamp
+	24, // 0: hr.service.v1.LeaveRequest.start_date:type_name -> google.protobuf.Timestamp
+	24, // 1: hr.service.v1.LeaveRequest.end_date:type_name -> google.protobuf.Timestamp
 	0,  // 2: hr.service.v1.LeaveRequest.status:type_name -> hr.service.v1.LeaveRequestStatus
-	22, // 3: hr.service.v1.LeaveRequest.reviewed_at:type_name -> google.protobuf.Timestamp
-	23, // 4: hr.service.v1.LeaveRequest.metadata:type_name -> google.protobuf.Struct
-	22, // 5: hr.service.v1.LeaveRequest.created_at:type_name -> google.protobuf.Timestamp
-	22, // 6: hr.service.v1.LeaveRequest.updated_at:type_name -> google.protobuf.Timestamp
-	22, // 7: hr.service.v1.CreateLeaveRequestRequest.start_date:type_name -> google.protobuf.Timestamp
-	22, // 8: hr.service.v1.CreateLeaveRequestRequest.end_date:type_name -> google.protobuf.Timestamp
-	23, // 9: hr.service.v1.CreateLeaveRequestRequest.metadata:type_name -> google.protobuf.Struct
+	24, // 3: hr.service.v1.LeaveRequest.reviewed_at:type_name -> google.protobuf.Timestamp
+	25, // 4: hr.service.v1.LeaveRequest.metadata:type_name -> google.protobuf.Struct
+	24, // 5: hr.service.v1.LeaveRequest.created_at:type_name -> google.protobuf.Timestamp
+	24, // 6: hr.service.v1.LeaveRequest.updated_at:type_name -> google.protobuf.Timestamp
+	24, // 7: hr.service.v1.CreateLeaveRequestRequest.start_date:type_name -> google.protobuf.Timestamp
+	24, // 8: hr.service.v1.CreateLeaveRequestRequest.end_date:type_name -> google.protobuf.Timestamp
+	25, // 9: hr.service.v1.CreateLeaveRequestRequest.metadata:type_name -> google.protobuf.Struct
 	1,  // 10: hr.service.v1.CreateLeaveRequestResponse.leave_request:type_name -> hr.service.v1.LeaveRequest
 	1,  // 11: hr.service.v1.GetLeaveRequestResponse.leave_request:type_name -> hr.service.v1.LeaveRequest
 	0,  // 12: hr.service.v1.ListLeaveRequestsRequest.status:type_name -> hr.service.v1.LeaveRequestStatus
 	1,  // 13: hr.service.v1.ListLeaveRequestsResponse.items:type_name -> hr.service.v1.LeaveRequest
 	1,  // 14: hr.service.v1.UpdateLeaveRequestRequest.data:type_name -> hr.service.v1.LeaveRequest
-	24, // 15: hr.service.v1.UpdateLeaveRequestRequest.update_mask:type_name -> google.protobuf.FieldMask
+	26, // 15: hr.service.v1.UpdateLeaveRequestRequest.update_mask:type_name -> google.protobuf.FieldMask
 	1,  // 16: hr.service.v1.UpdateLeaveRequestResponse.leave_request:type_name -> hr.service.v1.LeaveRequest
 	1,  // 17: hr.service.v1.ApproveLeaveRequestResponse.leave_request:type_name -> hr.service.v1.LeaveRequest
 	1,  // 18: hr.service.v1.RejectLeaveRequestResponse.leave_request:type_name -> hr.service.v1.LeaveRequest
 	1,  // 19: hr.service.v1.CancelLeaveRequestResponse.leave_request:type_name -> hr.service.v1.LeaveRequest
-	22, // 20: hr.service.v1.CalendarEvent.start_date:type_name -> google.protobuf.Timestamp
-	22, // 21: hr.service.v1.CalendarEvent.end_date:type_name -> google.protobuf.Timestamp
-	0,  // 22: hr.service.v1.CalendarEvent.status:type_name -> hr.service.v1.LeaveRequestStatus
-	17, // 23: hr.service.v1.GetCalendarEventsResponse.events:type_name -> hr.service.v1.CalendarEvent
-	2,  // 24: hr.service.v1.HrLeaveService.CreateLeaveRequest:input_type -> hr.service.v1.CreateLeaveRequestRequest
-	4,  // 25: hr.service.v1.HrLeaveService.GetLeaveRequest:input_type -> hr.service.v1.GetLeaveRequestRequest
-	6,  // 26: hr.service.v1.HrLeaveService.ListLeaveRequests:input_type -> hr.service.v1.ListLeaveRequestsRequest
-	8,  // 27: hr.service.v1.HrLeaveService.UpdateLeaveRequest:input_type -> hr.service.v1.UpdateLeaveRequestRequest
-	10, // 28: hr.service.v1.HrLeaveService.DeleteLeaveRequest:input_type -> hr.service.v1.DeleteLeaveRequestRequest
-	11, // 29: hr.service.v1.HrLeaveService.ApproveLeaveRequest:input_type -> hr.service.v1.ApproveLeaveRequestRequest
-	13, // 30: hr.service.v1.HrLeaveService.RejectLeaveRequest:input_type -> hr.service.v1.RejectLeaveRequestRequest
-	15, // 31: hr.service.v1.HrLeaveService.CancelLeaveRequest:input_type -> hr.service.v1.CancelLeaveRequestRequest
-	20, // 32: hr.service.v1.HrLeaveService.GetCalendarEvents:input_type -> hr.service.v1.GetCalendarEventsRequest
-	18, // 33: hr.service.v1.HrLeaveService.GetSignedDocumentUrl:input_type -> hr.service.v1.GetSignedDocumentUrlRequest
-	3,  // 34: hr.service.v1.HrLeaveService.CreateLeaveRequest:output_type -> hr.service.v1.CreateLeaveRequestResponse
-	5,  // 35: hr.service.v1.HrLeaveService.GetLeaveRequest:output_type -> hr.service.v1.GetLeaveRequestResponse
-	7,  // 36: hr.service.v1.HrLeaveService.ListLeaveRequests:output_type -> hr.service.v1.ListLeaveRequestsResponse
-	9,  // 37: hr.service.v1.HrLeaveService.UpdateLeaveRequest:output_type -> hr.service.v1.UpdateLeaveRequestResponse
-	25, // 38: hr.service.v1.HrLeaveService.DeleteLeaveRequest:output_type -> google.protobuf.Empty
-	12, // 39: hr.service.v1.HrLeaveService.ApproveLeaveRequest:output_type -> hr.service.v1.ApproveLeaveRequestResponse
-	14, // 40: hr.service.v1.HrLeaveService.RejectLeaveRequest:output_type -> hr.service.v1.RejectLeaveRequestResponse
-	16, // 41: hr.service.v1.HrLeaveService.CancelLeaveRequest:output_type -> hr.service.v1.CancelLeaveRequestResponse
-	21, // 42: hr.service.v1.HrLeaveService.GetCalendarEvents:output_type -> hr.service.v1.GetCalendarEventsResponse
-	19, // 43: hr.service.v1.HrLeaveService.GetSignedDocumentUrl:output_type -> hr.service.v1.GetSignedDocumentUrlResponse
-	34, // [34:44] is the sub-list for method output_type
-	24, // [24:34] is the sub-list for method input_type
-	24, // [24:24] is the sub-list for extension type_name
-	24, // [24:24] is the sub-list for extension extendee
-	0,  // [0:24] is the sub-list for field type_name
+	1,  // 20: hr.service.v1.RevokeLeaveRequestResponse.leave_request:type_name -> hr.service.v1.LeaveRequest
+	24, // 21: hr.service.v1.CalendarEvent.start_date:type_name -> google.protobuf.Timestamp
+	24, // 22: hr.service.v1.CalendarEvent.end_date:type_name -> google.protobuf.Timestamp
+	0,  // 23: hr.service.v1.CalendarEvent.status:type_name -> hr.service.v1.LeaveRequestStatus
+	19, // 24: hr.service.v1.GetCalendarEventsResponse.events:type_name -> hr.service.v1.CalendarEvent
+	2,  // 25: hr.service.v1.HrLeaveService.CreateLeaveRequest:input_type -> hr.service.v1.CreateLeaveRequestRequest
+	4,  // 26: hr.service.v1.HrLeaveService.GetLeaveRequest:input_type -> hr.service.v1.GetLeaveRequestRequest
+	6,  // 27: hr.service.v1.HrLeaveService.ListLeaveRequests:input_type -> hr.service.v1.ListLeaveRequestsRequest
+	8,  // 28: hr.service.v1.HrLeaveService.UpdateLeaveRequest:input_type -> hr.service.v1.UpdateLeaveRequestRequest
+	10, // 29: hr.service.v1.HrLeaveService.DeleteLeaveRequest:input_type -> hr.service.v1.DeleteLeaveRequestRequest
+	11, // 30: hr.service.v1.HrLeaveService.ApproveLeaveRequest:input_type -> hr.service.v1.ApproveLeaveRequestRequest
+	13, // 31: hr.service.v1.HrLeaveService.RejectLeaveRequest:input_type -> hr.service.v1.RejectLeaveRequestRequest
+	15, // 32: hr.service.v1.HrLeaveService.CancelLeaveRequest:input_type -> hr.service.v1.CancelLeaveRequestRequest
+	17, // 33: hr.service.v1.HrLeaveService.RevokeLeaveRequest:input_type -> hr.service.v1.RevokeLeaveRequestRequest
+	22, // 34: hr.service.v1.HrLeaveService.GetCalendarEvents:input_type -> hr.service.v1.GetCalendarEventsRequest
+	20, // 35: hr.service.v1.HrLeaveService.GetSignedDocumentUrl:input_type -> hr.service.v1.GetSignedDocumentUrlRequest
+	3,  // 36: hr.service.v1.HrLeaveService.CreateLeaveRequest:output_type -> hr.service.v1.CreateLeaveRequestResponse
+	5,  // 37: hr.service.v1.HrLeaveService.GetLeaveRequest:output_type -> hr.service.v1.GetLeaveRequestResponse
+	7,  // 38: hr.service.v1.HrLeaveService.ListLeaveRequests:output_type -> hr.service.v1.ListLeaveRequestsResponse
+	9,  // 39: hr.service.v1.HrLeaveService.UpdateLeaveRequest:output_type -> hr.service.v1.UpdateLeaveRequestResponse
+	27, // 40: hr.service.v1.HrLeaveService.DeleteLeaveRequest:output_type -> google.protobuf.Empty
+	12, // 41: hr.service.v1.HrLeaveService.ApproveLeaveRequest:output_type -> hr.service.v1.ApproveLeaveRequestResponse
+	14, // 42: hr.service.v1.HrLeaveService.RejectLeaveRequest:output_type -> hr.service.v1.RejectLeaveRequestResponse
+	16, // 43: hr.service.v1.HrLeaveService.CancelLeaveRequest:output_type -> hr.service.v1.CancelLeaveRequestResponse
+	18, // 44: hr.service.v1.HrLeaveService.RevokeLeaveRequest:output_type -> hr.service.v1.RevokeLeaveRequestResponse
+	23, // 45: hr.service.v1.HrLeaveService.GetCalendarEvents:output_type -> hr.service.v1.GetCalendarEventsResponse
+	21, // 46: hr.service.v1.HrLeaveService.GetSignedDocumentUrl:output_type -> hr.service.v1.GetSignedDocumentUrlResponse
+	36, // [36:47] is the sub-list for method output_type
+	25, // [25:36] is the sub-list for method input_type
+	25, // [25:25] is the sub-list for extension type_name
+	25, // [25:25] is the sub-list for extension extendee
+	0,  // [0:25] is the sub-list for field type_name
 }
 
 func init() { file_hr_service_v1_leave_proto_init() }
@@ -1884,14 +1998,15 @@ func file_hr_service_v1_leave_proto_init() {
 	file_hr_service_v1_leave_proto_msgTypes[7].OneofWrappers = []any{}
 	file_hr_service_v1_leave_proto_msgTypes[10].OneofWrappers = []any{}
 	file_hr_service_v1_leave_proto_msgTypes[12].OneofWrappers = []any{}
-	file_hr_service_v1_leave_proto_msgTypes[19].OneofWrappers = []any{}
+	file_hr_service_v1_leave_proto_msgTypes[16].OneofWrappers = []any{}
+	file_hr_service_v1_leave_proto_msgTypes[21].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_hr_service_v1_leave_proto_rawDesc), len(file_hr_service_v1_leave_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   21,
+			NumMessages:   23,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

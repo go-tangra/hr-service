@@ -58,7 +58,11 @@
       "remainingBalance": "Remaining Balance",
       "absenceTypeName": "Absence Type",
       "downloadSigned": "Download Signed Document",
-      "downloadFailed": "Failed to download signed document"
+      "downloadFailed": "Failed to download signed document",
+      "revoke": "Revoke",
+      "revokeConfirm": "Are you sure you want to revoke this approved leave request?",
+      "revokeSuccess": "Leave request revoked successfully",
+      "revokeReason": "Reason for revocation"
     },
     "absenceType": {
       "title": "Absence Types",
@@ -111,7 +115,8 @@
       "approved": "Approved",
       "rejected": "Rejected",
       "cancelled": "Cancelled",
-      "awaitingSigning": "Awaiting Signing"
+      "awaitingSigning": "Awaiting Signing",
+      "revoked": "Revoked"
     }
   }
 }

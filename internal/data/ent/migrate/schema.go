@@ -182,7 +182,7 @@ var (
 		{Name: "start_date", Type: field.TypeTime, Comment: "Start date of absence"},
 		{Name: "end_date", Type: field.TypeTime, Comment: "End date of absence"},
 		{Name: "days", Type: field.TypeFloat64, Comment: "Calculated business days"},
-		{Name: "status", Type: field.TypeEnum, Comment: "Request status", Enums: []string{"pending", "approved", "rejected", "cancelled", "awaiting_signing"}, Default: "pending"},
+		{Name: "status", Type: field.TypeEnum, Comment: "Request status", Enums: []string{"pending", "approved", "rejected", "cancelled", "awaiting_signing", "revoked"}, Default: "pending"},
 		{Name: "signing_request_id", Type: field.TypeString, Nullable: true, Comment: "Paperless signing request ID", Default: ""},
 		{Name: "reason", Type: field.TypeString, Nullable: true, Size: 2147483647, Comment: "User's reason for request"},
 		{Name: "review_notes", Type: field.TypeString, Nullable: true, Size: 2147483647, Comment: "HR admin's review notes"},

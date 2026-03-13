@@ -1,10 +1,10 @@
 <script lang="ts" setup>
-import { h } from 'vue';
+import { h, ref } from 'vue';
 
 import { Page, useVbenModal, type VbenFormProps } from 'shell/vben/common-ui';
-import { LucideEye, LucideTrash, LucideCheck, LucideX, LucideFileDownload } from 'shell/vben/icons';
+import { LucideEye, LucideTrash, LucideCheck, LucideX, LucideFileDownload, LucideBan } from 'shell/vben/icons';
 
-import { notification, Space, Button, Tag, Tooltip } from 'ant-design-vue';
+import { notification, Space, Button, Tag, Tooltip, Modal, Input } from 'ant-design-vue';
 
 import { useVbenVxeGrid } from 'shell/adapter/vxe-table';
 import type { VxeGridProps } from 'shell/adapter/vxe-table';
@@ -28,6 +28,7 @@ function statusColor(status?: string): string {
     case 'LEAVE_REQUEST_STATUS_CANCELLED': return 'default';
     case 'LEAVE_REQUEST_STATUS_PENDING': return 'orange';
     case 'LEAVE_REQUEST_STATUS_AWAITING_SIGNING': return 'blue';
+    case 'LEAVE_REQUEST_STATUS_REVOKED': return 'error';
     default: return 'default';
   }
 }
@@ -39,6 +40,7 @@ function statusLabel(status?: string): string {
     case 'LEAVE_REQUEST_STATUS_CANCELLED': return $t('hr.enum.leaveRequestStatus.cancelled');
     case 'LEAVE_REQUEST_STATUS_PENDING': return $t('hr.enum.leaveRequestStatus.pending');
     case 'LEAVE_REQUEST_STATUS_AWAITING_SIGNING': return $t('hr.enum.leaveRequestStatus.awaitingSigning');
+    case 'LEAVE_REQUEST_STATUS_REVOKED': return $t('hr.enum.leaveRequestStatus.revoked');
     default: return '';
   }
 }
@@ -61,6 +63,7 @@ const formOptions: VbenFormProps = {
           { label: $t('hr.enum.leaveRequestStatus.rejected'), value: 'LEAVE_REQUEST_STATUS_REJECTED' },
           { label: $t('hr.enum.leaveRequestStatus.cancelled'), value: 'LEAVE_REQUEST_STATUS_CANCELLED' },
           { label: $t('hr.enum.leaveRequestStatus.awaitingSigning'), value: 'LEAVE_REQUEST_STATUS_AWAITING_SIGNING' },
+          { label: $t('hr.enum.leaveRequestStatus.revoked'), value: 'LEAVE_REQUEST_STATUS_REVOKED' },
         ],
       },
     },
@@ -149,7 +152,7 @@ const gridOptions: VxeGridProps<LeaveRequest> = {
       field: 'action',
       fixed: 'right',
       slots: { default: 'action' },
-      width: 180,
+      width: 220,
     },
   ],
 };
@@ -209,6 +212,35 @@ async function handleDownloadSigned(row: LeaveRequest) {
   }
 }
 
+function handleRevoke(row: LeaveRequest) {
+  if (!row.id) return;
+  const reasonRef = ref('');
+  Modal.confirm({
+    title: $t('hr.page.request.revoke'),
+    content: () => h('div', [
+      h('p', $t('hr.page.request.revokeConfirm')),
+      h(Input.TextArea, {
+        rows: 3,
+        placeholder: $t('hr.page.request.revokeReason'),
+        value: reasonRef.value,
+        'onUpdate:value': (val: string) => { reasonRef.value = val; },
+      }),
+    ]),
+    okText: $t('ui.button.ok'),
+    cancelText: $t('ui.button.cancel'),
+    okButtonProps: { danger: true },
+    onOk: async () => {
+      try {
+        await leaveStore.revokeLeaveRequest(row.id!, reasonRef.value || undefined);
+        notification.success({ message: $t('hr.page.request.revokeSuccess') });
+        await gridApi.query();
+      } catch {
+        notification.error({ message: $t('ui.notification.operation_failed') });
+      }
+    },
+  });
+}
+
 async function handleDelete(row: LeaveRequest) {
   if (!row.id) return;
   try {
@@ -263,7 +295,7 @@ async function handleDelete(row: LeaveRequest) {
             style="color: #ff4d4f"
             @click.stop="handleReject(row)"
           />
-          <Tooltip v-if="row.status === 'LEAVE_REQUEST_STATUS_APPROVED' && row.signingRequestId" :title="$t('hr.page.request.downloadSigned')">
+          <Tooltip v-if="(row.status === 'LEAVE_REQUEST_STATUS_APPROVED' || row.status === 'LEAVE_REQUEST_STATUS_REVOKED') && row.signingRequestId" :title="$t('hr.page.request.downloadSigned')">
             <Button
               type="link"
               size="small"
@@ -272,6 +304,15 @@ async function handleDelete(row: LeaveRequest) {
               @click.stop="handleDownloadSigned(row)"
             />
           </Tooltip>
+          <Button
+            v-if="canApproveRequests && row.status === 'LEAVE_REQUEST_STATUS_APPROVED'"
+            danger
+            type="link"
+            size="small"
+            :icon="h(LucideBan)"
+            :title="$t('hr.page.request.revoke')"
+            @click.stop="handleRevoke(row)"
+          />
           <a-popconfirm
             v-if="canDeleteRequests"
             :cancel-text="$t('ui.button.cancel')"

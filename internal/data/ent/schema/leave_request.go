@@ -64,7 +64,7 @@ func (LeaveRequest) Fields() []ent.Field {
 			Comment("Calculated business days"),
 
 		field.Enum("status").
-			Values("pending", "approved", "rejected", "cancelled", "awaiting_signing").
+			Values("pending", "approved", "rejected", "cancelled", "awaiting_signing", "revoked").
 			Default("pending").
 			Comment("Request status"),
 

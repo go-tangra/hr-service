@@ -138,6 +138,17 @@ func (s *redactedHrLeaveServiceServer) CancelLeaveRequest(ctx context.Context, i
 	return res, err
 }
 
+// RevokeLeaveRequest is the redacted wrapper for the actual HrLeaveServiceServer.RevokeLeaveRequest method
+// Unary RPC
+func (s *redactedHrLeaveServiceServer) RevokeLeaveRequest(ctx context.Context, in *RevokeLeaveRequestRequest) (*RevokeLeaveRequestResponse, error) {
+	res, err := s.srv.RevokeLeaveRequest(ctx, in)
+	if !s.bypass.CheckInternal(ctx) {
+		// Apply redaction to the response
+		redact.Apply(res)
+	}
+	return res, err
+}
+
 // GetCalendarEvents is the redacted wrapper for the actual HrLeaveServiceServer.GetCalendarEvents method
 // Unary RPC
 func (s *redactedHrLeaveServiceServer) GetCalendarEvents(ctx context.Context, in *GetCalendarEventsRequest) (*GetCalendarEventsResponse, error) {
@@ -416,6 +427,28 @@ func (x *CancelLeaveRequestRequest) Redact() string {
 
 // Redact method implementation for CancelLeaveRequestResponse
 func (x *CancelLeaveRequestResponse) Redact() string {
+	if x == nil {
+		return ""
+	}
+
+	// Safe field: LeaveRequest
+	return x.String()
+}
+
+// Redact method implementation for RevokeLeaveRequestRequest
+func (x *RevokeLeaveRequestRequest) Redact() string {
+	if x == nil {
+		return ""
+	}
+
+	// Safe field: Id
+
+	// Safe field: Reason
+	return x.String()
+}
+
+// Redact method implementation for RevokeLeaveRequestResponse
+func (x *RevokeLeaveRequestResponse) Redact() string {
 	if x == nil {
 		return ""
 	}

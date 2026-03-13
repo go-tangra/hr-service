@@ -21,7 +21,8 @@ export type LeaveRequestStatus =
   | 'LEAVE_REQUEST_STATUS_APPROVED'
   | 'LEAVE_REQUEST_STATUS_REJECTED'
   | 'LEAVE_REQUEST_STATUS_CANCELLED'
-  | 'LEAVE_REQUEST_STATUS_AWAITING_SIGNING';
+  | 'LEAVE_REQUEST_STATUS_AWAITING_SIGNING'
+  | 'LEAVE_REQUEST_STATUS_REVOKED';
 
 // ==================== Entity Types ====================
 
@@ -347,6 +348,18 @@ export const LeaveService = {
     return hrApi.post<{ leaveRequest: LeaveRequest }>(
       `/leave-requests/${id}/cancel`,
       undefined,
+      options,
+    );
+  },
+
+  revoke: async (
+    id: string,
+    data?: { reason?: string },
+    options?: RequestOptions,
+  ): Promise<{ leaveRequest: LeaveRequest }> => {
+    return hrApi.post<{ leaveRequest: LeaveRequest }>(
+      `/leave-requests/${id}/revoke`,
+      data,
       options,
     );
   },
