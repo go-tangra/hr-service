@@ -49,10 +49,17 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	leaveService := service.NewLeaveService(context, leaveRequestRepo, leaveAllowanceRepo, absenceTypeRepo, paperlessClient)
+	notificationClient, cleanup2b, err := client.NewNotificationClient(context, moduleDialer)
+	if err != nil {
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
+	leaveService := service.NewLeaveService(context, leaveRequestRepo, leaveAllowanceRepo, absenceTypeRepo, paperlessClient, notificationClient)
 	allowanceService := service.NewAllowanceService(context, leaveAllowanceRepo, absenceTypeRepo)
 	adminClient, cleanup3, err := client.NewAdminClient(context, v)
 	if err != nil {
+		cleanup2b()
 		cleanup2()
 		cleanup()
 		return nil, nil, err
@@ -64,6 +71,7 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 	redisClient, cleanup4, err := data.NewRedisClient(context)
 	if err != nil {
 		cleanup3()
+		cleanup2b()
 		cleanup2()
 		cleanup()
 		return nil, nil, err
@@ -81,6 +89,7 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 		collector.Stop(gocontext.Background())
 		cleanup4()
 		cleanup3()
+		cleanup2b()
 		cleanup2()
 		cleanup()
 	}, nil

@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"fmt"
+	"sync"
 	"time"
 
 	"github.com/go-kratos/kratos/v2/log"
@@ -11,30 +12,65 @@ import (
 	"google.golang.org/protobuf/types/known/emptypb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
+	paperlesspb "buf.build/gen/go/go-tangra/paperless/protocolbuffers/go/paperless/service/v1"
+
 	"github.com/go-tangra/go-tangra-hr/internal/client"
 	"github.com/go-tangra/go-tangra-hr/internal/data"
 	"github.com/go-tangra/go-tangra-hr/internal/data/ent"
 	hrV1 "github.com/go-tangra/go-tangra-hr/gen/go/hr/service/v1"
-	paperlesspb "buf.build/gen/go/go-tangra/paperless/protocolbuffers/go/paperless/service/v1"
+)
+
+const (
+	rejectionTemplateName        = "hr-leave-rejection"
+	notificationChannelName      = "Default SMTP"
+	defaultRejectionSubject      = `Leave request rejected: {{.AbsenceTypeName}}`
+	defaultRejectionBodyTemplate = `<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"></head>
+<body style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+  <div style="background: #f8f9fa; border-radius: 8px; padding: 30px;">
+    <h2 style="color: #c00; margin-top: 0;">Leave Request Rejected</h2>
+    <p>Hello {{.RecipientName}},</p>
+    <p>Your leave request for <strong>{{.AbsenceTypeName}}</strong> from <strong>{{.StartDate}}</strong> to <strong>{{.EndDate}}</strong> ({{.Days}} days) has been <span style="color: #c00; font-weight: bold;">rejected</span>.</p>
+    {{if .ReviewNotes}}
+    <div style="background: #fff; border-left: 3px solid #c00; padding: 10px 15px; margin: 15px 0;">
+      <p style="margin: 0; color: #555;"><strong>Reason:</strong> {{.ReviewNotes}}</p>
+    </div>
+    {{end}}
+    <p>Reviewed by: <strong>{{.ReviewerName}}</strong></p>
+    <p style="color: #666; font-size: 13px;">If you have any questions, please contact your manager.</p>
+    <hr style="border: none; border-top: 1px solid #e8e8e8; margin: 20px 0;">
+    <p style="color: #999; font-size: 12px;">
+      This is an automated message. Please do not reply to this email.
+    </p>
+  </div>
+</body>
+</html>`
 )
 
 type LeaveService struct {
 	hrV1.UnimplementedHrLeaveServiceServer
 
-	log              *log.Helper
-	leaveRequestRepo *data.LeaveRequestRepo
-	allowanceRepo    *data.LeaveAllowanceRepo
-	absenceTypeRepo  *data.AbsenceTypeRepo
-	paperlessClient  *client.PaperlessClient
+	log                *log.Helper
+	leaveRequestRepo   *data.LeaveRequestRepo
+	allowanceRepo      *data.LeaveAllowanceRepo
+	absenceTypeRepo    *data.AbsenceTypeRepo
+	paperlessClient    *client.PaperlessClient
+	notificationClient *client.NotificationClient
+
+	rejectTemplateMu   sync.Mutex
+	rejectTemplateID   string
+	rejectTemplateDone bool
 }
 
-func NewLeaveService(ctx *bootstrap.Context, leaveRequestRepo *data.LeaveRequestRepo, allowanceRepo *data.LeaveAllowanceRepo, absenceTypeRepo *data.AbsenceTypeRepo, paperlessClient *client.PaperlessClient) *LeaveService {
+func NewLeaveService(ctx *bootstrap.Context, leaveRequestRepo *data.LeaveRequestRepo, allowanceRepo *data.LeaveAllowanceRepo, absenceTypeRepo *data.AbsenceTypeRepo, paperlessClient *client.PaperlessClient, notificationClient *client.NotificationClient) *LeaveService {
 	return &LeaveService{
-		log:              ctx.NewLoggerHelper("hr/service/leave"),
-		leaveRequestRepo: leaveRequestRepo,
-		allowanceRepo:    allowanceRepo,
-		absenceTypeRepo:  absenceTypeRepo,
-		paperlessClient:  paperlessClient,
+		log:                ctx.NewLoggerHelper("hr/service/leave"),
+		leaveRequestRepo:   leaveRequestRepo,
+		allowanceRepo:      allowanceRepo,
+		absenceTypeRepo:    absenceTypeRepo,
+		paperlessClient:    paperlessClient,
+		notificationClient: notificationClient,
 	}
 }
 
@@ -470,16 +506,20 @@ func (s *LeaveService) RejectLeaveRequest(ctx context.Context, req *hrV1.RejectL
 		reviewNotes = *req.ReviewNotes
 	}
 
-	entity, err := s.leaveRequestRepo.UpdateStatus(ctx, req.GetId(), "rejected", getUserID(ctx), getUsername(ctx), reviewNotes)
+	reviewerName := getUsername(ctx)
+	entity, err := s.leaveRequestRepo.UpdateStatus(ctx, req.GetId(), "rejected", getUserID(ctx), reviewerName, reviewNotes)
 	if err != nil {
 		return nil, err
 	}
 
-	// Re-fetch with edges
+	// Re-fetch with edges for absence type name
 	entity2, _ := s.leaveRequestRepo.GetByID(ctx, entity.ID)
 	if entity2 != nil {
 		entity = entity2
 	}
+
+	// Send rejection email asynchronously
+	go s.sendRejectionEmail(ctx, entity, reviewerName, reviewNotes)
 
 	return &hrV1.RejectLeaveRequestResponse{
 		LeaveRequest: leaveRequestToProto(entity),

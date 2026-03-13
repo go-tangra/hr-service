@@ -30,6 +30,8 @@ require (
 
 require (
 	ariga.io/atlas v1.0.0 // indirect
+	buf.build/gen/go/go-tangra/notification/grpc/go v1.6.1-20260311015104-33b6c889557e.1 // indirect
+	buf.build/gen/go/go-tangra/notification/protocolbuffers/go v1.36.11-20260311015104-33b6c889557e.1 // indirect
 	buf.build/gen/go/kratos/apis/protocolbuffers/go v1.36.10-20230105082401-c2de25f14fa4.1 // indirect
 	buf.build/gen/go/menta2k-org/redact/protocolbuffers/go v1.36.11-20251106143824-2e42b69270f4.1 // indirect
 	dario.cat/mergo v1.0.2 // indirect
