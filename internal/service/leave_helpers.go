@@ -41,8 +41,15 @@ func refundAllowance(ctx context.Context, log *log.Helper, allowanceRepo *data.L
 		return
 	}
 	if allowance != nil {
-		if err = allowanceRepo.AddUsedDays(ctx, allowance.ID, -leaveReq.Days); err != nil {
-			log.Errorf("Failed to refund allowance for leave %s: %v", leaveReq.ID, err)
+		// Only refund if used_days would stay >= 0 to prevent negative balances
+		refund := leaveReq.Days
+		if allowance.UsedDays-refund < 0 {
+			refund = allowance.UsedDays
+		}
+		if refund > 0 {
+			if err = allowanceRepo.AddUsedDays(ctx, allowance.ID, -refund); err != nil {
+				log.Errorf("Failed to refund allowance for leave %s: %v", leaveReq.ID, err)
+			}
 		}
 	}
 }
