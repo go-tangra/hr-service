@@ -7,6 +7,7 @@ import (
 
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/tx7do/kratos-bootstrap/bootstrap"
+	grpcMD "google.golang.org/grpc/metadata"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
@@ -561,9 +562,14 @@ func (s *LeaveService) RevokeLeaveRequest(ctx context.Context, req *hrV1.RevokeL
 		}
 		signingReqID := existing.SigningRequestID
 		leaveID := existing.ID
-		// Use the original context for metadata extraction; paperless client resolves its own connection
+		// Build a detached context with the same gRPC metadata — the original ctx
+		// will be cancelled when the HTTP handler returns.
+		bgCtx := context.Background()
+		if inMD, ok := grpcMD.FromIncomingContext(ctx); ok {
+			bgCtx = grpcMD.NewOutgoingContext(bgCtx, inMD)
+		}
 		go func() {
-			if revokeErr := s.paperlessClient.RevokeSigningRequest(ctx, signingReqID, reason); revokeErr != nil {
+			if revokeErr := s.paperlessClient.RevokeSigningRequest(bgCtx, signingReqID, reason); revokeErr != nil {
 				s.log.Errorf("Failed to revoke signing request %s for leave %s: %v", signingReqID, leaveID, revokeErr)
 			}
 		}()
