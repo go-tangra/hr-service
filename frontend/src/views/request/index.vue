@@ -112,6 +112,11 @@ const gridOptions: VxeGridProps<LeaveRequest> = {
       minWidth: 150,
     },
     {
+      title: $t('hr.page.request.id'),
+      field: 'id',
+      minWidth: 150,
+    },
+    {
       title: $t('hr.page.request.absenceTypeName'),
       field: 'absenceTypeName',
       width: 140,
