@@ -78,6 +78,11 @@ const gridOptions: VxeGridProps<LeaveAllowance> = {
   columns: [
     { title: $t('ui.table.seq'), type: 'seq', width: 50 },
     {
+      title: $t('hr.page.allowance.id'),
+      field: 'id',
+      minWidth: 150,
+    },
+    {
       title: $t('hr.page.allowance.userId'),
       field: 'userName',
       minWidth: 150,
