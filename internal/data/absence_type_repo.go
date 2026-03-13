@@ -139,8 +139,8 @@ func (r *AbsenceTypeRepo) Update(ctx context.Context, id string, updates map[str
 }
 
 func (r *AbsenceTypeRepo) Delete(ctx context.Context, id string) error {
-	// Check if absence type is in use
-	count, err := r.entClient.Client().AbsenceType.Query().
+	// Check if absence type has leave requests
+	reqCount, err := r.entClient.Client().AbsenceType.Query().
 		Where(absencetype.ID(id)).
 		QueryLeaveRequests().
 		Count(ctx)
@@ -148,8 +148,21 @@ func (r *AbsenceTypeRepo) Delete(ctx context.Context, id string) error {
 		r.log.Errorf("check absence type usage failed: %s", err.Error())
 		return hrV1.ErrorInternalServerError("delete absence type failed")
 	}
-	if count > 0 {
-		return hrV1.ErrorAbsenceTypeInUse("absence type has %d leave requests", count)
+	if reqCount > 0 {
+		return hrV1.ErrorAbsenceTypeInUse("absence type has %d leave requests", reqCount)
+	}
+
+	// Check if absence type has allowances
+	allowCount, err := r.entClient.Client().AbsenceType.Query().
+		Where(absencetype.ID(id)).
+		QueryLeaveAllowances().
+		Count(ctx)
+	if err != nil {
+		r.log.Errorf("check absence type allowance usage failed: %s", err.Error())
+		return hrV1.ErrorInternalServerError("delete absence type failed")
+	}
+	if allowCount > 0 {
+		return hrV1.ErrorAbsenceTypeInUse("absence type has %d leave allowances", allowCount)
 	}
 
 	err = r.entClient.Client().AbsenceType.DeleteOneID(id).Exec(ctx)
