@@ -1,0 +1,3 @@
+# Claude audit outputs - working files, not artifacts
+audits/
+*.log
