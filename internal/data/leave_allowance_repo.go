@@ -60,6 +60,7 @@ func (r *LeaveAllowanceRepo) GetByID(ctx context.Context, id string) (*ent.Leave
 	entity, err := r.entClient.Client().LeaveAllowance.Query().
 		Where(leaveallowance.ID(id)).
 		WithAbsenceType().
+		WithAllowancePool().
 		Only(ctx)
 	if err != nil {
 		if ent.IsNotFound(err) {
@@ -114,6 +115,7 @@ func (r *LeaveAllowanceRepo) GetByUserAndTypeAndYear(ctx context.Context, tenant
 			leaveallowance.Year(year),
 		).
 		WithAbsenceType().
+		WithAllowancePool().
 		Only(ctx)
 	if err != nil {
 		if ent.IsNotFound(err) {
@@ -133,6 +135,7 @@ func (r *LeaveAllowanceRepo) GetByUserAndYear(ctx context.Context, tenantID uint
 			leaveallowance.Year(year),
 		).
 		WithAbsenceType().
+		WithAllowancePool().
 		All(ctx)
 	if err != nil {
 		r.log.Errorf("get user allowances failed: %s", err.Error())
@@ -253,6 +256,7 @@ func (r *LeaveAllowanceRepo) GetByUserAndPoolAndYear(ctx context.Context, tenant
 			leaveallowance.Year(year),
 		).
 		WithAbsenceType().
+		WithAllowancePool().
 		Only(ctx)
 	if err != nil {
 		if ent.IsNotFound(err) {

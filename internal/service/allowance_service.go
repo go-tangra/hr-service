@@ -333,6 +333,9 @@ func allowanceToProto(e *ent.LeaveAllowance) *hrV1.LeaveAllowance {
 	if e.Edges.AbsenceType != nil {
 		result.AbsenceTypeName = &e.Edges.AbsenceType.Name
 	}
+	if e.Edges.AllowancePool != nil {
+		result.AllowancePoolName = &e.Edges.AllowancePool.Name
+	}
 
 	return result
 }
