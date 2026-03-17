@@ -33,10 +33,13 @@ func (r *LeaveAllowanceRepo) Create(ctx context.Context, tenantID uint32, userID
 		SetID(id).
 		SetTenantID(tenantID).
 		SetUserID(userID).
-		SetAbsenceTypeID(absenceTypeID).
 		SetYear(year).
 		SetTotalDays(totalDays).
 		SetCreateTime(time.Now())
+
+	if absenceTypeID != "" {
+		create = create.SetAbsenceTypeID(absenceTypeID)
+	}
 
 	for _, opt := range opts {
 		opt(create)
@@ -45,7 +48,7 @@ func (r *LeaveAllowanceRepo) Create(ctx context.Context, tenantID uint32, userID
 	entity, err := create.Save(ctx)
 	if err != nil {
 		if ent.IsConstraintError(err) {
-			return nil, hrV1.ErrorAlreadyExists("allowance already exists for this user, type, and year")
+			return nil, hrV1.ErrorAlreadyExists("allowance already exists for this user and year")
 		}
 		r.log.Errorf("create leave allowance failed: %s", err.Error())
 		return nil, hrV1.ErrorInternalServerError("create leave allowance failed")

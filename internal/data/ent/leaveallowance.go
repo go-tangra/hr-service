@@ -37,9 +37,9 @@ type LeaveAllowance struct {
 	// Denormalized user display name
 	UserName string `json:"user_name,omitempty"`
 	// FK to AbsenceType (set when not using a pool)
-	AbsenceTypeID string `json:"absence_type_id,omitempty"`
+	AbsenceTypeID *string `json:"absence_type_id,omitempty"`
 	// FK to AllowancePool (set when pool-based allowance)
-	AllowancePoolID string `json:"allowance_pool_id,omitempty"`
+	AllowancePoolID *string `json:"allowance_pool_id,omitempty"`
 	// Calendar year
 	Year int `json:"year,omitempty"`
 	// Total allowed days (supports half-days)
@@ -181,13 +181,15 @@ func (_m *LeaveAllowance) assignValues(columns []string, values []any) error {
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field absence_type_id", values[i])
 			} else if value.Valid {
-				_m.AbsenceTypeID = value.String
+				_m.AbsenceTypeID = new(string)
+				*_m.AbsenceTypeID = value.String
 			}
 		case leaveallowance.FieldAllowancePoolID:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field allowance_pool_id", values[i])
 			} else if value.Valid {
-				_m.AllowancePoolID = value.String
+				_m.AllowancePoolID = new(string)
+				*_m.AllowancePoolID = value.String
 			}
 		case leaveallowance.FieldYear:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
@@ -301,11 +303,15 @@ func (_m *LeaveAllowance) String() string {
 	builder.WriteString("user_name=")
 	builder.WriteString(_m.UserName)
 	builder.WriteString(", ")
-	builder.WriteString("absence_type_id=")
-	builder.WriteString(_m.AbsenceTypeID)
+	if v := _m.AbsenceTypeID; v != nil {
+		builder.WriteString("absence_type_id=")
+		builder.WriteString(*v)
+	}
 	builder.WriteString(", ")
-	builder.WriteString("allowance_pool_id=")
-	builder.WriteString(_m.AllowancePoolID)
+	if v := _m.AllowancePoolID; v != nil {
+		builder.WriteString("allowance_pool_id=")
+		builder.WriteString(*v)
+	}
 	builder.WriteString(", ")
 	builder.WriteString("year=")
 	builder.WriteString(fmt.Sprintf("%v", _m.Year))

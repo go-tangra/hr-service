@@ -461,7 +461,10 @@ func (_q *LeaveAllowanceQuery) loadAbsenceType(ctx context.Context, query *Absen
 	ids := make([]string, 0, len(nodes))
 	nodeids := make(map[string][]*LeaveAllowance)
 	for i := range nodes {
-		fk := nodes[i].AbsenceTypeID
+		if nodes[i].AbsenceTypeID == nil {
+			continue
+		}
+		fk := *nodes[i].AbsenceTypeID
 		if _, ok := nodeids[fk]; !ok {
 			ids = append(ids, fk)
 		}
@@ -490,7 +493,10 @@ func (_q *LeaveAllowanceQuery) loadAllowancePool(ctx context.Context, query *All
 	ids := make([]string, 0, len(nodes))
 	nodeids := make(map[string][]*LeaveAllowance)
 	for i := range nodes {
-		fk := nodes[i].AllowancePoolID
+		if nodes[i].AllowancePoolID == nil {
+			continue
+		}
+		fk := *nodes[i].AllowancePoolID
 		if _, ok := nodeids[fk]; !ok {
 			ids = append(ids, fk)
 		}

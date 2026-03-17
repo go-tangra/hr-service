@@ -229,7 +229,7 @@ func (s *AllowanceService) GetUserBalance(ctx context.Context, req *hrV1.GetUser
 	var entries []*hrV1.BalanceEntry
 	for _, a := range allowances {
 		entry := &hrV1.BalanceEntry{
-			AbsenceTypeId: a.AbsenceTypeID,
+			AbsenceTypeId: derefString(a.AbsenceTypeID),
 			TotalDays:     a.TotalDays,
 			UsedDays:      a.UsedDays,
 			CarriedOver:   a.CarriedOver,
@@ -242,10 +242,11 @@ func (s *AllowanceService) GetUserBalance(ctx context.Context, req *hrV1.GetUser
 		}
 
 		// Pool-based allowance
-		if a.AllowancePoolID != "" {
-			entry.AllowancePoolId = ptrString(a.AllowancePoolID)
+		poolID := derefString(a.AllowancePoolID)
+		if poolID != "" {
+			entry.AllowancePoolId = ptrString(poolID)
 			// Fetch pool details for display name and member types
-			pool, poolErr := s.poolRepo.GetByID(ctx, a.AllowancePoolID)
+			pool, poolErr := s.poolRepo.GetByID(ctx, poolID)
 			if poolErr == nil && pool != nil {
 				entry.AllowancePoolName = ptrString(pool.Name)
 				if pool.Color != "" {
@@ -277,8 +278,8 @@ func allowanceToProto(e *ent.LeaveAllowance) *hrV1.LeaveAllowance {
 		Id:              &e.ID,
 		TenantId:        e.TenantID,
 		UserId:          &e.UserID,
-		AbsenceTypeId:   ptrString(e.AbsenceTypeID),
-		AllowancePoolId: ptrString(e.AllowancePoolID),
+		AbsenceTypeId:   e.AbsenceTypeID,
+		AllowancePoolId: e.AllowancePoolID,
 		Year:            &year,
 		TotalDays:       ptrFloat64(e.TotalDays),
 		UsedDays:        ptrFloat64(e.UsedDays),

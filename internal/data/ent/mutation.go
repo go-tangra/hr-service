@@ -5646,7 +5646,7 @@ func (m *LeaveAllowanceMutation) AbsenceTypeID() (r string, exists bool) {
 // OldAbsenceTypeID returns the old "absence_type_id" field's value of the LeaveAllowance entity.
 // If the LeaveAllowance object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *LeaveAllowanceMutation) OldAbsenceTypeID(ctx context.Context) (v string, err error) {
+func (m *LeaveAllowanceMutation) OldAbsenceTypeID(ctx context.Context) (v *string, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldAbsenceTypeID is only allowed on UpdateOne operations")
 	}
@@ -5695,7 +5695,7 @@ func (m *LeaveAllowanceMutation) AllowancePoolID() (r string, exists bool) {
 // OldAllowancePoolID returns the old "allowance_pool_id" field's value of the LeaveAllowance entity.
 // If the LeaveAllowance object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *LeaveAllowanceMutation) OldAllowancePoolID(ctx context.Context) (v string, err error) {
+func (m *LeaveAllowanceMutation) OldAllowancePoolID(ctx context.Context) (v *string, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldAllowancePoolID is only allowed on UpdateOne operations")
 	}

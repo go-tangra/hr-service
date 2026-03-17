@@ -33,3 +33,11 @@ func ptrFloat64(f float64) *float64 {
 func ptrBool(b bool) *bool {
 	return &b
 }
+
+// derefString safely dereferences a *string, returning "" if nil.
+func derefString(s *string) string {
+	if s == nil {
+		return ""
+	}
+	return *s
+}

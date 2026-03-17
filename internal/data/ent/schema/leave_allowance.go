@@ -40,10 +40,12 @@ func (LeaveAllowance) Fields() []ent.Field {
 
 		field.String("absence_type_id").
 			Optional().
+			Nillable().
 			Comment("FK to AbsenceType (set when not using a pool)"),
 
 		field.String("allowance_pool_id").
 			Optional().
+			Nillable().
 			Comment("FK to AllowancePool (set when pool-based allowance)"),
 
 		field.Int("year").
