@@ -63,9 +63,9 @@ const isCreateMode = computed(() => data.value?.mode === 'create');
 const isEditMode = computed(() => data.value?.mode === 'edit');
 const isViewMode = computed(() => data.value?.mode === 'view');
 
-// Filter to only absence types that deduct from allowance
+// Filter to only absence types that deduct from allowance AND are not in a pool
 const deductingTypes = computed(() =>
-  absenceTypes.value.filter((t) => t.deductsFromAllowance),
+  absenceTypes.value.filter((t) => t.deductsFromAllowance && !t.allowancePoolId),
 );
 
 function getUserDisplayName(user: HrUser): string {

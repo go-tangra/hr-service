@@ -37,6 +37,31 @@ func (s *AllowanceService) CreateAllowance(ctx context.Context, req *hrV1.Create
 		return nil, err
 	}
 
+	// Validate: individual allowance must not target a type that belongs to a pool
+	absenceTypeID := req.GetAbsenceTypeId()
+	isPoolBased := req.AllowancePoolId != nil && *req.AllowancePoolId != ""
+
+	if !isPoolBased && absenceTypeID != "" {
+		absType, err := s.absenceTypeRepo.GetByID(ctx, absenceTypeID)
+		if err != nil {
+			return nil, err
+		}
+		if absType == nil {
+			return nil, hrV1.ErrorAbsenceTypeNotFound("absence type not found")
+		}
+		if absType.AllowancePoolID != "" {
+			poolEntity, _ := s.poolRepo.GetByID(ctx, absType.AllowancePoolID)
+			poolName := absType.AllowancePoolID
+			if poolEntity != nil {
+				poolName = poolEntity.Name
+			}
+			return nil, hrV1.ErrorBadRequest(
+				"absence type %q belongs to pool %q — create a pool-based allowance instead",
+				absType.Name, poolName,
+			)
+		}
+	}
+
 	opts := []func(*ent.LeaveAllowanceCreate){}
 
 	if req.CarriedOver != nil {
@@ -48,8 +73,15 @@ func (s *AllowanceService) CreateAllowance(ctx context.Context, req *hrV1.Create
 	if req.UserName != nil {
 		opts = append(opts, func(c *ent.LeaveAllowanceCreate) { c.SetUserName(*req.UserName) })
 	}
-	if req.AllowancePoolId != nil && *req.AllowancePoolId != "" {
+	if isPoolBased {
 		poolID := *req.AllowancePoolId
+		pool, err := s.poolRepo.GetByID(ctx, poolID)
+		if err != nil {
+			return nil, err
+		}
+		if pool == nil {
+			return nil, hrV1.ErrorAllowancePoolNotFound("allowance pool not found")
+		}
 		opts = append(opts, func(c *ent.LeaveAllowanceCreate) { c.SetAllowancePoolID(poolID) })
 	}
 
