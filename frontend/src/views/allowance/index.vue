@@ -165,8 +165,8 @@ async function handleDelete(row: LeaveAllowance) {
       message: $t('hr.page.allowance.deleteSuccess'),
     });
     await gridApi.query();
-  } catch {
-    notification.error({ message: $t('ui.notification.delete_failed') });
+  } catch (e: any) {
+    notification.error({ message: $t('ui.notification.delete_failed'), description: e?.message });
   }
 }
 

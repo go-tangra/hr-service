@@ -160,8 +160,8 @@ async function handleDelete(row: AbsenceType) {
       message: $t('hr.page.absenceType.deleteSuccess'),
     });
     await gridApi.query();
-  } catch {
-    notification.error({ message: $t('ui.notification.delete_failed') });
+  } catch (e: any) {
+    notification.error({ message: $t('ui.notification.delete_failed'), description: e?.message });
   }
 }
 </script>

@@ -255,8 +255,8 @@ async function handleDownloadSigned(row: LeaveRequest) {
     if (resp.url) {
       window.open(resp.url, '_blank');
     }
-  } catch {
-    notification.error({ message: $t('hr.page.request.downloadFailed') });
+  } catch (e: any) {
+    notification.error({ message: $t('hr.page.request.downloadFailed'), description: e?.message });
   }
 }
 
@@ -282,8 +282,8 @@ function handleRevoke(row: LeaveRequest) {
         await leaveStore.revokeLeaveRequest(row.id!, reasonRef.value || undefined);
         notification.success({ message: $t('hr.page.request.revokeSuccess') });
         await gridApi.query();
-      } catch {
-        notification.error({ message: $t('ui.notification.operation_failed') });
+      } catch (e: any) {
+        notification.error({ message: $t('ui.notification.operation_failed'), description: e?.message });
       }
     },
   });
@@ -297,8 +297,8 @@ async function handleDelete(row: LeaveRequest) {
       message: $t('hr.page.request.deleteSuccess'),
     });
     await gridApi.query();
-  } catch {
-    notification.error({ message: $t('ui.notification.delete_failed') });
+  } catch (e: any) {
+    notification.error({ message: $t('ui.notification.delete_failed'), description: e?.message });
   }
 }
 </script>

@@ -94,11 +94,12 @@ async function handleSubmit() {
       });
     }
     modalApi.close();
-  } catch {
+  } catch (e: any) {
     notification.error({
       message: isCreateMode.value
         ? $t('ui.notification.create_failed')
         : $t('ui.notification.update_failed'),
+      description: e?.message,
     });
   } finally {
     loading.value = false;

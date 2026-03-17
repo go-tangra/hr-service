@@ -64,8 +64,8 @@ async function handleSubmit() {
       });
     }
     modalApi.close();
-  } catch {
-    notification.error({ message: $t('ui.notification.update_failed') });
+  } catch (e: any) {
+    notification.error({ message: $t('ui.notification.update_failed'), description: e?.message });
   } finally {
     loading.value = false;
   }

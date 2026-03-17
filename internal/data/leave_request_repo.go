@@ -9,9 +9,9 @@ import (
 	entCrud "github.com/tx7do/go-crud/entgo"
 	"github.com/tx7do/kratos-bootstrap/bootstrap"
 
+	hrV1 "github.com/go-tangra/go-tangra-hr/gen/go/hr/service/v1"
 	"github.com/go-tangra/go-tangra-hr/internal/data/ent"
 	"github.com/go-tangra/go-tangra-hr/internal/data/ent/leaverequest"
-	hrV1 "github.com/go-tangra/go-tangra-hr/gen/go/hr/service/v1"
 )
 
 type LeaveRequestRepo struct {
@@ -113,7 +113,7 @@ func (r *LeaveRequestRepo) CheckOverlap(ctx context.Context, tenantID uint32, us
 			leaverequest.TenantID(tenantID),
 			leaverequest.UserID(userID),
 			leaverequest.StatusIn(leaverequest.StatusPending, leaverequest.StatusApproved, leaverequest.StatusAwaitingSigning),
-			leaverequest.StartDateLT(endDate),
+			leaverequest.StartDateLTE(endDate),
 			leaverequest.EndDateGT(startDate),
 		)
 
