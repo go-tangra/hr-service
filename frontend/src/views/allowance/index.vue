@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { h } from 'vue';
+import { h, ref, onMounted } from 'vue';
 
 import { Page, useVbenModal, type VbenFormProps } from 'shell/vben/common-ui';
 import { LucideEye, LucideTrash, LucidePencil } from 'shell/vben/icons';
@@ -8,15 +8,35 @@ import { notification, Space, Button } from 'ant-design-vue';
 
 import { useVbenVxeGrid } from 'shell/adapter/vxe-table';
 import type { VxeGridProps } from 'shell/adapter/vxe-table';
-import type { LeaveAllowance } from '../../api/client';
+import type { LeaveAllowance, AllowancePool } from '../../api/client';
 import { $t } from 'shell/locales';
 import { useHrAllowanceStore } from '../../stores/hr-allowance.state';
+import { useHrAllowancePoolStore } from '../../stores/hr-allowance-pool.state';
 
 import AllowanceDrawer from './allowance-drawer.vue';
 import { usePermission } from '../../composables/use-permission';
 
 const allowanceStore = useHrAllowanceStore();
+const poolStore = useHrAllowancePoolStore();
 const { canManageAllowances } = usePermission();
+
+const poolMap = ref<Record<string, AllowancePool>>({});
+
+onMounted(async () => {
+  try {
+    const resp = await poolStore.listAllowancePools(undefined, null);
+    const map: Record<string, AllowancePool> = {};
+    for (const p of resp.items || []) {
+      if (p.id) map[p.id] = p;
+    }
+    poolMap.value = map;
+  } catch { /* silently fail */ }
+});
+
+function getPoolName(poolId?: string): string | undefined {
+  if (!poolId) return undefined;
+  return poolMap.value[poolId]?.name;
+}
 
 const formOptions: VbenFormProps = {
   collapsed: false,
@@ -184,8 +204,8 @@ function computeRemaining(row: LeaveAllowance): number {
         </Button>
       </template>
       <template #typeSlot="{ row }">
-        <span v-if="row.allowancePoolName">
-          {{ row.allowancePoolName }}
+        <span v-if="row.allowancePoolName || row.allowancePoolId">
+          {{ row.allowancePoolName || getPoolName(row.allowancePoolId) || row.allowancePoolId }}
           <span class="text-xs text-gray-400 ml-1">(pool)</span>
         </span>
         <span v-else>{{ row.absenceTypeName || '-' }}</span>
