@@ -70,6 +70,19 @@ menus:
       - hr.employee
       - hr.viewer
 
+  - id: hr-allowance-pools
+    parent_id: hr
+    type: MENU
+    name: Allowance Pools
+    path: allowance-pool
+    component: app/hr/pool/index.vue
+    icon: lucide:layers
+    order: 4
+    authority:
+      - platform:admin
+      - tenant:manager
+      - hr.admin
+
   - id: hr-absence-types
     parent_id: hr
     type: MENU
@@ -77,7 +90,7 @@ menus:
     path: absence-type
     component: app/hr/absence-type/index.vue
     icon: lucide:list-checks
-    order: 4
+    order: 5
     authority:
       - platform:admin
       - tenant:manager
@@ -135,6 +148,9 @@ permission_groups:
       - name: Manage Allowances
         code: hr.allowance.manage
         description: Create, update, and delete leave allowances
+      - name: Manage Allowance Pools
+        code: hr.allowance_pool.manage
+        description: Create, update, and delete allowance pools
       - name: List Users
         code: hr.users.list
         description: View user list for assigning leave requests and allowances
@@ -154,6 +170,7 @@ roles:
       - hr.absence_type.manage
       - hr.allowance.view
       - hr.allowance.manage
+      - hr.allowance_pool.manage
       - hr.users.list
 
   - name: HR Employee

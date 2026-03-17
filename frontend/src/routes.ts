@@ -56,6 +56,7 @@ const routes: RouteRecordRaw[] = [
           icon: 'lucide:layers',
           title: 'hr.menu.allowancePools',
           authority: HR_POOL_ADMIN,
+          order: 5,
         },
         component: () => import('./views/pool/index.vue'),
       },
