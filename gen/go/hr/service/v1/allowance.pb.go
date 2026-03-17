@@ -28,25 +28,27 @@ const (
 
 // LeaveAllowance represents a user's leave allowance for a specific type and year
 type LeaveAllowance struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            *string                `protobuf:"bytes,1,opt,name=id,proto3,oneof" json:"id,omitempty"`
-	TenantId      *uint32                `protobuf:"varint,2,opt,name=tenant_id,json=tenantId,proto3,oneof" json:"tenant_id,omitempty"`
-	UserId        *uint32                `protobuf:"varint,3,opt,name=user_id,json=userId,proto3,oneof" json:"user_id,omitempty"`
-	AbsenceTypeId *string                `protobuf:"bytes,4,opt,name=absence_type_id,json=absenceTypeId,proto3,oneof" json:"absence_type_id,omitempty"`
-	Year          *int32                 `protobuf:"varint,5,opt,name=year,proto3,oneof" json:"year,omitempty"`
-	TotalDays     *float64               `protobuf:"fixed64,6,opt,name=total_days,json=totalDays,proto3,oneof" json:"total_days,omitempty"`
-	UsedDays      *float64               `protobuf:"fixed64,7,opt,name=used_days,json=usedDays,proto3,oneof" json:"used_days,omitempty"`
-	CarriedOver   *float64               `protobuf:"fixed64,8,opt,name=carried_over,json=carriedOver,proto3,oneof" json:"carried_over,omitempty"`
-	Notes         *string                `protobuf:"bytes,9,opt,name=notes,proto3,oneof" json:"notes,omitempty"`
+	state           protoimpl.MessageState `protogen:"open.v1"`
+	Id              *string                `protobuf:"bytes,1,opt,name=id,proto3,oneof" json:"id,omitempty"`
+	TenantId        *uint32                `protobuf:"varint,2,opt,name=tenant_id,json=tenantId,proto3,oneof" json:"tenant_id,omitempty"`
+	UserId          *uint32                `protobuf:"varint,3,opt,name=user_id,json=userId,proto3,oneof" json:"user_id,omitempty"`
+	AbsenceTypeId   *string                `protobuf:"bytes,4,opt,name=absence_type_id,json=absenceTypeId,proto3,oneof" json:"absence_type_id,omitempty"`
+	Year            *int32                 `protobuf:"varint,5,opt,name=year,proto3,oneof" json:"year,omitempty"`
+	TotalDays       *float64               `protobuf:"fixed64,6,opt,name=total_days,json=totalDays,proto3,oneof" json:"total_days,omitempty"`
+	UsedDays        *float64               `protobuf:"fixed64,7,opt,name=used_days,json=usedDays,proto3,oneof" json:"used_days,omitempty"`
+	CarriedOver     *float64               `protobuf:"fixed64,8,opt,name=carried_over,json=carriedOver,proto3,oneof" json:"carried_over,omitempty"`
+	Notes           *string                `protobuf:"bytes,9,opt,name=notes,proto3,oneof" json:"notes,omitempty"`
+	AllowancePoolId *string                `protobuf:"bytes,10,opt,name=allowance_pool_id,json=allowancePoolId,proto3,oneof" json:"allowance_pool_id,omitempty"`
 	// Denormalized for display
-	AbsenceTypeName *string                `protobuf:"bytes,30,opt,name=absence_type_name,json=absenceTypeName,proto3,oneof" json:"absence_type_name,omitempty"`
-	UserName        *string                `protobuf:"bytes,31,opt,name=user_name,json=userName,proto3,oneof" json:"user_name,omitempty"`
-	CreatedAt       *timestamppb.Timestamp `protobuf:"bytes,20,opt,name=created_at,json=createdAt,proto3,oneof" json:"created_at,omitempty"`
-	UpdatedAt       *timestamppb.Timestamp `protobuf:"bytes,21,opt,name=updated_at,json=updatedAt,proto3,oneof" json:"updated_at,omitempty"`
-	CreatedBy       *uint32                `protobuf:"varint,22,opt,name=created_by,json=createdBy,proto3,oneof" json:"created_by,omitempty"`
-	UpdatedBy       *uint32                `protobuf:"varint,23,opt,name=updated_by,json=updatedBy,proto3,oneof" json:"updated_by,omitempty"`
-	unknownFields   protoimpl.UnknownFields
-	sizeCache       protoimpl.SizeCache
+	AbsenceTypeName   *string                `protobuf:"bytes,30,opt,name=absence_type_name,json=absenceTypeName,proto3,oneof" json:"absence_type_name,omitempty"`
+	UserName          *string                `protobuf:"bytes,31,opt,name=user_name,json=userName,proto3,oneof" json:"user_name,omitempty"`
+	AllowancePoolName *string                `protobuf:"bytes,32,opt,name=allowance_pool_name,json=allowancePoolName,proto3,oneof" json:"allowance_pool_name,omitempty"`
+	CreatedAt         *timestamppb.Timestamp `protobuf:"bytes,20,opt,name=created_at,json=createdAt,proto3,oneof" json:"created_at,omitempty"`
+	UpdatedAt         *timestamppb.Timestamp `protobuf:"bytes,21,opt,name=updated_at,json=updatedAt,proto3,oneof" json:"updated_at,omitempty"`
+	CreatedBy         *uint32                `protobuf:"varint,22,opt,name=created_by,json=createdBy,proto3,oneof" json:"created_by,omitempty"`
+	UpdatedBy         *uint32                `protobuf:"varint,23,opt,name=updated_by,json=updatedBy,proto3,oneof" json:"updated_by,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
 }
 
 func (x *LeaveAllowance) Reset() {
@@ -142,6 +144,13 @@ func (x *LeaveAllowance) GetNotes() string {
 	return ""
 }
 
+func (x *LeaveAllowance) GetAllowancePoolId() string {
+	if x != nil && x.AllowancePoolId != nil {
+		return *x.AllowancePoolId
+	}
+	return ""
+}
+
 func (x *LeaveAllowance) GetAbsenceTypeName() string {
 	if x != nil && x.AbsenceTypeName != nil {
 		return *x.AbsenceTypeName
@@ -152,6 +161,13 @@ func (x *LeaveAllowance) GetAbsenceTypeName() string {
 func (x *LeaveAllowance) GetUserName() string {
 	if x != nil && x.UserName != nil {
 		return *x.UserName
+	}
+	return ""
+}
+
+func (x *LeaveAllowance) GetAllowancePoolName() string {
+	if x != nil && x.AllowancePoolName != nil {
+		return *x.AllowancePoolName
 	}
 	return ""
 }
@@ -185,17 +201,19 @@ func (x *LeaveAllowance) GetUpdatedBy() uint32 {
 }
 
 type CreateAllowanceRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	TenantId      *uint32                `protobuf:"varint,1,opt,name=tenant_id,json=tenantId,proto3,oneof" json:"tenant_id,omitempty"`
-	UserId        *uint32                `protobuf:"varint,2,opt,name=user_id,json=userId,proto3,oneof" json:"user_id,omitempty"`
-	AbsenceTypeId *string                `protobuf:"bytes,3,opt,name=absence_type_id,json=absenceTypeId,proto3,oneof" json:"absence_type_id,omitempty"`
-	Year          *int32                 `protobuf:"varint,4,opt,name=year,proto3,oneof" json:"year,omitempty"`
-	TotalDays     *float64               `protobuf:"fixed64,5,opt,name=total_days,json=totalDays,proto3,oneof" json:"total_days,omitempty"`
-	CarriedOver   *float64               `protobuf:"fixed64,6,opt,name=carried_over,json=carriedOver,proto3,oneof" json:"carried_over,omitempty"`
-	Notes         *string                `protobuf:"bytes,7,opt,name=notes,proto3,oneof" json:"notes,omitempty"`
-	UserName      *string                `protobuf:"bytes,8,opt,name=user_name,json=userName,proto3,oneof" json:"user_name,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state    protoimpl.MessageState `protogen:"open.v1"`
+	TenantId *uint32                `protobuf:"varint,1,opt,name=tenant_id,json=tenantId,proto3,oneof" json:"tenant_id,omitempty"`
+	UserId   *uint32                `protobuf:"varint,2,opt,name=user_id,json=userId,proto3,oneof" json:"user_id,omitempty"`
+	// One of absence_type_id or allowance_pool_id must be set
+	AbsenceTypeId   *string  `protobuf:"bytes,3,opt,name=absence_type_id,json=absenceTypeId,proto3,oneof" json:"absence_type_id,omitempty"`
+	AllowancePoolId *string  `protobuf:"bytes,9,opt,name=allowance_pool_id,json=allowancePoolId,proto3,oneof" json:"allowance_pool_id,omitempty"`
+	Year            *int32   `protobuf:"varint,4,opt,name=year,proto3,oneof" json:"year,omitempty"`
+	TotalDays       *float64 `protobuf:"fixed64,5,opt,name=total_days,json=totalDays,proto3,oneof" json:"total_days,omitempty"`
+	CarriedOver     *float64 `protobuf:"fixed64,6,opt,name=carried_over,json=carriedOver,proto3,oneof" json:"carried_over,omitempty"`
+	Notes           *string  `protobuf:"bytes,7,opt,name=notes,proto3,oneof" json:"notes,omitempty"`
+	UserName        *string  `protobuf:"bytes,8,opt,name=user_name,json=userName,proto3,oneof" json:"user_name,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
 }
 
 func (x *CreateAllowanceRequest) Reset() {
@@ -245,6 +263,13 @@ func (x *CreateAllowanceRequest) GetUserId() uint32 {
 func (x *CreateAllowanceRequest) GetAbsenceTypeId() string {
 	if x != nil && x.AbsenceTypeId != nil {
 		return *x.AbsenceTypeId
+	}
+	return ""
+}
+
+func (x *CreateAllowanceRequest) GetAllowancePoolId() string {
+	if x != nil && x.AllowancePoolId != nil {
+		return *x.AllowancePoolId
 	}
 	return ""
 }
@@ -709,7 +734,7 @@ func (x *DeleteAllowanceRequest) GetId() string {
 	return ""
 }
 
-// BalanceEntry represents balance for a single absence type
+// BalanceEntry represents balance for a single absence type or pool
 type BalanceEntry struct {
 	state           protoimpl.MessageState `protogen:"open.v1"`
 	AbsenceTypeId   string                 `protobuf:"bytes,1,opt,name=absence_type_id,json=absenceTypeId,proto3" json:"absence_type_id,omitempty"`
@@ -719,8 +744,13 @@ type BalanceEntry struct {
 	UsedDays        float64                `protobuf:"fixed64,5,opt,name=used_days,json=usedDays,proto3" json:"used_days,omitempty"`
 	CarriedOver     float64                `protobuf:"fixed64,6,opt,name=carried_over,json=carriedOver,proto3" json:"carried_over,omitempty"`
 	RemainingDays   float64                `protobuf:"fixed64,7,opt,name=remaining_days,json=remainingDays,proto3" json:"remaining_days,omitempty"`
-	unknownFields   protoimpl.UnknownFields
-	sizeCache       protoimpl.SizeCache
+	// Pool fields (set when this entry is for a shared pool)
+	AllowancePoolId   *string `protobuf:"bytes,8,opt,name=allowance_pool_id,json=allowancePoolId,proto3,oneof" json:"allowance_pool_id,omitempty"`
+	AllowancePoolName *string `protobuf:"bytes,9,opt,name=allowance_pool_name,json=allowancePoolName,proto3,oneof" json:"allowance_pool_name,omitempty"`
+	// Absence types that share this pool (populated for pool entries)
+	MemberAbsenceTypeIds []string `protobuf:"bytes,10,rep,name=member_absence_type_ids,json=memberAbsenceTypeIds,proto3" json:"member_absence_type_ids,omitempty"`
+	unknownFields        protoimpl.UnknownFields
+	sizeCache            protoimpl.SizeCache
 }
 
 func (x *BalanceEntry) Reset() {
@@ -800,6 +830,27 @@ func (x *BalanceEntry) GetRemainingDays() float64 {
 		return x.RemainingDays
 	}
 	return 0
+}
+
+func (x *BalanceEntry) GetAllowancePoolId() string {
+	if x != nil && x.AllowancePoolId != nil {
+		return *x.AllowancePoolId
+	}
+	return ""
+}
+
+func (x *BalanceEntry) GetAllowancePoolName() string {
+	if x != nil && x.AllowancePoolName != nil {
+		return *x.AllowancePoolName
+	}
+	return ""
+}
+
+func (x *BalanceEntry) GetMemberAbsenceTypeIds() []string {
+	if x != nil {
+		return x.MemberAbsenceTypeIds
+	}
+	return nil
 }
 
 type GetUserBalanceRequest struct {
@@ -918,7 +969,7 @@ var File_hr_service_v1_allowance_proto protoreflect.FileDescriptor
 
 const file_hr_service_v1_allowance_proto_rawDesc = "" +
 	"\n" +
-	"\x1dhr/service/v1/allowance.proto\x12\rhr.service.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\"\xa5\x06\n" +
+	"\x1dhr/service/v1/allowance.proto\x12\rhr.service.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\"\xb9\a\n" +
 	"\x0eLeaveAllowance\x12\x13\n" +
 	"\x02id\x18\x01 \x01(\tH\x00R\x02id\x88\x01\x01\x12 \n" +
 	"\ttenant_id\x18\x02 \x01(\rH\x01R\btenantId\x88\x01\x01\x12\x1c\n" +
@@ -930,17 +981,20 @@ const file_hr_service_v1_allowance_proto_rawDesc = "" +
 	"\tused_days\x18\a \x01(\x01H\x06R\busedDays\x88\x01\x01\x12&\n" +
 	"\fcarried_over\x18\b \x01(\x01H\aR\vcarriedOver\x88\x01\x01\x12\x19\n" +
 	"\x05notes\x18\t \x01(\tH\bR\x05notes\x88\x01\x01\x12/\n" +
-	"\x11absence_type_name\x18\x1e \x01(\tH\tR\x0fabsenceTypeName\x88\x01\x01\x12 \n" +
-	"\tuser_name\x18\x1f \x01(\tH\n" +
-	"R\buserName\x88\x01\x01\x12>\n" +
+	"\x11allowance_pool_id\x18\n" +
+	" \x01(\tH\tR\x0fallowancePoolId\x88\x01\x01\x12/\n" +
+	"\x11absence_type_name\x18\x1e \x01(\tH\n" +
+	"R\x0fabsenceTypeName\x88\x01\x01\x12 \n" +
+	"\tuser_name\x18\x1f \x01(\tH\vR\buserName\x88\x01\x01\x123\n" +
+	"\x13allowance_pool_name\x18  \x01(\tH\fR\x11allowancePoolName\x88\x01\x01\x12>\n" +
 	"\n" +
-	"created_at\x18\x14 \x01(\v2\x1a.google.protobuf.TimestampH\vR\tcreatedAt\x88\x01\x01\x12>\n" +
+	"created_at\x18\x14 \x01(\v2\x1a.google.protobuf.TimestampH\rR\tcreatedAt\x88\x01\x01\x12>\n" +
 	"\n" +
-	"updated_at\x18\x15 \x01(\v2\x1a.google.protobuf.TimestampH\fR\tupdatedAt\x88\x01\x01\x12\"\n" +
+	"updated_at\x18\x15 \x01(\v2\x1a.google.protobuf.TimestampH\x0eR\tupdatedAt\x88\x01\x01\x12\"\n" +
 	"\n" +
-	"created_by\x18\x16 \x01(\rH\rR\tcreatedBy\x88\x01\x01\x12\"\n" +
+	"created_by\x18\x16 \x01(\rH\x0fR\tcreatedBy\x88\x01\x01\x12\"\n" +
 	"\n" +
-	"updated_by\x18\x17 \x01(\rH\x0eR\tupdatedBy\x88\x01\x01B\x05\n" +
+	"updated_by\x18\x17 \x01(\rH\x10R\tupdatedBy\x88\x01\x01B\x05\n" +
 	"\x03_idB\f\n" +
 	"\n" +
 	"_tenant_idB\n" +
@@ -953,29 +1007,32 @@ const file_hr_service_v1_allowance_proto_rawDesc = "" +
 	"_used_daysB\x0f\n" +
 	"\r_carried_overB\b\n" +
 	"\x06_notesB\x14\n" +
+	"\x12_allowance_pool_idB\x14\n" +
 	"\x12_absence_type_nameB\f\n" +
 	"\n" +
-	"_user_nameB\r\n" +
+	"_user_nameB\x16\n" +
+	"\x14_allowance_pool_nameB\r\n" +
 	"\v_created_atB\r\n" +
 	"\v_updated_atB\r\n" +
 	"\v_created_byB\r\n" +
-	"\v_updated_by\"\xd8\x03\n" +
+	"\v_updated_by\"\x93\x04\n" +
 	"\x16CreateAllowanceRequest\x12%\n" +
 	"\ttenant_id\x18\x01 \x01(\rB\x03\xe0A\x02H\x00R\btenantId\x88\x01\x01\x12!\n" +
-	"\auser_id\x18\x02 \x01(\rB\x03\xe0A\x02H\x01R\x06userId\x88\x01\x01\x127\n" +
-	"\x0fabsence_type_id\x18\x03 \x01(\tB\n" +
-	"\xe0A\x02\xbaH\x04r\x02\x10\x01H\x02R\rabsenceTypeId\x88\x01\x01\x12'\n" +
-	"\x04year\x18\x04 \x01(\x05B\x0e\xe0A\x02\xbaH\b\x1a\x06\x18\xb3\x10(\xd0\x0fH\x03R\x04year\x88\x01\x01\x12>\n" +
+	"\auser_id\x18\x02 \x01(\rB\x03\xe0A\x02H\x01R\x06userId\x88\x01\x01\x12+\n" +
+	"\x0fabsence_type_id\x18\x03 \x01(\tH\x02R\rabsenceTypeId\x88\x01\x01\x12/\n" +
+	"\x11allowance_pool_id\x18\t \x01(\tH\x03R\x0fallowancePoolId\x88\x01\x01\x12'\n" +
+	"\x04year\x18\x04 \x01(\x05B\x0e\xe0A\x02\xbaH\b\x1a\x06\x18\xb3\x10(\xd0\x0fH\x04R\x04year\x88\x01\x01\x12>\n" +
 	"\n" +
-	"total_days\x18\x05 \x01(\x01B\x1a\xe0A\x02\xbaH\x14\x12\x12\x19\x00\x00\x00\x00\x00\xd0v@!\x00\x00\x00\x00\x00\x00\x00\x00H\x04R\ttotalDays\x88\x01\x01\x12&\n" +
-	"\fcarried_over\x18\x06 \x01(\x01H\x05R\vcarriedOver\x88\x01\x01\x12\x19\n" +
-	"\x05notes\x18\a \x01(\tH\x06R\x05notes\x88\x01\x01\x12 \n" +
-	"\tuser_name\x18\b \x01(\tH\aR\buserName\x88\x01\x01B\f\n" +
+	"total_days\x18\x05 \x01(\x01B\x1a\xe0A\x02\xbaH\x14\x12\x12\x19\x00\x00\x00\x00\x00\xd0v@!\x00\x00\x00\x00\x00\x00\x00\x00H\x05R\ttotalDays\x88\x01\x01\x12&\n" +
+	"\fcarried_over\x18\x06 \x01(\x01H\x06R\vcarriedOver\x88\x01\x01\x12\x19\n" +
+	"\x05notes\x18\a \x01(\tH\aR\x05notes\x88\x01\x01\x12 \n" +
+	"\tuser_name\x18\b \x01(\tH\bR\buserName\x88\x01\x01B\f\n" +
 	"\n" +
 	"_tenant_idB\n" +
 	"\n" +
 	"\b_user_idB\x12\n" +
-	"\x10_absence_type_idB\a\n" +
+	"\x10_absence_type_idB\x14\n" +
+	"\x12_allowance_pool_idB\a\n" +
 	"\x05_yearB\r\n" +
 	"\v_total_daysB\x0f\n" +
 	"\r_carried_overB\b\n" +
@@ -1024,7 +1081,7 @@ const file_hr_service_v1_allowance_proto_rawDesc = "" +
 	"\tallowance\x18\x01 \x01(\v2\x1d.hr.service.v1.LeaveAllowanceR\tallowance\"4\n" +
 	"\x16DeleteAllowanceRequest\x12\x1a\n" +
 	"\x02id\x18\x01 \x01(\tB\n" +
-	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\x02id\"\xfe\x01\n" +
+	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\x02id\"\xc9\x03\n" +
 	"\fBalanceEntry\x12&\n" +
 	"\x0fabsence_type_id\x18\x01 \x01(\tR\rabsenceTypeId\x12*\n" +
 	"\x11absence_type_name\x18\x02 \x01(\tR\x0fabsenceTypeName\x12\x14\n" +
@@ -1033,7 +1090,13 @@ const file_hr_service_v1_allowance_proto_rawDesc = "" +
 	"total_days\x18\x04 \x01(\x01R\ttotalDays\x12\x1b\n" +
 	"\tused_days\x18\x05 \x01(\x01R\busedDays\x12!\n" +
 	"\fcarried_over\x18\x06 \x01(\x01R\vcarriedOver\x12%\n" +
-	"\x0eremaining_days\x18\a \x01(\x01R\rremainingDays\"d\n" +
+	"\x0eremaining_days\x18\a \x01(\x01R\rremainingDays\x12/\n" +
+	"\x11allowance_pool_id\x18\b \x01(\tH\x00R\x0fallowancePoolId\x88\x01\x01\x123\n" +
+	"\x13allowance_pool_name\x18\t \x01(\tH\x01R\x11allowancePoolName\x88\x01\x01\x125\n" +
+	"\x17member_absence_type_ids\x18\n" +
+	" \x03(\tR\x14memberAbsenceTypeIdsB\x14\n" +
+	"\x12_allowance_pool_idB\x16\n" +
+	"\x14_allowance_pool_name\"d\n" +
 	"\x15GetUserBalanceRequest\x12\x1c\n" +
 	"\auser_id\x18\x01 \x01(\rB\x03\xe0A\x02R\x06userId\x12$\n" +
 	"\x04year\x18\x02 \x01(\x05B\v\xbaH\b\x1a\x06\x18\xb3\x10(\xd0\x0fH\x00R\x04year\x88\x01\x01B\a\n" +
@@ -1121,6 +1184,7 @@ func file_hr_service_v1_allowance_proto_init() {
 	file_hr_service_v1_allowance_proto_msgTypes[5].OneofWrappers = []any{}
 	file_hr_service_v1_allowance_proto_msgTypes[6].OneofWrappers = []any{}
 	file_hr_service_v1_allowance_proto_msgTypes[7].OneofWrappers = []any{}
+	file_hr_service_v1_allowance_proto_msgTypes[10].OneofWrappers = []any{}
 	file_hr_service_v1_allowance_proto_msgTypes[11].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{

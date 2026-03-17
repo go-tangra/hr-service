@@ -91,6 +91,7 @@ const gridOptions: VxeGridProps<LeaveAllowance> = {
       title: $t('hr.page.allowance.absenceTypeId'),
       field: 'absenceTypeName',
       minWidth: 150,
+      slots: { default: 'typeSlot' },
     },
     {
       title: $t('hr.page.allowance.year'),
@@ -181,6 +182,13 @@ function computeRemaining(row: LeaveAllowance): number {
         <Button v-if="canManageAllowances" class="mr-2" type="primary" @click="handleCreate">
           {{ $t('hr.page.allowance.create') }}
         </Button>
+      </template>
+      <template #typeSlot="{ row }">
+        <span v-if="row.allowancePoolName">
+          {{ row.allowancePoolName }}
+          <span class="text-xs text-gray-400 ml-1">(pool)</span>
+        </span>
+        <span v-else>{{ row.absenceTypeName || '-' }}</span>
       </template>
       <template #remaining="{ row }">
         <span :style="{ color: computeRemaining(row) <= 0 ? '#f5222d' : undefined, fontWeight: 600 }">

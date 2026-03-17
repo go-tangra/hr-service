@@ -21,6 +21,18 @@ func (f AbsenceTypeFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value,
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.AbsenceTypeMutation", m)
 }
 
+// The AllowancePoolFunc type is an adapter to allow the use of ordinary
+// function as AllowancePool mutator.
+type AllowancePoolFunc func(context.Context, *ent.AllowancePoolMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f AllowancePoolFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.AllowancePoolMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.AllowancePoolMutation", m)
+}
+
 // The AuditLogFunc type is an adapter to allow the use of ordinary
 // function as AuditLog mutator.
 type AuditLogFunc func(context.Context, *ent.AuditLogMutation) (ent.Value, error)

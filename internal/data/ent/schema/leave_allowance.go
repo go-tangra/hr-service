@@ -39,8 +39,12 @@ func (LeaveAllowance) Fields() []ent.Field {
 			Comment("Denormalized user display name"),
 
 		field.String("absence_type_id").
-			NotEmpty().
-			Comment("FK to AbsenceType"),
+			Optional().
+			Comment("FK to AbsenceType (set when not using a pool)"),
+
+		field.String("allowance_pool_id").
+			Optional().
+			Comment("FK to AllowancePool (set when pool-based allowance)"),
 
 		field.Int("year").
 			Positive().
@@ -68,8 +72,11 @@ func (LeaveAllowance) Edges() []ent.Edge {
 		edge.From("absence_type", AbsenceType.Type).
 			Ref("leave_allowances").
 			Field("absence_type_id").
-			Unique().
-			Required(),
+			Unique(),
+		edge.From("allowance_pool", AllowancePool.Type).
+			Ref("leave_allowances").
+			Field("allowance_pool_id").
+			Unique(),
 	}
 }
 
@@ -84,7 +91,10 @@ func (LeaveAllowance) Mixin() []ent.Mixin {
 
 func (LeaveAllowance) Indexes() []ent.Index {
 	return []ent.Index{
+		// For individual (non-pool) allowances: one per user/type/year
 		index.Fields("tenant_id", "user_id", "absence_type_id", "year").Unique().StorageKey("idx_hr_allowance_tenant_user_type_year"),
+		// For pool-based allowances: one per user/pool/year
+		index.Fields("tenant_id", "user_id", "allowance_pool_id", "year").Unique().StorageKey("idx_hr_allowance_tenant_user_pool_year"),
 		index.Fields("tenant_id").StorageKey("idx_hr_allowance_tenant"),
 	}
 }

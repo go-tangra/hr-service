@@ -13,6 +13,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/go-tangra/go-tangra-hr/internal/data/ent/absencetype"
+	"github.com/go-tangra/go-tangra-hr/internal/data/ent/allowancepool"
 	"github.com/go-tangra/go-tangra-hr/internal/data/ent/leaveallowance"
 	"github.com/go-tangra/go-tangra-hr/internal/data/ent/leaverequest"
 )
@@ -247,6 +248,20 @@ func (_c *AbsenceTypeCreate) SetNillableSigningTemplateID(v *string) *AbsenceTyp
 	return _c
 }
 
+// SetAllowancePoolID sets the "allowance_pool_id" field.
+func (_c *AbsenceTypeCreate) SetAllowancePoolID(v string) *AbsenceTypeCreate {
+	_c.mutation.SetAllowancePoolID(v)
+	return _c
+}
+
+// SetNillableAllowancePoolID sets the "allowance_pool_id" field if the given value is not nil.
+func (_c *AbsenceTypeCreate) SetNillableAllowancePoolID(v *string) *AbsenceTypeCreate {
+	if v != nil {
+		_c.SetAllowancePoolID(*v)
+	}
+	return _c
+}
+
 // SetID sets the "id" field.
 func (_c *AbsenceTypeCreate) SetID(v string) *AbsenceTypeCreate {
 	_c.mutation.SetID(v)
@@ -281,6 +296,11 @@ func (_c *AbsenceTypeCreate) AddLeaveRequests(v ...*LeaveRequest) *AbsenceTypeCr
 		ids[i] = v[i].ID
 	}
 	return _c.AddLeaveRequestIDs(ids...)
+}
+
+// SetAllowancePool sets the "allowance_pool" edge to the AllowancePool entity.
+func (_c *AbsenceTypeCreate) SetAllowancePool(v *AllowancePool) *AbsenceTypeCreate {
+	return _c.SetAllowancePoolID(v.ID)
 }
 
 // Mutation returns the AbsenceTypeMutation object of the builder.
@@ -521,6 +541,23 @@ func (_c *AbsenceTypeCreate) createSpec() (*AbsenceType, *sqlgraph.CreateSpec) {
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.AllowancePoolIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   absencetype.AllowancePoolTable,
+			Columns: []string{absencetype.AllowancePoolColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(allowancepool.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.AllowancePoolID = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
@@ -824,6 +861,24 @@ func (u *AbsenceTypeUpsert) UpdateSigningTemplateID() *AbsenceTypeUpsert {
 // ClearSigningTemplateID clears the value of the "signing_template_id" field.
 func (u *AbsenceTypeUpsert) ClearSigningTemplateID() *AbsenceTypeUpsert {
 	u.SetNull(absencetype.FieldSigningTemplateID)
+	return u
+}
+
+// SetAllowancePoolID sets the "allowance_pool_id" field.
+func (u *AbsenceTypeUpsert) SetAllowancePoolID(v string) *AbsenceTypeUpsert {
+	u.Set(absencetype.FieldAllowancePoolID, v)
+	return u
+}
+
+// UpdateAllowancePoolID sets the "allowance_pool_id" field to the value that was provided on create.
+func (u *AbsenceTypeUpsert) UpdateAllowancePoolID() *AbsenceTypeUpsert {
+	u.SetExcluded(absencetype.FieldAllowancePoolID)
+	return u
+}
+
+// ClearAllowancePoolID clears the value of the "allowance_pool_id" field.
+func (u *AbsenceTypeUpsert) ClearAllowancePoolID() *AbsenceTypeUpsert {
+	u.SetNull(absencetype.FieldAllowancePoolID)
 	return u
 }
 
@@ -1172,6 +1227,27 @@ func (u *AbsenceTypeUpsertOne) UpdateSigningTemplateID() *AbsenceTypeUpsertOne {
 func (u *AbsenceTypeUpsertOne) ClearSigningTemplateID() *AbsenceTypeUpsertOne {
 	return u.Update(func(s *AbsenceTypeUpsert) {
 		s.ClearSigningTemplateID()
+	})
+}
+
+// SetAllowancePoolID sets the "allowance_pool_id" field.
+func (u *AbsenceTypeUpsertOne) SetAllowancePoolID(v string) *AbsenceTypeUpsertOne {
+	return u.Update(func(s *AbsenceTypeUpsert) {
+		s.SetAllowancePoolID(v)
+	})
+}
+
+// UpdateAllowancePoolID sets the "allowance_pool_id" field to the value that was provided on create.
+func (u *AbsenceTypeUpsertOne) UpdateAllowancePoolID() *AbsenceTypeUpsertOne {
+	return u.Update(func(s *AbsenceTypeUpsert) {
+		s.UpdateAllowancePoolID()
+	})
+}
+
+// ClearAllowancePoolID clears the value of the "allowance_pool_id" field.
+func (u *AbsenceTypeUpsertOne) ClearAllowancePoolID() *AbsenceTypeUpsertOne {
+	return u.Update(func(s *AbsenceTypeUpsert) {
+		s.ClearAllowancePoolID()
 	})
 }
 
@@ -1687,6 +1763,27 @@ func (u *AbsenceTypeUpsertBulk) UpdateSigningTemplateID() *AbsenceTypeUpsertBulk
 func (u *AbsenceTypeUpsertBulk) ClearSigningTemplateID() *AbsenceTypeUpsertBulk {
 	return u.Update(func(s *AbsenceTypeUpsert) {
 		s.ClearSigningTemplateID()
+	})
+}
+
+// SetAllowancePoolID sets the "allowance_pool_id" field.
+func (u *AbsenceTypeUpsertBulk) SetAllowancePoolID(v string) *AbsenceTypeUpsertBulk {
+	return u.Update(func(s *AbsenceTypeUpsert) {
+		s.SetAllowancePoolID(v)
+	})
+}
+
+// UpdateAllowancePoolID sets the "allowance_pool_id" field to the value that was provided on create.
+func (u *AbsenceTypeUpsertBulk) UpdateAllowancePoolID() *AbsenceTypeUpsertBulk {
+	return u.Update(func(s *AbsenceTypeUpsert) {
+		s.UpdateAllowancePoolID()
+	})
+}
+
+// ClearAllowancePoolID clears the value of the "allowance_pool_id" field.
+func (u *AbsenceTypeUpsertBulk) ClearAllowancePoolID() *AbsenceTypeUpsertBulk {
+	return u.Update(func(s *AbsenceTypeUpsert) {
+		s.ClearAllowancePoolID()
 	})
 }
 

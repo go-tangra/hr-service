@@ -12,6 +12,7 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"github.com/go-tangra/go-tangra-hr/internal/data/ent/absencetype"
+	"github.com/go-tangra/go-tangra-hr/internal/data/ent/allowancepool"
 	"github.com/go-tangra/go-tangra-hr/internal/data/ent/auditlog"
 	"github.com/go-tangra/go-tangra-hr/internal/data/ent/leaveallowance"
 	"github.com/go-tangra/go-tangra-hr/internal/data/ent/leaverequest"
@@ -28,6 +29,7 @@ const (
 
 	// Node types.
 	TypeAbsenceType    = "AbsenceType"
+	TypeAllowancePool  = "AllowancePool"
 	TypeAuditLog       = "AuditLog"
 	TypeLeaveAllowance = "LeaveAllowance"
 	TypeLeaveRequest   = "LeaveRequest"
@@ -67,6 +69,8 @@ type AbsenceTypeMutation struct {
 	leave_requests          map[string]struct{}
 	removedleave_requests   map[string]struct{}
 	clearedleave_requests   bool
+	allowance_pool          *string
+	clearedallowance_pool   bool
 	done                    bool
 	oldValue                func(context.Context) (*AbsenceType, error)
 	predicates              []predicate.AbsenceType
@@ -1014,6 +1018,55 @@ func (m *AbsenceTypeMutation) ResetSigningTemplateID() {
 	delete(m.clearedFields, absencetype.FieldSigningTemplateID)
 }
 
+// SetAllowancePoolID sets the "allowance_pool_id" field.
+func (m *AbsenceTypeMutation) SetAllowancePoolID(s string) {
+	m.allowance_pool = &s
+}
+
+// AllowancePoolID returns the value of the "allowance_pool_id" field in the mutation.
+func (m *AbsenceTypeMutation) AllowancePoolID() (r string, exists bool) {
+	v := m.allowance_pool
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldAllowancePoolID returns the old "allowance_pool_id" field's value of the AbsenceType entity.
+// If the AbsenceType object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *AbsenceTypeMutation) OldAllowancePoolID(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldAllowancePoolID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldAllowancePoolID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldAllowancePoolID: %w", err)
+	}
+	return oldValue.AllowancePoolID, nil
+}
+
+// ClearAllowancePoolID clears the value of the "allowance_pool_id" field.
+func (m *AbsenceTypeMutation) ClearAllowancePoolID() {
+	m.allowance_pool = nil
+	m.clearedFields[absencetype.FieldAllowancePoolID] = struct{}{}
+}
+
+// AllowancePoolIDCleared returns if the "allowance_pool_id" field was cleared in this mutation.
+func (m *AbsenceTypeMutation) AllowancePoolIDCleared() bool {
+	_, ok := m.clearedFields[absencetype.FieldAllowancePoolID]
+	return ok
+}
+
+// ResetAllowancePoolID resets all changes to the "allowance_pool_id" field.
+func (m *AbsenceTypeMutation) ResetAllowancePoolID() {
+	m.allowance_pool = nil
+	delete(m.clearedFields, absencetype.FieldAllowancePoolID)
+}
+
 // AddLeaveAllowanceIDs adds the "leave_allowances" edge to the LeaveAllowance entity by ids.
 func (m *AbsenceTypeMutation) AddLeaveAllowanceIDs(ids ...string) {
 	if m.leave_allowances == nil {
@@ -1122,6 +1175,33 @@ func (m *AbsenceTypeMutation) ResetLeaveRequests() {
 	m.removedleave_requests = nil
 }
 
+// ClearAllowancePool clears the "allowance_pool" edge to the AllowancePool entity.
+func (m *AbsenceTypeMutation) ClearAllowancePool() {
+	m.clearedallowance_pool = true
+	m.clearedFields[absencetype.FieldAllowancePoolID] = struct{}{}
+}
+
+// AllowancePoolCleared reports if the "allowance_pool" edge to the AllowancePool entity was cleared.
+func (m *AbsenceTypeMutation) AllowancePoolCleared() bool {
+	return m.AllowancePoolIDCleared() || m.clearedallowance_pool
+}
+
+// AllowancePoolIDs returns the "allowance_pool" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// AllowancePoolID instead. It exists only for internal usage by the builders.
+func (m *AbsenceTypeMutation) AllowancePoolIDs() (ids []string) {
+	if id := m.allowance_pool; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetAllowancePool resets all changes to the "allowance_pool" edge.
+func (m *AbsenceTypeMutation) ResetAllowancePool() {
+	m.allowance_pool = nil
+	m.clearedallowance_pool = false
+}
+
 // Where appends a list predicates to the AbsenceTypeMutation builder.
 func (m *AbsenceTypeMutation) Where(ps ...predicate.AbsenceType) {
 	m.predicates = append(m.predicates, ps...)
@@ -1156,7 +1236,7 @@ func (m *AbsenceTypeMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *AbsenceTypeMutation) Fields() []string {
-	fields := make([]string, 0, 17)
+	fields := make([]string, 0, 18)
 	if m.create_by != nil {
 		fields = append(fields, absencetype.FieldCreateBy)
 	}
@@ -1208,6 +1288,9 @@ func (m *AbsenceTypeMutation) Fields() []string {
 	if m.signing_template_id != nil {
 		fields = append(fields, absencetype.FieldSigningTemplateID)
 	}
+	if m.allowance_pool != nil {
+		fields = append(fields, absencetype.FieldAllowancePoolID)
+	}
 	return fields
 }
 
@@ -1250,6 +1333,8 @@ func (m *AbsenceTypeMutation) Field(name string) (ent.Value, bool) {
 		return m.RequiresSigning()
 	case absencetype.FieldSigningTemplateID:
 		return m.SigningTemplateID()
+	case absencetype.FieldAllowancePoolID:
+		return m.AllowancePoolID()
 	}
 	return nil, false
 }
@@ -1293,6 +1378,8 @@ func (m *AbsenceTypeMutation) OldField(ctx context.Context, name string) (ent.Va
 		return m.OldRequiresSigning(ctx)
 	case absencetype.FieldSigningTemplateID:
 		return m.OldSigningTemplateID(ctx)
+	case absencetype.FieldAllowancePoolID:
+		return m.OldAllowancePoolID(ctx)
 	}
 	return nil, fmt.Errorf("unknown AbsenceType field %s", name)
 }
@@ -1421,6 +1508,13 @@ func (m *AbsenceTypeMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetSigningTemplateID(v)
 		return nil
+	case absencetype.FieldAllowancePoolID:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetAllowancePoolID(v)
+		return nil
 	}
 	return fmt.Errorf("unknown AbsenceType field %s", name)
 }
@@ -1535,6 +1629,9 @@ func (m *AbsenceTypeMutation) ClearedFields() []string {
 	if m.FieldCleared(absencetype.FieldSigningTemplateID) {
 		fields = append(fields, absencetype.FieldSigningTemplateID)
 	}
+	if m.FieldCleared(absencetype.FieldAllowancePoolID) {
+		fields = append(fields, absencetype.FieldAllowancePoolID)
+	}
 	return fields
 }
 
@@ -1581,6 +1678,9 @@ func (m *AbsenceTypeMutation) ClearField(name string) error {
 		return nil
 	case absencetype.FieldSigningTemplateID:
 		m.ClearSigningTemplateID()
+		return nil
+	case absencetype.FieldAllowancePoolID:
+		m.ClearAllowancePoolID()
 		return nil
 	}
 	return fmt.Errorf("unknown AbsenceType nullable field %s", name)
@@ -1641,18 +1741,24 @@ func (m *AbsenceTypeMutation) ResetField(name string) error {
 	case absencetype.FieldSigningTemplateID:
 		m.ResetSigningTemplateID()
 		return nil
+	case absencetype.FieldAllowancePoolID:
+		m.ResetAllowancePoolID()
+		return nil
 	}
 	return fmt.Errorf("unknown AbsenceType field %s", name)
 }
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *AbsenceTypeMutation) AddedEdges() []string {
-	edges := make([]string, 0, 2)
+	edges := make([]string, 0, 3)
 	if m.leave_allowances != nil {
 		edges = append(edges, absencetype.EdgeLeaveAllowances)
 	}
 	if m.leave_requests != nil {
 		edges = append(edges, absencetype.EdgeLeaveRequests)
+	}
+	if m.allowance_pool != nil {
+		edges = append(edges, absencetype.EdgeAllowancePool)
 	}
 	return edges
 }
@@ -1673,13 +1779,17 @@ func (m *AbsenceTypeMutation) AddedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
+	case absencetype.EdgeAllowancePool:
+		if id := m.allowance_pool; id != nil {
+			return []ent.Value{*id}
+		}
 	}
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *AbsenceTypeMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 2)
+	edges := make([]string, 0, 3)
 	if m.removedleave_allowances != nil {
 		edges = append(edges, absencetype.EdgeLeaveAllowances)
 	}
@@ -1711,12 +1821,15 @@ func (m *AbsenceTypeMutation) RemovedIDs(name string) []ent.Value {
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *AbsenceTypeMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 2)
+	edges := make([]string, 0, 3)
 	if m.clearedleave_allowances {
 		edges = append(edges, absencetype.EdgeLeaveAllowances)
 	}
 	if m.clearedleave_requests {
 		edges = append(edges, absencetype.EdgeLeaveRequests)
+	}
+	if m.clearedallowance_pool {
+		edges = append(edges, absencetype.EdgeAllowancePool)
 	}
 	return edges
 }
@@ -1729,6 +1842,8 @@ func (m *AbsenceTypeMutation) EdgeCleared(name string) bool {
 		return m.clearedleave_allowances
 	case absencetype.EdgeLeaveRequests:
 		return m.clearedleave_requests
+	case absencetype.EdgeAllowancePool:
+		return m.clearedallowance_pool
 	}
 	return false
 }
@@ -1737,6 +1852,9 @@ func (m *AbsenceTypeMutation) EdgeCleared(name string) bool {
 // if that edge is not defined in the schema.
 func (m *AbsenceTypeMutation) ClearEdge(name string) error {
 	switch name {
+	case absencetype.EdgeAllowancePool:
+		m.ClearAllowancePool()
+		return nil
 	}
 	return fmt.Errorf("unknown AbsenceType unique edge %s", name)
 }
@@ -1751,8 +1869,1284 @@ func (m *AbsenceTypeMutation) ResetEdge(name string) error {
 	case absencetype.EdgeLeaveRequests:
 		m.ResetLeaveRequests()
 		return nil
+	case absencetype.EdgeAllowancePool:
+		m.ResetAllowancePool()
+		return nil
 	}
 	return fmt.Errorf("unknown AbsenceType edge %s", name)
+}
+
+// AllowancePoolMutation represents an operation that mutates the AllowancePool nodes in the graph.
+type AllowancePoolMutation struct {
+	config
+	op                      Op
+	typ                     string
+	id                      *string
+	create_by               *uint32
+	addcreate_by            *int32
+	update_by               *uint32
+	addupdate_by            *int32
+	create_time             *time.Time
+	update_time             *time.Time
+	delete_time             *time.Time
+	tenant_id               *uint32
+	addtenant_id            *int32
+	name                    *string
+	description             *string
+	color                   *string
+	icon                    *string
+	clearedFields           map[string]struct{}
+	absence_types           map[string]struct{}
+	removedabsence_types    map[string]struct{}
+	clearedabsence_types    bool
+	leave_allowances        map[string]struct{}
+	removedleave_allowances map[string]struct{}
+	clearedleave_allowances bool
+	done                    bool
+	oldValue                func(context.Context) (*AllowancePool, error)
+	predicates              []predicate.AllowancePool
+}
+
+var _ ent.Mutation = (*AllowancePoolMutation)(nil)
+
+// allowancepoolOption allows management of the mutation configuration using functional options.
+type allowancepoolOption func(*AllowancePoolMutation)
+
+// newAllowancePoolMutation creates new mutation for the AllowancePool entity.
+func newAllowancePoolMutation(c config, op Op, opts ...allowancepoolOption) *AllowancePoolMutation {
+	m := &AllowancePoolMutation{
+		config:        c,
+		op:            op,
+		typ:           TypeAllowancePool,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withAllowancePoolID sets the ID field of the mutation.
+func withAllowancePoolID(id string) allowancepoolOption {
+	return func(m *AllowancePoolMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *AllowancePool
+		)
+		m.oldValue = func(ctx context.Context) (*AllowancePool, error) {
+			once.Do(func() {
+				if m.done {
+					err = errors.New("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().AllowancePool.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withAllowancePool sets the old AllowancePool of the mutation.
+func withAllowancePool(node *AllowancePool) allowancepoolOption {
+	return func(m *AllowancePoolMutation) {
+		m.oldValue = func(context.Context) (*AllowancePool, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m AllowancePoolMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m AllowancePoolMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, errors.New("ent: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// SetID sets the value of the id field. Note that this
+// operation is only accepted on creation of AllowancePool entities.
+func (m *AllowancePoolMutation) SetID(id string) {
+	m.id = &id
+}
+
+// ID returns the ID value in the mutation. Note that the ID is only available
+// if it was provided to the builder or after it was returned from the database.
+func (m *AllowancePoolMutation) ID() (id string, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// IDs queries the database and returns the entity ids that match the mutation's predicate.
+// That means, if the mutation is applied within a transaction with an isolation level such
+// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
+// or updated by the mutation.
+func (m *AllowancePoolMutation) IDs(ctx context.Context) ([]string, error) {
+	switch {
+	case m.op.Is(OpUpdateOne | OpDeleteOne):
+		id, exists := m.ID()
+		if exists {
+			return []string{id}, nil
+		}
+		fallthrough
+	case m.op.Is(OpUpdate | OpDelete):
+		return m.Client().AllowancePool.Query().Where(m.predicates...).IDs(ctx)
+	default:
+		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
+	}
+}
+
+// SetCreateBy sets the "create_by" field.
+func (m *AllowancePoolMutation) SetCreateBy(u uint32) {
+	m.create_by = &u
+	m.addcreate_by = nil
+}
+
+// CreateBy returns the value of the "create_by" field in the mutation.
+func (m *AllowancePoolMutation) CreateBy() (r uint32, exists bool) {
+	v := m.create_by
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCreateBy returns the old "create_by" field's value of the AllowancePool entity.
+// If the AllowancePool object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *AllowancePoolMutation) OldCreateBy(ctx context.Context) (v *uint32, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCreateBy is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCreateBy requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCreateBy: %w", err)
+	}
+	return oldValue.CreateBy, nil
+}
+
+// AddCreateBy adds u to the "create_by" field.
+func (m *AllowancePoolMutation) AddCreateBy(u int32) {
+	if m.addcreate_by != nil {
+		*m.addcreate_by += u
+	} else {
+		m.addcreate_by = &u
+	}
+}
+
+// AddedCreateBy returns the value that was added to the "create_by" field in this mutation.
+func (m *AllowancePoolMutation) AddedCreateBy() (r int32, exists bool) {
+	v := m.addcreate_by
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearCreateBy clears the value of the "create_by" field.
+func (m *AllowancePoolMutation) ClearCreateBy() {
+	m.create_by = nil
+	m.addcreate_by = nil
+	m.clearedFields[allowancepool.FieldCreateBy] = struct{}{}
+}
+
+// CreateByCleared returns if the "create_by" field was cleared in this mutation.
+func (m *AllowancePoolMutation) CreateByCleared() bool {
+	_, ok := m.clearedFields[allowancepool.FieldCreateBy]
+	return ok
+}
+
+// ResetCreateBy resets all changes to the "create_by" field.
+func (m *AllowancePoolMutation) ResetCreateBy() {
+	m.create_by = nil
+	m.addcreate_by = nil
+	delete(m.clearedFields, allowancepool.FieldCreateBy)
+}
+
+// SetUpdateBy sets the "update_by" field.
+func (m *AllowancePoolMutation) SetUpdateBy(u uint32) {
+	m.update_by = &u
+	m.addupdate_by = nil
+}
+
+// UpdateBy returns the value of the "update_by" field in the mutation.
+func (m *AllowancePoolMutation) UpdateBy() (r uint32, exists bool) {
+	v := m.update_by
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUpdateBy returns the old "update_by" field's value of the AllowancePool entity.
+// If the AllowancePool object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *AllowancePoolMutation) OldUpdateBy(ctx context.Context) (v *uint32, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUpdateBy is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUpdateBy requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUpdateBy: %w", err)
+	}
+	return oldValue.UpdateBy, nil
+}
+
+// AddUpdateBy adds u to the "update_by" field.
+func (m *AllowancePoolMutation) AddUpdateBy(u int32) {
+	if m.addupdate_by != nil {
+		*m.addupdate_by += u
+	} else {
+		m.addupdate_by = &u
+	}
+}
+
+// AddedUpdateBy returns the value that was added to the "update_by" field in this mutation.
+func (m *AllowancePoolMutation) AddedUpdateBy() (r int32, exists bool) {
+	v := m.addupdate_by
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearUpdateBy clears the value of the "update_by" field.
+func (m *AllowancePoolMutation) ClearUpdateBy() {
+	m.update_by = nil
+	m.addupdate_by = nil
+	m.clearedFields[allowancepool.FieldUpdateBy] = struct{}{}
+}
+
+// UpdateByCleared returns if the "update_by" field was cleared in this mutation.
+func (m *AllowancePoolMutation) UpdateByCleared() bool {
+	_, ok := m.clearedFields[allowancepool.FieldUpdateBy]
+	return ok
+}
+
+// ResetUpdateBy resets all changes to the "update_by" field.
+func (m *AllowancePoolMutation) ResetUpdateBy() {
+	m.update_by = nil
+	m.addupdate_by = nil
+	delete(m.clearedFields, allowancepool.FieldUpdateBy)
+}
+
+// SetCreateTime sets the "create_time" field.
+func (m *AllowancePoolMutation) SetCreateTime(t time.Time) {
+	m.create_time = &t
+}
+
+// CreateTime returns the value of the "create_time" field in the mutation.
+func (m *AllowancePoolMutation) CreateTime() (r time.Time, exists bool) {
+	v := m.create_time
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCreateTime returns the old "create_time" field's value of the AllowancePool entity.
+// If the AllowancePool object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *AllowancePoolMutation) OldCreateTime(ctx context.Context) (v *time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCreateTime is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCreateTime requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCreateTime: %w", err)
+	}
+	return oldValue.CreateTime, nil
+}
+
+// ClearCreateTime clears the value of the "create_time" field.
+func (m *AllowancePoolMutation) ClearCreateTime() {
+	m.create_time = nil
+	m.clearedFields[allowancepool.FieldCreateTime] = struct{}{}
+}
+
+// CreateTimeCleared returns if the "create_time" field was cleared in this mutation.
+func (m *AllowancePoolMutation) CreateTimeCleared() bool {
+	_, ok := m.clearedFields[allowancepool.FieldCreateTime]
+	return ok
+}
+
+// ResetCreateTime resets all changes to the "create_time" field.
+func (m *AllowancePoolMutation) ResetCreateTime() {
+	m.create_time = nil
+	delete(m.clearedFields, allowancepool.FieldCreateTime)
+}
+
+// SetUpdateTime sets the "update_time" field.
+func (m *AllowancePoolMutation) SetUpdateTime(t time.Time) {
+	m.update_time = &t
+}
+
+// UpdateTime returns the value of the "update_time" field in the mutation.
+func (m *AllowancePoolMutation) UpdateTime() (r time.Time, exists bool) {
+	v := m.update_time
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUpdateTime returns the old "update_time" field's value of the AllowancePool entity.
+// If the AllowancePool object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *AllowancePoolMutation) OldUpdateTime(ctx context.Context) (v *time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUpdateTime is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUpdateTime requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUpdateTime: %w", err)
+	}
+	return oldValue.UpdateTime, nil
+}
+
+// ClearUpdateTime clears the value of the "update_time" field.
+func (m *AllowancePoolMutation) ClearUpdateTime() {
+	m.update_time = nil
+	m.clearedFields[allowancepool.FieldUpdateTime] = struct{}{}
+}
+
+// UpdateTimeCleared returns if the "update_time" field was cleared in this mutation.
+func (m *AllowancePoolMutation) UpdateTimeCleared() bool {
+	_, ok := m.clearedFields[allowancepool.FieldUpdateTime]
+	return ok
+}
+
+// ResetUpdateTime resets all changes to the "update_time" field.
+func (m *AllowancePoolMutation) ResetUpdateTime() {
+	m.update_time = nil
+	delete(m.clearedFields, allowancepool.FieldUpdateTime)
+}
+
+// SetDeleteTime sets the "delete_time" field.
+func (m *AllowancePoolMutation) SetDeleteTime(t time.Time) {
+	m.delete_time = &t
+}
+
+// DeleteTime returns the value of the "delete_time" field in the mutation.
+func (m *AllowancePoolMutation) DeleteTime() (r time.Time, exists bool) {
+	v := m.delete_time
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDeleteTime returns the old "delete_time" field's value of the AllowancePool entity.
+// If the AllowancePool object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *AllowancePoolMutation) OldDeleteTime(ctx context.Context) (v *time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDeleteTime is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDeleteTime requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDeleteTime: %w", err)
+	}
+	return oldValue.DeleteTime, nil
+}
+
+// ClearDeleteTime clears the value of the "delete_time" field.
+func (m *AllowancePoolMutation) ClearDeleteTime() {
+	m.delete_time = nil
+	m.clearedFields[allowancepool.FieldDeleteTime] = struct{}{}
+}
+
+// DeleteTimeCleared returns if the "delete_time" field was cleared in this mutation.
+func (m *AllowancePoolMutation) DeleteTimeCleared() bool {
+	_, ok := m.clearedFields[allowancepool.FieldDeleteTime]
+	return ok
+}
+
+// ResetDeleteTime resets all changes to the "delete_time" field.
+func (m *AllowancePoolMutation) ResetDeleteTime() {
+	m.delete_time = nil
+	delete(m.clearedFields, allowancepool.FieldDeleteTime)
+}
+
+// SetTenantID sets the "tenant_id" field.
+func (m *AllowancePoolMutation) SetTenantID(u uint32) {
+	m.tenant_id = &u
+	m.addtenant_id = nil
+}
+
+// TenantID returns the value of the "tenant_id" field in the mutation.
+func (m *AllowancePoolMutation) TenantID() (r uint32, exists bool) {
+	v := m.tenant_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldTenantID returns the old "tenant_id" field's value of the AllowancePool entity.
+// If the AllowancePool object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *AllowancePoolMutation) OldTenantID(ctx context.Context) (v *uint32, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldTenantID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldTenantID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldTenantID: %w", err)
+	}
+	return oldValue.TenantID, nil
+}
+
+// AddTenantID adds u to the "tenant_id" field.
+func (m *AllowancePoolMutation) AddTenantID(u int32) {
+	if m.addtenant_id != nil {
+		*m.addtenant_id += u
+	} else {
+		m.addtenant_id = &u
+	}
+}
+
+// AddedTenantID returns the value that was added to the "tenant_id" field in this mutation.
+func (m *AllowancePoolMutation) AddedTenantID() (r int32, exists bool) {
+	v := m.addtenant_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearTenantID clears the value of the "tenant_id" field.
+func (m *AllowancePoolMutation) ClearTenantID() {
+	m.tenant_id = nil
+	m.addtenant_id = nil
+	m.clearedFields[allowancepool.FieldTenantID] = struct{}{}
+}
+
+// TenantIDCleared returns if the "tenant_id" field was cleared in this mutation.
+func (m *AllowancePoolMutation) TenantIDCleared() bool {
+	_, ok := m.clearedFields[allowancepool.FieldTenantID]
+	return ok
+}
+
+// ResetTenantID resets all changes to the "tenant_id" field.
+func (m *AllowancePoolMutation) ResetTenantID() {
+	m.tenant_id = nil
+	m.addtenant_id = nil
+	delete(m.clearedFields, allowancepool.FieldTenantID)
+}
+
+// SetName sets the "name" field.
+func (m *AllowancePoolMutation) SetName(s string) {
+	m.name = &s
+}
+
+// Name returns the value of the "name" field in the mutation.
+func (m *AllowancePoolMutation) Name() (r string, exists bool) {
+	v := m.name
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldName returns the old "name" field's value of the AllowancePool entity.
+// If the AllowancePool object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *AllowancePoolMutation) OldName(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldName is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldName requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldName: %w", err)
+	}
+	return oldValue.Name, nil
+}
+
+// ResetName resets all changes to the "name" field.
+func (m *AllowancePoolMutation) ResetName() {
+	m.name = nil
+}
+
+// SetDescription sets the "description" field.
+func (m *AllowancePoolMutation) SetDescription(s string) {
+	m.description = &s
+}
+
+// Description returns the value of the "description" field in the mutation.
+func (m *AllowancePoolMutation) Description() (r string, exists bool) {
+	v := m.description
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDescription returns the old "description" field's value of the AllowancePool entity.
+// If the AllowancePool object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *AllowancePoolMutation) OldDescription(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDescription is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDescription requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDescription: %w", err)
+	}
+	return oldValue.Description, nil
+}
+
+// ClearDescription clears the value of the "description" field.
+func (m *AllowancePoolMutation) ClearDescription() {
+	m.description = nil
+	m.clearedFields[allowancepool.FieldDescription] = struct{}{}
+}
+
+// DescriptionCleared returns if the "description" field was cleared in this mutation.
+func (m *AllowancePoolMutation) DescriptionCleared() bool {
+	_, ok := m.clearedFields[allowancepool.FieldDescription]
+	return ok
+}
+
+// ResetDescription resets all changes to the "description" field.
+func (m *AllowancePoolMutation) ResetDescription() {
+	m.description = nil
+	delete(m.clearedFields, allowancepool.FieldDescription)
+}
+
+// SetColor sets the "color" field.
+func (m *AllowancePoolMutation) SetColor(s string) {
+	m.color = &s
+}
+
+// Color returns the value of the "color" field in the mutation.
+func (m *AllowancePoolMutation) Color() (r string, exists bool) {
+	v := m.color
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldColor returns the old "color" field's value of the AllowancePool entity.
+// If the AllowancePool object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *AllowancePoolMutation) OldColor(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldColor is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldColor requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldColor: %w", err)
+	}
+	return oldValue.Color, nil
+}
+
+// ClearColor clears the value of the "color" field.
+func (m *AllowancePoolMutation) ClearColor() {
+	m.color = nil
+	m.clearedFields[allowancepool.FieldColor] = struct{}{}
+}
+
+// ColorCleared returns if the "color" field was cleared in this mutation.
+func (m *AllowancePoolMutation) ColorCleared() bool {
+	_, ok := m.clearedFields[allowancepool.FieldColor]
+	return ok
+}
+
+// ResetColor resets all changes to the "color" field.
+func (m *AllowancePoolMutation) ResetColor() {
+	m.color = nil
+	delete(m.clearedFields, allowancepool.FieldColor)
+}
+
+// SetIcon sets the "icon" field.
+func (m *AllowancePoolMutation) SetIcon(s string) {
+	m.icon = &s
+}
+
+// Icon returns the value of the "icon" field in the mutation.
+func (m *AllowancePoolMutation) Icon() (r string, exists bool) {
+	v := m.icon
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldIcon returns the old "icon" field's value of the AllowancePool entity.
+// If the AllowancePool object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *AllowancePoolMutation) OldIcon(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldIcon is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldIcon requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldIcon: %w", err)
+	}
+	return oldValue.Icon, nil
+}
+
+// ClearIcon clears the value of the "icon" field.
+func (m *AllowancePoolMutation) ClearIcon() {
+	m.icon = nil
+	m.clearedFields[allowancepool.FieldIcon] = struct{}{}
+}
+
+// IconCleared returns if the "icon" field was cleared in this mutation.
+func (m *AllowancePoolMutation) IconCleared() bool {
+	_, ok := m.clearedFields[allowancepool.FieldIcon]
+	return ok
+}
+
+// ResetIcon resets all changes to the "icon" field.
+func (m *AllowancePoolMutation) ResetIcon() {
+	m.icon = nil
+	delete(m.clearedFields, allowancepool.FieldIcon)
+}
+
+// AddAbsenceTypeIDs adds the "absence_types" edge to the AbsenceType entity by ids.
+func (m *AllowancePoolMutation) AddAbsenceTypeIDs(ids ...string) {
+	if m.absence_types == nil {
+		m.absence_types = make(map[string]struct{})
+	}
+	for i := range ids {
+		m.absence_types[ids[i]] = struct{}{}
+	}
+}
+
+// ClearAbsenceTypes clears the "absence_types" edge to the AbsenceType entity.
+func (m *AllowancePoolMutation) ClearAbsenceTypes() {
+	m.clearedabsence_types = true
+}
+
+// AbsenceTypesCleared reports if the "absence_types" edge to the AbsenceType entity was cleared.
+func (m *AllowancePoolMutation) AbsenceTypesCleared() bool {
+	return m.clearedabsence_types
+}
+
+// RemoveAbsenceTypeIDs removes the "absence_types" edge to the AbsenceType entity by IDs.
+func (m *AllowancePoolMutation) RemoveAbsenceTypeIDs(ids ...string) {
+	if m.removedabsence_types == nil {
+		m.removedabsence_types = make(map[string]struct{})
+	}
+	for i := range ids {
+		delete(m.absence_types, ids[i])
+		m.removedabsence_types[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedAbsenceTypes returns the removed IDs of the "absence_types" edge to the AbsenceType entity.
+func (m *AllowancePoolMutation) RemovedAbsenceTypesIDs() (ids []string) {
+	for id := range m.removedabsence_types {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// AbsenceTypesIDs returns the "absence_types" edge IDs in the mutation.
+func (m *AllowancePoolMutation) AbsenceTypesIDs() (ids []string) {
+	for id := range m.absence_types {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetAbsenceTypes resets all changes to the "absence_types" edge.
+func (m *AllowancePoolMutation) ResetAbsenceTypes() {
+	m.absence_types = nil
+	m.clearedabsence_types = false
+	m.removedabsence_types = nil
+}
+
+// AddLeaveAllowanceIDs adds the "leave_allowances" edge to the LeaveAllowance entity by ids.
+func (m *AllowancePoolMutation) AddLeaveAllowanceIDs(ids ...string) {
+	if m.leave_allowances == nil {
+		m.leave_allowances = make(map[string]struct{})
+	}
+	for i := range ids {
+		m.leave_allowances[ids[i]] = struct{}{}
+	}
+}
+
+// ClearLeaveAllowances clears the "leave_allowances" edge to the LeaveAllowance entity.
+func (m *AllowancePoolMutation) ClearLeaveAllowances() {
+	m.clearedleave_allowances = true
+}
+
+// LeaveAllowancesCleared reports if the "leave_allowances" edge to the LeaveAllowance entity was cleared.
+func (m *AllowancePoolMutation) LeaveAllowancesCleared() bool {
+	return m.clearedleave_allowances
+}
+
+// RemoveLeaveAllowanceIDs removes the "leave_allowances" edge to the LeaveAllowance entity by IDs.
+func (m *AllowancePoolMutation) RemoveLeaveAllowanceIDs(ids ...string) {
+	if m.removedleave_allowances == nil {
+		m.removedleave_allowances = make(map[string]struct{})
+	}
+	for i := range ids {
+		delete(m.leave_allowances, ids[i])
+		m.removedleave_allowances[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedLeaveAllowances returns the removed IDs of the "leave_allowances" edge to the LeaveAllowance entity.
+func (m *AllowancePoolMutation) RemovedLeaveAllowancesIDs() (ids []string) {
+	for id := range m.removedleave_allowances {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// LeaveAllowancesIDs returns the "leave_allowances" edge IDs in the mutation.
+func (m *AllowancePoolMutation) LeaveAllowancesIDs() (ids []string) {
+	for id := range m.leave_allowances {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetLeaveAllowances resets all changes to the "leave_allowances" edge.
+func (m *AllowancePoolMutation) ResetLeaveAllowances() {
+	m.leave_allowances = nil
+	m.clearedleave_allowances = false
+	m.removedleave_allowances = nil
+}
+
+// Where appends a list predicates to the AllowancePoolMutation builder.
+func (m *AllowancePoolMutation) Where(ps ...predicate.AllowancePool) {
+	m.predicates = append(m.predicates, ps...)
+}
+
+// WhereP appends storage-level predicates to the AllowancePoolMutation builder. Using this method,
+// users can use type-assertion to append predicates that do not depend on any generated package.
+func (m *AllowancePoolMutation) WhereP(ps ...func(*sql.Selector)) {
+	p := make([]predicate.AllowancePool, len(ps))
+	for i := range ps {
+		p[i] = ps[i]
+	}
+	m.Where(p...)
+}
+
+// Op returns the operation name.
+func (m *AllowancePoolMutation) Op() Op {
+	return m.op
+}
+
+// SetOp allows setting the mutation operation.
+func (m *AllowancePoolMutation) SetOp(op Op) {
+	m.op = op
+}
+
+// Type returns the node type of this mutation (AllowancePool).
+func (m *AllowancePoolMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *AllowancePoolMutation) Fields() []string {
+	fields := make([]string, 0, 10)
+	if m.create_by != nil {
+		fields = append(fields, allowancepool.FieldCreateBy)
+	}
+	if m.update_by != nil {
+		fields = append(fields, allowancepool.FieldUpdateBy)
+	}
+	if m.create_time != nil {
+		fields = append(fields, allowancepool.FieldCreateTime)
+	}
+	if m.update_time != nil {
+		fields = append(fields, allowancepool.FieldUpdateTime)
+	}
+	if m.delete_time != nil {
+		fields = append(fields, allowancepool.FieldDeleteTime)
+	}
+	if m.tenant_id != nil {
+		fields = append(fields, allowancepool.FieldTenantID)
+	}
+	if m.name != nil {
+		fields = append(fields, allowancepool.FieldName)
+	}
+	if m.description != nil {
+		fields = append(fields, allowancepool.FieldDescription)
+	}
+	if m.color != nil {
+		fields = append(fields, allowancepool.FieldColor)
+	}
+	if m.icon != nil {
+		fields = append(fields, allowancepool.FieldIcon)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *AllowancePoolMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case allowancepool.FieldCreateBy:
+		return m.CreateBy()
+	case allowancepool.FieldUpdateBy:
+		return m.UpdateBy()
+	case allowancepool.FieldCreateTime:
+		return m.CreateTime()
+	case allowancepool.FieldUpdateTime:
+		return m.UpdateTime()
+	case allowancepool.FieldDeleteTime:
+		return m.DeleteTime()
+	case allowancepool.FieldTenantID:
+		return m.TenantID()
+	case allowancepool.FieldName:
+		return m.Name()
+	case allowancepool.FieldDescription:
+		return m.Description()
+	case allowancepool.FieldColor:
+		return m.Color()
+	case allowancepool.FieldIcon:
+		return m.Icon()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *AllowancePoolMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case allowancepool.FieldCreateBy:
+		return m.OldCreateBy(ctx)
+	case allowancepool.FieldUpdateBy:
+		return m.OldUpdateBy(ctx)
+	case allowancepool.FieldCreateTime:
+		return m.OldCreateTime(ctx)
+	case allowancepool.FieldUpdateTime:
+		return m.OldUpdateTime(ctx)
+	case allowancepool.FieldDeleteTime:
+		return m.OldDeleteTime(ctx)
+	case allowancepool.FieldTenantID:
+		return m.OldTenantID(ctx)
+	case allowancepool.FieldName:
+		return m.OldName(ctx)
+	case allowancepool.FieldDescription:
+		return m.OldDescription(ctx)
+	case allowancepool.FieldColor:
+		return m.OldColor(ctx)
+	case allowancepool.FieldIcon:
+		return m.OldIcon(ctx)
+	}
+	return nil, fmt.Errorf("unknown AllowancePool field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *AllowancePoolMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case allowancepool.FieldCreateBy:
+		v, ok := value.(uint32)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCreateBy(v)
+		return nil
+	case allowancepool.FieldUpdateBy:
+		v, ok := value.(uint32)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUpdateBy(v)
+		return nil
+	case allowancepool.FieldCreateTime:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCreateTime(v)
+		return nil
+	case allowancepool.FieldUpdateTime:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUpdateTime(v)
+		return nil
+	case allowancepool.FieldDeleteTime:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDeleteTime(v)
+		return nil
+	case allowancepool.FieldTenantID:
+		v, ok := value.(uint32)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetTenantID(v)
+		return nil
+	case allowancepool.FieldName:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetName(v)
+		return nil
+	case allowancepool.FieldDescription:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDescription(v)
+		return nil
+	case allowancepool.FieldColor:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetColor(v)
+		return nil
+	case allowancepool.FieldIcon:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetIcon(v)
+		return nil
+	}
+	return fmt.Errorf("unknown AllowancePool field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *AllowancePoolMutation) AddedFields() []string {
+	var fields []string
+	if m.addcreate_by != nil {
+		fields = append(fields, allowancepool.FieldCreateBy)
+	}
+	if m.addupdate_by != nil {
+		fields = append(fields, allowancepool.FieldUpdateBy)
+	}
+	if m.addtenant_id != nil {
+		fields = append(fields, allowancepool.FieldTenantID)
+	}
+	return fields
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *AllowancePoolMutation) AddedField(name string) (ent.Value, bool) {
+	switch name {
+	case allowancepool.FieldCreateBy:
+		return m.AddedCreateBy()
+	case allowancepool.FieldUpdateBy:
+		return m.AddedUpdateBy()
+	case allowancepool.FieldTenantID:
+		return m.AddedTenantID()
+	}
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *AllowancePoolMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	case allowancepool.FieldCreateBy:
+		v, ok := value.(int32)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddCreateBy(v)
+		return nil
+	case allowancepool.FieldUpdateBy:
+		v, ok := value.(int32)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddUpdateBy(v)
+		return nil
+	case allowancepool.FieldTenantID:
+		v, ok := value.(int32)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddTenantID(v)
+		return nil
+	}
+	return fmt.Errorf("unknown AllowancePool numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *AllowancePoolMutation) ClearedFields() []string {
+	var fields []string
+	if m.FieldCleared(allowancepool.FieldCreateBy) {
+		fields = append(fields, allowancepool.FieldCreateBy)
+	}
+	if m.FieldCleared(allowancepool.FieldUpdateBy) {
+		fields = append(fields, allowancepool.FieldUpdateBy)
+	}
+	if m.FieldCleared(allowancepool.FieldCreateTime) {
+		fields = append(fields, allowancepool.FieldCreateTime)
+	}
+	if m.FieldCleared(allowancepool.FieldUpdateTime) {
+		fields = append(fields, allowancepool.FieldUpdateTime)
+	}
+	if m.FieldCleared(allowancepool.FieldDeleteTime) {
+		fields = append(fields, allowancepool.FieldDeleteTime)
+	}
+	if m.FieldCleared(allowancepool.FieldTenantID) {
+		fields = append(fields, allowancepool.FieldTenantID)
+	}
+	if m.FieldCleared(allowancepool.FieldDescription) {
+		fields = append(fields, allowancepool.FieldDescription)
+	}
+	if m.FieldCleared(allowancepool.FieldColor) {
+		fields = append(fields, allowancepool.FieldColor)
+	}
+	if m.FieldCleared(allowancepool.FieldIcon) {
+		fields = append(fields, allowancepool.FieldIcon)
+	}
+	return fields
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *AllowancePoolMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *AllowancePoolMutation) ClearField(name string) error {
+	switch name {
+	case allowancepool.FieldCreateBy:
+		m.ClearCreateBy()
+		return nil
+	case allowancepool.FieldUpdateBy:
+		m.ClearUpdateBy()
+		return nil
+	case allowancepool.FieldCreateTime:
+		m.ClearCreateTime()
+		return nil
+	case allowancepool.FieldUpdateTime:
+		m.ClearUpdateTime()
+		return nil
+	case allowancepool.FieldDeleteTime:
+		m.ClearDeleteTime()
+		return nil
+	case allowancepool.FieldTenantID:
+		m.ClearTenantID()
+		return nil
+	case allowancepool.FieldDescription:
+		m.ClearDescription()
+		return nil
+	case allowancepool.FieldColor:
+		m.ClearColor()
+		return nil
+	case allowancepool.FieldIcon:
+		m.ClearIcon()
+		return nil
+	}
+	return fmt.Errorf("unknown AllowancePool nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *AllowancePoolMutation) ResetField(name string) error {
+	switch name {
+	case allowancepool.FieldCreateBy:
+		m.ResetCreateBy()
+		return nil
+	case allowancepool.FieldUpdateBy:
+		m.ResetUpdateBy()
+		return nil
+	case allowancepool.FieldCreateTime:
+		m.ResetCreateTime()
+		return nil
+	case allowancepool.FieldUpdateTime:
+		m.ResetUpdateTime()
+		return nil
+	case allowancepool.FieldDeleteTime:
+		m.ResetDeleteTime()
+		return nil
+	case allowancepool.FieldTenantID:
+		m.ResetTenantID()
+		return nil
+	case allowancepool.FieldName:
+		m.ResetName()
+		return nil
+	case allowancepool.FieldDescription:
+		m.ResetDescription()
+		return nil
+	case allowancepool.FieldColor:
+		m.ResetColor()
+		return nil
+	case allowancepool.FieldIcon:
+		m.ResetIcon()
+		return nil
+	}
+	return fmt.Errorf("unknown AllowancePool field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *AllowancePoolMutation) AddedEdges() []string {
+	edges := make([]string, 0, 2)
+	if m.absence_types != nil {
+		edges = append(edges, allowancepool.EdgeAbsenceTypes)
+	}
+	if m.leave_allowances != nil {
+		edges = append(edges, allowancepool.EdgeLeaveAllowances)
+	}
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *AllowancePoolMutation) AddedIDs(name string) []ent.Value {
+	switch name {
+	case allowancepool.EdgeAbsenceTypes:
+		ids := make([]ent.Value, 0, len(m.absence_types))
+		for id := range m.absence_types {
+			ids = append(ids, id)
+		}
+		return ids
+	case allowancepool.EdgeLeaveAllowances:
+		ids := make([]ent.Value, 0, len(m.leave_allowances))
+		for id := range m.leave_allowances {
+			ids = append(ids, id)
+		}
+		return ids
+	}
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *AllowancePoolMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 2)
+	if m.removedabsence_types != nil {
+		edges = append(edges, allowancepool.EdgeAbsenceTypes)
+	}
+	if m.removedleave_allowances != nil {
+		edges = append(edges, allowancepool.EdgeLeaveAllowances)
+	}
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *AllowancePoolMutation) RemovedIDs(name string) []ent.Value {
+	switch name {
+	case allowancepool.EdgeAbsenceTypes:
+		ids := make([]ent.Value, 0, len(m.removedabsence_types))
+		for id := range m.removedabsence_types {
+			ids = append(ids, id)
+		}
+		return ids
+	case allowancepool.EdgeLeaveAllowances:
+		ids := make([]ent.Value, 0, len(m.removedleave_allowances))
+		for id := range m.removedleave_allowances {
+			ids = append(ids, id)
+		}
+		return ids
+	}
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *AllowancePoolMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 2)
+	if m.clearedabsence_types {
+		edges = append(edges, allowancepool.EdgeAbsenceTypes)
+	}
+	if m.clearedleave_allowances {
+		edges = append(edges, allowancepool.EdgeLeaveAllowances)
+	}
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *AllowancePoolMutation) EdgeCleared(name string) bool {
+	switch name {
+	case allowancepool.EdgeAbsenceTypes:
+		return m.clearedabsence_types
+	case allowancepool.EdgeLeaveAllowances:
+		return m.clearedleave_allowances
+	}
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *AllowancePoolMutation) ClearEdge(name string) error {
+	switch name {
+	}
+	return fmt.Errorf("unknown AllowancePool unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *AllowancePoolMutation) ResetEdge(name string) error {
+	switch name {
+	case allowancepool.EdgeAbsenceTypes:
+		m.ResetAbsenceTypes()
+		return nil
+	case allowancepool.EdgeLeaveAllowances:
+		m.ResetLeaveAllowances()
+		return nil
+	}
+	return fmt.Errorf("unknown AllowancePool edge %s", name)
 }
 
 // AuditLogMutation represents an operation that mutates the AuditLog nodes in the graph.
@@ -3635,36 +5029,38 @@ func (m *AuditLogMutation) ResetEdge(name string) error {
 // LeaveAllowanceMutation represents an operation that mutates the LeaveAllowance nodes in the graph.
 type LeaveAllowanceMutation struct {
 	config
-	op                  Op
-	typ                 string
-	id                  *string
-	create_by           *uint32
-	addcreate_by        *int32
-	update_by           *uint32
-	addupdate_by        *int32
-	create_time         *time.Time
-	update_time         *time.Time
-	delete_time         *time.Time
-	tenant_id           *uint32
-	addtenant_id        *int32
-	user_id             *uint32
-	adduser_id          *int32
-	user_name           *string
-	year                *int
-	addyear             *int
-	total_days          *float64
-	addtotal_days       *float64
-	used_days           *float64
-	addused_days        *float64
-	carried_over        *float64
-	addcarried_over     *float64
-	notes               *string
-	clearedFields       map[string]struct{}
-	absence_type        *string
-	clearedabsence_type bool
-	done                bool
-	oldValue            func(context.Context) (*LeaveAllowance, error)
-	predicates          []predicate.LeaveAllowance
+	op                    Op
+	typ                   string
+	id                    *string
+	create_by             *uint32
+	addcreate_by          *int32
+	update_by             *uint32
+	addupdate_by          *int32
+	create_time           *time.Time
+	update_time           *time.Time
+	delete_time           *time.Time
+	tenant_id             *uint32
+	addtenant_id          *int32
+	user_id               *uint32
+	adduser_id            *int32
+	user_name             *string
+	year                  *int
+	addyear               *int
+	total_days            *float64
+	addtotal_days         *float64
+	used_days             *float64
+	addused_days          *float64
+	carried_over          *float64
+	addcarried_over       *float64
+	notes                 *string
+	clearedFields         map[string]struct{}
+	absence_type          *string
+	clearedabsence_type   bool
+	allowance_pool        *string
+	clearedallowance_pool bool
+	done                  bool
+	oldValue              func(context.Context) (*LeaveAllowance, error)
+	predicates            []predicate.LeaveAllowance
 }
 
 var _ ent.Mutation = (*LeaveAllowanceMutation)(nil)
@@ -4264,9 +5660,71 @@ func (m *LeaveAllowanceMutation) OldAbsenceTypeID(ctx context.Context) (v string
 	return oldValue.AbsenceTypeID, nil
 }
 
+// ClearAbsenceTypeID clears the value of the "absence_type_id" field.
+func (m *LeaveAllowanceMutation) ClearAbsenceTypeID() {
+	m.absence_type = nil
+	m.clearedFields[leaveallowance.FieldAbsenceTypeID] = struct{}{}
+}
+
+// AbsenceTypeIDCleared returns if the "absence_type_id" field was cleared in this mutation.
+func (m *LeaveAllowanceMutation) AbsenceTypeIDCleared() bool {
+	_, ok := m.clearedFields[leaveallowance.FieldAbsenceTypeID]
+	return ok
+}
+
 // ResetAbsenceTypeID resets all changes to the "absence_type_id" field.
 func (m *LeaveAllowanceMutation) ResetAbsenceTypeID() {
 	m.absence_type = nil
+	delete(m.clearedFields, leaveallowance.FieldAbsenceTypeID)
+}
+
+// SetAllowancePoolID sets the "allowance_pool_id" field.
+func (m *LeaveAllowanceMutation) SetAllowancePoolID(s string) {
+	m.allowance_pool = &s
+}
+
+// AllowancePoolID returns the value of the "allowance_pool_id" field in the mutation.
+func (m *LeaveAllowanceMutation) AllowancePoolID() (r string, exists bool) {
+	v := m.allowance_pool
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldAllowancePoolID returns the old "allowance_pool_id" field's value of the LeaveAllowance entity.
+// If the LeaveAllowance object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *LeaveAllowanceMutation) OldAllowancePoolID(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldAllowancePoolID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldAllowancePoolID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldAllowancePoolID: %w", err)
+	}
+	return oldValue.AllowancePoolID, nil
+}
+
+// ClearAllowancePoolID clears the value of the "allowance_pool_id" field.
+func (m *LeaveAllowanceMutation) ClearAllowancePoolID() {
+	m.allowance_pool = nil
+	m.clearedFields[leaveallowance.FieldAllowancePoolID] = struct{}{}
+}
+
+// AllowancePoolIDCleared returns if the "allowance_pool_id" field was cleared in this mutation.
+func (m *LeaveAllowanceMutation) AllowancePoolIDCleared() bool {
+	_, ok := m.clearedFields[leaveallowance.FieldAllowancePoolID]
+	return ok
+}
+
+// ResetAllowancePoolID resets all changes to the "allowance_pool_id" field.
+func (m *LeaveAllowanceMutation) ResetAllowancePoolID() {
+	m.allowance_pool = nil
+	delete(m.clearedFields, leaveallowance.FieldAllowancePoolID)
 }
 
 // SetYear sets the "year" field.
@@ -4550,7 +6008,7 @@ func (m *LeaveAllowanceMutation) ClearAbsenceType() {
 
 // AbsenceTypeCleared reports if the "absence_type" edge to the AbsenceType entity was cleared.
 func (m *LeaveAllowanceMutation) AbsenceTypeCleared() bool {
-	return m.clearedabsence_type
+	return m.AbsenceTypeIDCleared() || m.clearedabsence_type
 }
 
 // AbsenceTypeIDs returns the "absence_type" edge IDs in the mutation.
@@ -4567,6 +6025,33 @@ func (m *LeaveAllowanceMutation) AbsenceTypeIDs() (ids []string) {
 func (m *LeaveAllowanceMutation) ResetAbsenceType() {
 	m.absence_type = nil
 	m.clearedabsence_type = false
+}
+
+// ClearAllowancePool clears the "allowance_pool" edge to the AllowancePool entity.
+func (m *LeaveAllowanceMutation) ClearAllowancePool() {
+	m.clearedallowance_pool = true
+	m.clearedFields[leaveallowance.FieldAllowancePoolID] = struct{}{}
+}
+
+// AllowancePoolCleared reports if the "allowance_pool" edge to the AllowancePool entity was cleared.
+func (m *LeaveAllowanceMutation) AllowancePoolCleared() bool {
+	return m.AllowancePoolIDCleared() || m.clearedallowance_pool
+}
+
+// AllowancePoolIDs returns the "allowance_pool" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// AllowancePoolID instead. It exists only for internal usage by the builders.
+func (m *LeaveAllowanceMutation) AllowancePoolIDs() (ids []string) {
+	if id := m.allowance_pool; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetAllowancePool resets all changes to the "allowance_pool" edge.
+func (m *LeaveAllowanceMutation) ResetAllowancePool() {
+	m.allowance_pool = nil
+	m.clearedallowance_pool = false
 }
 
 // Where appends a list predicates to the LeaveAllowanceMutation builder.
@@ -4603,7 +6088,7 @@ func (m *LeaveAllowanceMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *LeaveAllowanceMutation) Fields() []string {
-	fields := make([]string, 0, 14)
+	fields := make([]string, 0, 15)
 	if m.create_by != nil {
 		fields = append(fields, leaveallowance.FieldCreateBy)
 	}
@@ -4630,6 +6115,9 @@ func (m *LeaveAllowanceMutation) Fields() []string {
 	}
 	if m.absence_type != nil {
 		fields = append(fields, leaveallowance.FieldAbsenceTypeID)
+	}
+	if m.allowance_pool != nil {
+		fields = append(fields, leaveallowance.FieldAllowancePoolID)
 	}
 	if m.year != nil {
 		fields = append(fields, leaveallowance.FieldYear)
@@ -4672,6 +6160,8 @@ func (m *LeaveAllowanceMutation) Field(name string) (ent.Value, bool) {
 		return m.UserName()
 	case leaveallowance.FieldAbsenceTypeID:
 		return m.AbsenceTypeID()
+	case leaveallowance.FieldAllowancePoolID:
+		return m.AllowancePoolID()
 	case leaveallowance.FieldYear:
 		return m.Year()
 	case leaveallowance.FieldTotalDays:
@@ -4709,6 +6199,8 @@ func (m *LeaveAllowanceMutation) OldField(ctx context.Context, name string) (ent
 		return m.OldUserName(ctx)
 	case leaveallowance.FieldAbsenceTypeID:
 		return m.OldAbsenceTypeID(ctx)
+	case leaveallowance.FieldAllowancePoolID:
+		return m.OldAllowancePoolID(ctx)
 	case leaveallowance.FieldYear:
 		return m.OldYear(ctx)
 	case leaveallowance.FieldTotalDays:
@@ -4790,6 +6282,13 @@ func (m *LeaveAllowanceMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetAbsenceTypeID(v)
+		return nil
+	case leaveallowance.FieldAllowancePoolID:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetAllowancePoolID(v)
 		return nil
 	case leaveallowance.FieldYear:
 		v, ok := value.(int)
@@ -4976,6 +6475,12 @@ func (m *LeaveAllowanceMutation) ClearedFields() []string {
 	if m.FieldCleared(leaveallowance.FieldUserName) {
 		fields = append(fields, leaveallowance.FieldUserName)
 	}
+	if m.FieldCleared(leaveallowance.FieldAbsenceTypeID) {
+		fields = append(fields, leaveallowance.FieldAbsenceTypeID)
+	}
+	if m.FieldCleared(leaveallowance.FieldAllowancePoolID) {
+		fields = append(fields, leaveallowance.FieldAllowancePoolID)
+	}
 	if m.FieldCleared(leaveallowance.FieldNotes) {
 		fields = append(fields, leaveallowance.FieldNotes)
 	}
@@ -5013,6 +6518,12 @@ func (m *LeaveAllowanceMutation) ClearField(name string) error {
 		return nil
 	case leaveallowance.FieldUserName:
 		m.ClearUserName()
+		return nil
+	case leaveallowance.FieldAbsenceTypeID:
+		m.ClearAbsenceTypeID()
+		return nil
+	case leaveallowance.FieldAllowancePoolID:
+		m.ClearAllowancePoolID()
 		return nil
 	case leaveallowance.FieldNotes:
 		m.ClearNotes()
@@ -5052,6 +6563,9 @@ func (m *LeaveAllowanceMutation) ResetField(name string) error {
 	case leaveallowance.FieldAbsenceTypeID:
 		m.ResetAbsenceTypeID()
 		return nil
+	case leaveallowance.FieldAllowancePoolID:
+		m.ResetAllowancePoolID()
+		return nil
 	case leaveallowance.FieldYear:
 		m.ResetYear()
 		return nil
@@ -5073,9 +6587,12 @@ func (m *LeaveAllowanceMutation) ResetField(name string) error {
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *LeaveAllowanceMutation) AddedEdges() []string {
-	edges := make([]string, 0, 1)
+	edges := make([]string, 0, 2)
 	if m.absence_type != nil {
 		edges = append(edges, leaveallowance.EdgeAbsenceType)
+	}
+	if m.allowance_pool != nil {
+		edges = append(edges, leaveallowance.EdgeAllowancePool)
 	}
 	return edges
 }
@@ -5088,13 +6605,17 @@ func (m *LeaveAllowanceMutation) AddedIDs(name string) []ent.Value {
 		if id := m.absence_type; id != nil {
 			return []ent.Value{*id}
 		}
+	case leaveallowance.EdgeAllowancePool:
+		if id := m.allowance_pool; id != nil {
+			return []ent.Value{*id}
+		}
 	}
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *LeaveAllowanceMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 1)
+	edges := make([]string, 0, 2)
 	return edges
 }
 
@@ -5106,9 +6627,12 @@ func (m *LeaveAllowanceMutation) RemovedIDs(name string) []ent.Value {
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *LeaveAllowanceMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 1)
+	edges := make([]string, 0, 2)
 	if m.clearedabsence_type {
 		edges = append(edges, leaveallowance.EdgeAbsenceType)
+	}
+	if m.clearedallowance_pool {
+		edges = append(edges, leaveallowance.EdgeAllowancePool)
 	}
 	return edges
 }
@@ -5119,6 +6643,8 @@ func (m *LeaveAllowanceMutation) EdgeCleared(name string) bool {
 	switch name {
 	case leaveallowance.EdgeAbsenceType:
 		return m.clearedabsence_type
+	case leaveallowance.EdgeAllowancePool:
+		return m.clearedallowance_pool
 	}
 	return false
 }
@@ -5130,6 +6656,9 @@ func (m *LeaveAllowanceMutation) ClearEdge(name string) error {
 	case leaveallowance.EdgeAbsenceType:
 		m.ClearAbsenceType()
 		return nil
+	case leaveallowance.EdgeAllowancePool:
+		m.ClearAllowancePool()
+		return nil
 	}
 	return fmt.Errorf("unknown LeaveAllowance unique edge %s", name)
 }
@@ -5140,6 +6669,9 @@ func (m *LeaveAllowanceMutation) ResetEdge(name string) error {
 	switch name {
 	case leaveallowance.EdgeAbsenceType:
 		m.ResetAbsenceType()
+		return nil
+	case leaveallowance.EdgeAllowancePool:
+		m.ResetAllowancePool()
 		return nil
 	}
 	return fmt.Errorf("unknown LeaveAllowance edge %s", name)

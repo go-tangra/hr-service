@@ -24,10 +24,11 @@ import (
 // Injectors from wire.go:
 
 func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
-	v, err := cert.NewCertManager(context)
+	certManager, err := cert.NewCertManager(context)
 	if err != nil {
 		return nil, nil, err
 	}
+	collector := metrics.NewCollector(context)
 	entClient, cleanup, err := data.NewEntClient(context)
 	if err != nil {
 		return nil, nil, err
@@ -49,29 +50,30 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	notificationClient, cleanup2b, err := client.NewNotificationClient(context, moduleDialer)
+	notificationClient, cleanup3, err := client.NewNotificationClient(context, moduleDialer)
 	if err != nil {
 		cleanup2()
 		cleanup()
 		return nil, nil, err
 	}
 	leaveService := service.NewLeaveService(context, leaveRequestRepo, leaveAllowanceRepo, absenceTypeRepo, paperlessClient, notificationClient)
-	allowanceService := service.NewAllowanceService(context, leaveAllowanceRepo, absenceTypeRepo)
-	adminClient, cleanup3, err := client.NewAdminClient(context, v)
+	allowancePoolRepo := data.NewAllowancePoolRepo(context, entClient)
+	allowanceService := service.NewAllowanceService(context, leaveAllowanceRepo, absenceTypeRepo, allowancePoolRepo)
+	allowancePoolService := service.NewAllowancePoolService(context, allowancePoolRepo, absenceTypeRepo)
+	adminClient, cleanup4, err := client.NewAdminClient(context, certManager)
 	if err != nil {
-		cleanup2b()
+		cleanup3()
 		cleanup2()
 		cleanup()
 		return nil, nil, err
 	}
 	userService := service.NewUserService(context, adminClient)
-	collector := metrics.NewCollector(context)
-	grpcServer := server.NewGRPCServer(context, v, collector, auditLogRepo, systemService, absenceTypeService, leaveService, allowanceService, userService)
+	grpcServer := server.NewGRPCServer(context, certManager, collector, auditLogRepo, systemService, absenceTypeService, leaveService, allowanceService, allowancePoolService, userService)
 	httpServer := server.NewHTTPServer(context)
-	redisClient, cleanup4, err := data.NewRedisClient(context)
+	redisClient, cleanup5, err := data.NewRedisClient(context)
 	if err != nil {
+		cleanup4()
 		cleanup3()
-		cleanup2b()
 		cleanup2()
 		cleanup()
 		return nil, nil, err
@@ -87,9 +89,9 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 	app := newApp(context, grpcServer, httpServer, subscriber, registrationClient)
 	return app, func() {
 		collector.Stop(gocontext.Background())
+		cleanup5()
 		cleanup4()
 		cleanup3()
-		cleanup2b()
 		cleanup2()
 		cleanup()
 	}, nil

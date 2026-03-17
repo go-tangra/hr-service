@@ -22,6 +22,7 @@ var rolePermissions = map[string][]string{
 		"hr.absence_type.manage",
 		"hr.allowance.view",
 		"hr.allowance.manage",
+		"hr.allowance_pool.manage",
 		"hr.users.list",
 	},
 	"hr.employee": {

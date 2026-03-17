@@ -3,6 +3,7 @@ import type { RouteRecordRaw } from 'vue-router';
 const HR_ALL_ROLES = ['platform:admin', 'tenant:manager', 'hr.admin', 'hr.employee', 'hr.client', 'hr.viewer'];
 const HR_NO_CLIENT = ['platform:admin', 'tenant:manager', 'hr.admin', 'hr.employee', 'hr.viewer'];
 const HR_ADMIN_ONLY = ['platform:admin', 'tenant:manager', 'hr.admin', 'hr.viewer'];
+const HR_POOL_ADMIN = ['platform:admin', 'tenant:manager', 'hr.admin'];
 
 const routes: RouteRecordRaw[] = [
   {
@@ -47,6 +48,16 @@ const routes: RouteRecordRaw[] = [
           authority: HR_ADMIN_ONLY,
         },
         component: () => import('./views/absence-type/index.vue'),
+      },
+      {
+        path: 'allowance-pool',
+        name: 'HrAllowancePools',
+        meta: {
+          icon: 'lucide:layers',
+          title: 'hr.menu.allowancePools',
+          authority: HR_POOL_ADMIN,
+        },
+        component: () => import('./views/pool/index.vue'),
       },
       {
         path: 'allowance',

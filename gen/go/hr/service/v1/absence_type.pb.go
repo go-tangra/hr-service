@@ -43,6 +43,7 @@ type AbsenceType struct {
 	Metadata             *structpb.Struct       `protobuf:"bytes,11,opt,name=metadata,proto3" json:"metadata,omitempty"`
 	RequiresSigning      *bool                  `protobuf:"varint,12,opt,name=requires_signing,json=requiresSigning,proto3,oneof" json:"requires_signing,omitempty"`
 	SigningTemplateId    *string                `protobuf:"bytes,13,opt,name=signing_template_id,json=signingTemplateId,proto3,oneof" json:"signing_template_id,omitempty"`
+	AllowancePoolId      *string                `protobuf:"bytes,14,opt,name=allowance_pool_id,json=allowancePoolId,proto3,oneof" json:"allowance_pool_id,omitempty"`
 	CreatedAt            *timestamppb.Timestamp `protobuf:"bytes,20,opt,name=created_at,json=createdAt,proto3,oneof" json:"created_at,omitempty"`
 	UpdatedAt            *timestamppb.Timestamp `protobuf:"bytes,21,opt,name=updated_at,json=updatedAt,proto3,oneof" json:"updated_at,omitempty"`
 	CreatedBy            *uint32                `protobuf:"varint,22,opt,name=created_by,json=createdBy,proto3,oneof" json:"created_by,omitempty"`
@@ -172,6 +173,13 @@ func (x *AbsenceType) GetSigningTemplateId() string {
 	return ""
 }
 
+func (x *AbsenceType) GetAllowancePoolId() string {
+	if x != nil && x.AllowancePoolId != nil {
+		return *x.AllowancePoolId
+	}
+	return ""
+}
+
 func (x *AbsenceType) GetCreatedAt() *timestamppb.Timestamp {
 	if x != nil {
 		return x.CreatedAt
@@ -214,6 +222,7 @@ type CreateAbsenceTypeRequest struct {
 	Metadata             *structpb.Struct       `protobuf:"bytes,10,opt,name=metadata,proto3" json:"metadata,omitempty"`
 	RequiresSigning      *bool                  `protobuf:"varint,11,opt,name=requires_signing,json=requiresSigning,proto3,oneof" json:"requires_signing,omitempty"`
 	SigningTemplateId    *string                `protobuf:"bytes,12,opt,name=signing_template_id,json=signingTemplateId,proto3,oneof" json:"signing_template_id,omitempty"`
+	AllowancePoolId      *string                `protobuf:"bytes,13,opt,name=allowance_pool_id,json=allowancePoolId,proto3,oneof" json:"allowance_pool_id,omitempty"`
 	unknownFields        protoimpl.UnknownFields
 	sizeCache            protoimpl.SizeCache
 }
@@ -328,6 +337,13 @@ func (x *CreateAbsenceTypeRequest) GetRequiresSigning() bool {
 func (x *CreateAbsenceTypeRequest) GetSigningTemplateId() string {
 	if x != nil && x.SigningTemplateId != nil {
 		return *x.SigningTemplateId
+	}
+	return ""
+}
+
+func (x *CreateAbsenceTypeRequest) GetAllowancePoolId() string {
+	if x != nil && x.AllowancePoolId != nil {
+		return *x.AllowancePoolId
 	}
 	return ""
 }
@@ -744,7 +760,7 @@ var File_hr_service_v1_absence_type_proto protoreflect.FileDescriptor
 
 const file_hr_service_v1_absence_type_proto_rawDesc = "" +
 	"\n" +
-	" hr/service/v1/absence_type.proto\x12\rhr.service.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a\x1cgoogle/protobuf/struct.proto\"\xc5\a\n" +
+	" hr/service/v1/absence_type.proto\x12\rhr.service.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a\x1cgoogle/protobuf/struct.proto\"\x8c\b\n" +
 	"\vAbsenceType\x12\x13\n" +
 	"\x02id\x18\x01 \x01(\tH\x00R\x02id\x88\x01\x01\x12 \n" +
 	"\ttenant_id\x18\x02 \x01(\rH\x01R\btenantId\x88\x01\x01\x12\x17\n" +
@@ -761,15 +777,16 @@ const file_hr_service_v1_absence_type_proto_rawDesc = "" +
 	"\bmetadata\x18\v \x01(\v2\x17.google.protobuf.StructR\bmetadata\x12.\n" +
 	"\x10requires_signing\x18\f \x01(\bH\n" +
 	"R\x0frequiresSigning\x88\x01\x01\x123\n" +
-	"\x13signing_template_id\x18\r \x01(\tH\vR\x11signingTemplateId\x88\x01\x01\x12>\n" +
+	"\x13signing_template_id\x18\r \x01(\tH\vR\x11signingTemplateId\x88\x01\x01\x12/\n" +
+	"\x11allowance_pool_id\x18\x0e \x01(\tH\fR\x0fallowancePoolId\x88\x01\x01\x12>\n" +
 	"\n" +
-	"created_at\x18\x14 \x01(\v2\x1a.google.protobuf.TimestampH\fR\tcreatedAt\x88\x01\x01\x12>\n" +
+	"created_at\x18\x14 \x01(\v2\x1a.google.protobuf.TimestampH\rR\tcreatedAt\x88\x01\x01\x12>\n" +
 	"\n" +
-	"updated_at\x18\x15 \x01(\v2\x1a.google.protobuf.TimestampH\rR\tupdatedAt\x88\x01\x01\x12\"\n" +
+	"updated_at\x18\x15 \x01(\v2\x1a.google.protobuf.TimestampH\x0eR\tupdatedAt\x88\x01\x01\x12\"\n" +
 	"\n" +
-	"created_by\x18\x16 \x01(\rH\x0eR\tcreatedBy\x88\x01\x01\x12\"\n" +
+	"created_by\x18\x16 \x01(\rH\x0fR\tcreatedBy\x88\x01\x01\x12\"\n" +
 	"\n" +
-	"updated_by\x18\x17 \x01(\rH\x0fR\tupdatedBy\x88\x01\x01B\x05\n" +
+	"updated_by\x18\x17 \x01(\rH\x10R\tupdatedBy\x88\x01\x01B\x05\n" +
 	"\x03_idB\f\n" +
 	"\n" +
 	"_tenant_idB\a\n" +
@@ -783,11 +800,12 @@ const file_hr_service_v1_absence_type_proto_rawDesc = "" +
 	"_is_activeB\r\n" +
 	"\v_sort_orderB\x13\n" +
 	"\x11_requires_signingB\x16\n" +
-	"\x14_signing_template_idB\r\n" +
+	"\x14_signing_template_idB\x14\n" +
+	"\x12_allowance_pool_idB\r\n" +
 	"\v_created_atB\r\n" +
 	"\v_updated_atB\r\n" +
 	"\v_created_byB\r\n" +
-	"\v_updated_by\"\xc6\x05\n" +
+	"\v_updated_by\"\x8d\x06\n" +
 	"\x18CreateAbsenceTypeRequest\x12%\n" +
 	"\ttenant_id\x18\x01 \x01(\rB\x03\xe0A\x02H\x00R\btenantId\x88\x01\x01\x12&\n" +
 	"\x04name\x18\x02 \x01(\tB\r\xe0A\x02\xbaH\ar\x05\x10\x01\x18\xff\x01H\x01R\x04name\x88\x01\x01\x12%\n" +
@@ -803,7 +821,8 @@ const file_hr_service_v1_absence_type_proto_rawDesc = "" +
 	" \x01(\v2\x17.google.protobuf.StructR\bmetadata\x12.\n" +
 	"\x10requires_signing\x18\v \x01(\bH\tR\x0frequiresSigning\x88\x01\x01\x123\n" +
 	"\x13signing_template_id\x18\f \x01(\tH\n" +
-	"R\x11signingTemplateId\x88\x01\x01B\f\n" +
+	"R\x11signingTemplateId\x88\x01\x01\x12/\n" +
+	"\x11allowance_pool_id\x18\r \x01(\tH\vR\x0fallowancePoolId\x88\x01\x01B\f\n" +
 	"\n" +
 	"_tenant_idB\a\n" +
 	"\x05_nameB\x0e\n" +
@@ -816,7 +835,8 @@ const file_hr_service_v1_absence_type_proto_rawDesc = "" +
 	"_is_activeB\r\n" +
 	"\v_sort_orderB\x13\n" +
 	"\x11_requires_signingB\x16\n" +
-	"\x14_signing_template_id\"Z\n" +
+	"\x14_signing_template_idB\x14\n" +
+	"\x12_allowance_pool_id\"Z\n" +
 	"\x19CreateAbsenceTypeResponse\x12=\n" +
 	"\fabsence_type\x18\x01 \x01(\v2\x1a.hr.service.v1.AbsenceTypeR\vabsenceType\"3\n" +
 	"\x15GetAbsenceTypeRequest\x12\x1a\n" +

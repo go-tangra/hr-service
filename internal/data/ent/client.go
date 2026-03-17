@@ -16,6 +16,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/go-tangra/go-tangra-hr/internal/data/ent/absencetype"
+	"github.com/go-tangra/go-tangra-hr/internal/data/ent/allowancepool"
 	"github.com/go-tangra/go-tangra-hr/internal/data/ent/auditlog"
 	"github.com/go-tangra/go-tangra-hr/internal/data/ent/leaveallowance"
 	"github.com/go-tangra/go-tangra-hr/internal/data/ent/leaverequest"
@@ -28,6 +29,8 @@ type Client struct {
 	Schema *migrate.Schema
 	// AbsenceType is the client for interacting with the AbsenceType builders.
 	AbsenceType *AbsenceTypeClient
+	// AllowancePool is the client for interacting with the AllowancePool builders.
+	AllowancePool *AllowancePoolClient
 	// AuditLog is the client for interacting with the AuditLog builders.
 	AuditLog *AuditLogClient
 	// LeaveAllowance is the client for interacting with the LeaveAllowance builders.
@@ -46,6 +49,7 @@ func NewClient(opts ...Option) *Client {
 func (c *Client) init() {
 	c.Schema = migrate.NewSchema(c.driver)
 	c.AbsenceType = NewAbsenceTypeClient(c.config)
+	c.AllowancePool = NewAllowancePoolClient(c.config)
 	c.AuditLog = NewAuditLogClient(c.config)
 	c.LeaveAllowance = NewLeaveAllowanceClient(c.config)
 	c.LeaveRequest = NewLeaveRequestClient(c.config)
@@ -142,6 +146,7 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		ctx:            ctx,
 		config:         cfg,
 		AbsenceType:    NewAbsenceTypeClient(cfg),
+		AllowancePool:  NewAllowancePoolClient(cfg),
 		AuditLog:       NewAuditLogClient(cfg),
 		LeaveAllowance: NewLeaveAllowanceClient(cfg),
 		LeaveRequest:   NewLeaveRequestClient(cfg),
@@ -165,6 +170,7 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		ctx:            ctx,
 		config:         cfg,
 		AbsenceType:    NewAbsenceTypeClient(cfg),
+		AllowancePool:  NewAllowancePoolClient(cfg),
 		AuditLog:       NewAuditLogClient(cfg),
 		LeaveAllowance: NewLeaveAllowanceClient(cfg),
 		LeaveRequest:   NewLeaveRequestClient(cfg),
@@ -197,6 +203,7 @@ func (c *Client) Close() error {
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
 	c.AbsenceType.Use(hooks...)
+	c.AllowancePool.Use(hooks...)
 	c.AuditLog.Use(hooks...)
 	c.LeaveAllowance.Use(hooks...)
 	c.LeaveRequest.Use(hooks...)
@@ -206,6 +213,7 @@ func (c *Client) Use(hooks ...Hook) {
 // In order to add interceptors to a specific client, call: `client.Node.Intercept(...)`.
 func (c *Client) Intercept(interceptors ...Interceptor) {
 	c.AbsenceType.Intercept(interceptors...)
+	c.AllowancePool.Intercept(interceptors...)
 	c.AuditLog.Intercept(interceptors...)
 	c.LeaveAllowance.Intercept(interceptors...)
 	c.LeaveRequest.Intercept(interceptors...)
@@ -216,6 +224,8 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 	switch m := m.(type) {
 	case *AbsenceTypeMutation:
 		return c.AbsenceType.mutate(ctx, m)
+	case *AllowancePoolMutation:
+		return c.AllowancePool.mutate(ctx, m)
 	case *AuditLogMutation:
 		return c.AuditLog.mutate(ctx, m)
 	case *LeaveAllowanceMutation:
@@ -367,6 +377,22 @@ func (c *AbsenceTypeClient) QueryLeaveRequests(_m *AbsenceType) *LeaveRequestQue
 	return query
 }
 
+// QueryAllowancePool queries the allowance_pool edge of a AbsenceType.
+func (c *AbsenceTypeClient) QueryAllowancePool(_m *AbsenceType) *AllowancePoolQuery {
+	query := (&AllowancePoolClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(absencetype.Table, absencetype.FieldID, id),
+			sqlgraph.To(allowancepool.Table, allowancepool.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, absencetype.AllowancePoolTable, absencetype.AllowancePoolColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // Hooks returns the client hooks.
 func (c *AbsenceTypeClient) Hooks() []Hook {
 	hooks := c.hooks.AbsenceType
@@ -390,6 +416,172 @@ func (c *AbsenceTypeClient) mutate(ctx context.Context, m *AbsenceTypeMutation) 
 		return (&AbsenceTypeDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
 	default:
 		return nil, fmt.Errorf("ent: unknown AbsenceType mutation op: %q", m.Op())
+	}
+}
+
+// AllowancePoolClient is a client for the AllowancePool schema.
+type AllowancePoolClient struct {
+	config
+}
+
+// NewAllowancePoolClient returns a client for the AllowancePool from the given config.
+func NewAllowancePoolClient(c config) *AllowancePoolClient {
+	return &AllowancePoolClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `allowancepool.Hooks(f(g(h())))`.
+func (c *AllowancePoolClient) Use(hooks ...Hook) {
+	c.hooks.AllowancePool = append(c.hooks.AllowancePool, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `allowancepool.Intercept(f(g(h())))`.
+func (c *AllowancePoolClient) Intercept(interceptors ...Interceptor) {
+	c.inters.AllowancePool = append(c.inters.AllowancePool, interceptors...)
+}
+
+// Create returns a builder for creating a AllowancePool entity.
+func (c *AllowancePoolClient) Create() *AllowancePoolCreate {
+	mutation := newAllowancePoolMutation(c.config, OpCreate)
+	return &AllowancePoolCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of AllowancePool entities.
+func (c *AllowancePoolClient) CreateBulk(builders ...*AllowancePoolCreate) *AllowancePoolCreateBulk {
+	return &AllowancePoolCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *AllowancePoolClient) MapCreateBulk(slice any, setFunc func(*AllowancePoolCreate, int)) *AllowancePoolCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &AllowancePoolCreateBulk{err: fmt.Errorf("calling to AllowancePoolClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*AllowancePoolCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &AllowancePoolCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for AllowancePool.
+func (c *AllowancePoolClient) Update() *AllowancePoolUpdate {
+	mutation := newAllowancePoolMutation(c.config, OpUpdate)
+	return &AllowancePoolUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *AllowancePoolClient) UpdateOne(_m *AllowancePool) *AllowancePoolUpdateOne {
+	mutation := newAllowancePoolMutation(c.config, OpUpdateOne, withAllowancePool(_m))
+	return &AllowancePoolUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *AllowancePoolClient) UpdateOneID(id string) *AllowancePoolUpdateOne {
+	mutation := newAllowancePoolMutation(c.config, OpUpdateOne, withAllowancePoolID(id))
+	return &AllowancePoolUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for AllowancePool.
+func (c *AllowancePoolClient) Delete() *AllowancePoolDelete {
+	mutation := newAllowancePoolMutation(c.config, OpDelete)
+	return &AllowancePoolDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *AllowancePoolClient) DeleteOne(_m *AllowancePool) *AllowancePoolDeleteOne {
+	return c.DeleteOneID(_m.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *AllowancePoolClient) DeleteOneID(id string) *AllowancePoolDeleteOne {
+	builder := c.Delete().Where(allowancepool.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &AllowancePoolDeleteOne{builder}
+}
+
+// Query returns a query builder for AllowancePool.
+func (c *AllowancePoolClient) Query() *AllowancePoolQuery {
+	return &AllowancePoolQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeAllowancePool},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a AllowancePool entity by its id.
+func (c *AllowancePoolClient) Get(ctx context.Context, id string) (*AllowancePool, error) {
+	return c.Query().Where(allowancepool.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *AllowancePoolClient) GetX(ctx context.Context, id string) *AllowancePool {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryAbsenceTypes queries the absence_types edge of a AllowancePool.
+func (c *AllowancePoolClient) QueryAbsenceTypes(_m *AllowancePool) *AbsenceTypeQuery {
+	query := (&AbsenceTypeClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(allowancepool.Table, allowancepool.FieldID, id),
+			sqlgraph.To(absencetype.Table, absencetype.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, allowancepool.AbsenceTypesTable, allowancepool.AbsenceTypesColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryLeaveAllowances queries the leave_allowances edge of a AllowancePool.
+func (c *AllowancePoolClient) QueryLeaveAllowances(_m *AllowancePool) *LeaveAllowanceQuery {
+	query := (&LeaveAllowanceClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(allowancepool.Table, allowancepool.FieldID, id),
+			sqlgraph.To(leaveallowance.Table, leaveallowance.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, allowancepool.LeaveAllowancesTable, allowancepool.LeaveAllowancesColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *AllowancePoolClient) Hooks() []Hook {
+	hooks := c.hooks.AllowancePool
+	return append(hooks[:len(hooks):len(hooks)], allowancepool.Hooks[:]...)
+}
+
+// Interceptors returns the client interceptors.
+func (c *AllowancePoolClient) Interceptors() []Interceptor {
+	return c.inters.AllowancePool
+}
+
+func (c *AllowancePoolClient) mutate(ctx context.Context, m *AllowancePoolMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&AllowancePoolCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&AllowancePoolUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&AllowancePoolUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&AllowancePoolDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown AllowancePool mutation op: %q", m.Op())
 	}
 }
 
@@ -651,6 +843,22 @@ func (c *LeaveAllowanceClient) QueryAbsenceType(_m *LeaveAllowance) *AbsenceType
 	return query
 }
 
+// QueryAllowancePool queries the allowance_pool edge of a LeaveAllowance.
+func (c *LeaveAllowanceClient) QueryAllowancePool(_m *LeaveAllowance) *AllowancePoolQuery {
+	query := (&AllowancePoolClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(leaveallowance.Table, leaveallowance.FieldID, id),
+			sqlgraph.To(allowancepool.Table, allowancepool.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, leaveallowance.AllowancePoolTable, leaveallowance.AllowancePoolColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // Hooks returns the client hooks.
 func (c *LeaveAllowanceClient) Hooks() []Hook {
 	hooks := c.hooks.LeaveAllowance
@@ -830,9 +1038,10 @@ func (c *LeaveRequestClient) mutate(ctx context.Context, m *LeaveRequestMutation
 // hooks and interceptors per client, for fast access.
 type (
 	hooks struct {
-		AbsenceType, AuditLog, LeaveAllowance, LeaveRequest []ent.Hook
+		AbsenceType, AllowancePool, AuditLog, LeaveAllowance, LeaveRequest []ent.Hook
 	}
 	inters struct {
-		AbsenceType, AuditLog, LeaveAllowance, LeaveRequest []ent.Interceptor
+		AbsenceType, AllowancePool, AuditLog, LeaveAllowance,
+		LeaveRequest []ent.Interceptor
 	}
 )

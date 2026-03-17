@@ -134,6 +134,10 @@ func (m *AbsenceType) validate(all bool) error {
 		// no validation rules for SigningTemplateId
 	}
 
+	if m.AllowancePoolId != nil {
+		// no validation rules for AllowancePoolId
+	}
+
 	if m.CreatedAt != nil {
 
 		if all {
@@ -378,6 +382,10 @@ func (m *CreateAbsenceTypeRequest) validate(all bool) error {
 
 	if m.SigningTemplateId != nil {
 		// no validation rules for SigningTemplateId
+	}
+
+	if m.AllowancePoolId != nil {
+		// no validation rules for AllowancePoolId
 	}
 
 	if len(errors) > 0 {

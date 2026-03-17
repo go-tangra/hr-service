@@ -123,6 +123,20 @@ func ErrorAllowanceNotFound(format string, args ...interface{}) *errors.Error {
 	return errors.New(404, HrErrorReason_ALLOWANCE_NOT_FOUND.String(), fmt.Sprintf(format, args...))
 }
 
+// Allowance pool not found
+func IsAllowancePoolNotFound(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == HrErrorReason_ALLOWANCE_POOL_NOT_FOUND.String() && e.Code == 404
+}
+
+// Allowance pool not found
+func ErrorAllowancePoolNotFound(format string, args ...interface{}) *errors.Error {
+	return errors.New(404, HrErrorReason_ALLOWANCE_POOL_NOT_FOUND.String(), fmt.Sprintf(format, args...))
+}
+
 // 409
 func IsAlreadyExists(err error) bool {
 	if err == nil {
@@ -163,6 +177,20 @@ func IsAbsenceTypeInUse(err error) bool {
 // Absence type is in use
 func ErrorAbsenceTypeInUse(format string, args ...interface{}) *errors.Error {
 	return errors.New(409, HrErrorReason_ABSENCE_TYPE_IN_USE.String(), fmt.Sprintf(format, args...))
+}
+
+// Allowance pool is in use
+func IsAllowancePoolInUse(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == HrErrorReason_ALLOWANCE_POOL_IN_USE.String() && e.Code == 409
+}
+
+// Allowance pool is in use
+func ErrorAllowancePoolInUse(format string, args ...interface{}) *errors.Error {
+	return errors.New(409, HrErrorReason_ALLOWANCE_POOL_IN_USE.String(), fmt.Sprintf(format, args...))
 }
 
 // 500

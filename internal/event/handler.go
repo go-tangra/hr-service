@@ -60,9 +60,16 @@ func (h *Handler) HandleSigningCompleted(ctx context.Context, data *SigningReque
 		if leaveReq.TenantID != nil {
 			tid = *leaveReq.TenantID
 		}
-		if _, err := h.allowanceRepo.DeductWithBalanceCheck(ctx, tid, leaveReq.UserID, leaveReq.AbsenceTypeID, leaveReq.StartDate.Year(), leaveReq.Days); err != nil {
-			h.log.Errorf("Failed to deduct allowance for leave %s after signing: %v", leaveReq.ID, err)
-			return err
+
+		var deductErr error
+		if leaveReq.Edges.AbsenceType.AllowancePoolID != "" {
+			_, deductErr = h.allowanceRepo.DeductPoolWithBalanceCheck(ctx, tid, leaveReq.UserID, leaveReq.Edges.AbsenceType.AllowancePoolID, leaveReq.StartDate.Year(), leaveReq.Days)
+		} else {
+			_, deductErr = h.allowanceRepo.DeductWithBalanceCheck(ctx, tid, leaveReq.UserID, leaveReq.AbsenceTypeID, leaveReq.StartDate.Year(), leaveReq.Days)
+		}
+		if deductErr != nil {
+			h.log.Errorf("Failed to deduct allowance for leave %s after signing: %v", leaveReq.ID, deductErr)
+			return deductErr
 		}
 	}
 

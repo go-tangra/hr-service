@@ -6,6 +6,7 @@ import (
 	"context"
 
 	"github.com/go-tangra/go-tangra-hr/internal/data/ent/absencetype"
+	"github.com/go-tangra/go-tangra-hr/internal/data/ent/allowancepool"
 	"github.com/go-tangra/go-tangra-hr/internal/data/ent/auditlog"
 	"github.com/go-tangra/go-tangra-hr/internal/data/ent/leaveallowance"
 	"github.com/go-tangra/go-tangra-hr/internal/data/ent/leaverequest"
@@ -87,6 +88,54 @@ func init() {
 	absencetypeDescID := absencetypeFields[0].Descriptor()
 	// absencetype.IDValidator is a validator for the "id" field. It is called by the builders before save.
 	absencetype.IDValidator = absencetypeDescID.Validators[0].(func(string) error)
+	allowancepoolMixin := schema.AllowancePool{}.Mixin()
+	allowancepool.Policy = privacy.NewPolicies(allowancepoolMixin[3], schema.AllowancePool{})
+	allowancepool.Hooks[0] = func(next ent.Mutator) ent.Mutator {
+		return ent.MutateFunc(func(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+			if err := allowancepool.Policy.EvalMutation(ctx, m); err != nil {
+				return nil, err
+			}
+			return next.Mutate(ctx, m)
+		})
+	}
+	allowancepoolMixinFields3 := allowancepoolMixin[3].Fields()
+	_ = allowancepoolMixinFields3
+	allowancepoolFields := schema.AllowancePool{}.Fields()
+	_ = allowancepoolFields
+	// allowancepoolDescTenantID is the schema descriptor for tenant_id field.
+	allowancepoolDescTenantID := allowancepoolMixinFields3[0].Descriptor()
+	// allowancepool.DefaultTenantID holds the default value on creation for the tenant_id field.
+	allowancepool.DefaultTenantID = allowancepoolDescTenantID.Default.(uint32)
+	// allowancepoolDescName is the schema descriptor for name field.
+	allowancepoolDescName := allowancepoolFields[1].Descriptor()
+	// allowancepool.NameValidator is a validator for the "name" field. It is called by the builders before save.
+	allowancepool.NameValidator = func() func(string) error {
+		validators := allowancepoolDescName.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(name string) error {
+			for _, fn := range fns {
+				if err := fn(name); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// allowancepoolDescColor is the schema descriptor for color field.
+	allowancepoolDescColor := allowancepoolFields[3].Descriptor()
+	// allowancepool.ColorValidator is a validator for the "color" field. It is called by the builders before save.
+	allowancepool.ColorValidator = allowancepoolDescColor.Validators[0].(func(string) error)
+	// allowancepoolDescIcon is the schema descriptor for icon field.
+	allowancepoolDescIcon := allowancepoolFields[4].Descriptor()
+	// allowancepool.IconValidator is a validator for the "icon" field. It is called by the builders before save.
+	allowancepool.IconValidator = allowancepoolDescIcon.Validators[0].(func(string) error)
+	// allowancepoolDescID is the schema descriptor for id field.
+	allowancepoolDescID := allowancepoolFields[0].Descriptor()
+	// allowancepool.IDValidator is a validator for the "id" field. It is called by the builders before save.
+	allowancepool.IDValidator = allowancepoolDescID.Validators[0].(func(string) error)
 	auditlogMixin := schema.AuditLog{}.Mixin()
 	auditlog.Policy = privacy.NewPolicies(auditlogMixin[2], schema.AuditLog{})
 	auditlog.Hooks[0] = func(next ent.Mutator) ent.Mutator {
@@ -157,20 +206,16 @@ func init() {
 	leaveallowanceDescUserName := leaveallowanceFields[2].Descriptor()
 	// leaveallowance.DefaultUserName holds the default value on creation for the user_name field.
 	leaveallowance.DefaultUserName = leaveallowanceDescUserName.Default.(string)
-	// leaveallowanceDescAbsenceTypeID is the schema descriptor for absence_type_id field.
-	leaveallowanceDescAbsenceTypeID := leaveallowanceFields[3].Descriptor()
-	// leaveallowance.AbsenceTypeIDValidator is a validator for the "absence_type_id" field. It is called by the builders before save.
-	leaveallowance.AbsenceTypeIDValidator = leaveallowanceDescAbsenceTypeID.Validators[0].(func(string) error)
 	// leaveallowanceDescYear is the schema descriptor for year field.
-	leaveallowanceDescYear := leaveallowanceFields[4].Descriptor()
+	leaveallowanceDescYear := leaveallowanceFields[5].Descriptor()
 	// leaveallowance.YearValidator is a validator for the "year" field. It is called by the builders before save.
 	leaveallowance.YearValidator = leaveallowanceDescYear.Validators[0].(func(int) error)
 	// leaveallowanceDescUsedDays is the schema descriptor for used_days field.
-	leaveallowanceDescUsedDays := leaveallowanceFields[6].Descriptor()
+	leaveallowanceDescUsedDays := leaveallowanceFields[7].Descriptor()
 	// leaveallowance.DefaultUsedDays holds the default value on creation for the used_days field.
 	leaveallowance.DefaultUsedDays = leaveallowanceDescUsedDays.Default.(float64)
 	// leaveallowanceDescCarriedOver is the schema descriptor for carried_over field.
-	leaveallowanceDescCarriedOver := leaveallowanceFields[7].Descriptor()
+	leaveallowanceDescCarriedOver := leaveallowanceFields[8].Descriptor()
 	// leaveallowance.DefaultCarriedOver holds the default value on creation for the carried_over field.
 	leaveallowance.DefaultCarriedOver = leaveallowanceDescCarriedOver.Default.(float64)
 	// leaveallowanceDescID is the schema descriptor for id field.

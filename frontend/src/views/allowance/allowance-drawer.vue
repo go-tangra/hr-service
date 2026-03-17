@@ -14,15 +14,19 @@ import {
   SelectOption,
   Descriptions,
   DescriptionsItem,
+  RadioGroup,
+  RadioButton,
 } from 'ant-design-vue';
 
-import { userService, type LeaveAllowance, type AbsenceType, type HrUser } from '../../api/client';
+import { userService, type LeaveAllowance, type AbsenceType, type AllowancePool, type HrUser } from '../../api/client';
 import { $t } from 'shell/locales';
 import { useHrAllowanceStore } from '../../stores/hr-allowance.state';
 import { useHrAbsenceTypeStore } from '../../stores/hr-absence-type.state';
+import { useHrAllowancePoolStore } from '../../stores/hr-allowance-pool.state';
 
 const allowanceStore = useHrAllowanceStore();
 const absenceTypeStore = useHrAbsenceTypeStore();
+const poolStore = useHrAllowancePoolStore();
 
 const data = ref<{
   mode: 'create' | 'edit' | 'view';
@@ -30,11 +34,14 @@ const data = ref<{
 }>();
 const loading = ref(false);
 const absenceTypes = ref<AbsenceType[]>([]);
+const pools = ref<AllowancePool[]>([]);
 const users = ref<HrUser[]>([]);
 
 const formState = ref({
   userId: undefined as number | undefined,
+  assignmentType: 'type' as 'type' | 'pool',
   absenceTypeId: '',
+  allowancePoolId: '',
   year: new Date().getFullYear(),
   totalDays: 0,
   carriedOver: 0,
@@ -67,12 +74,14 @@ function getUserDisplayName(user: HrUser): string {
 
 async function loadOptions() {
   try {
-    const [typesResp, usersResp] = await Promise.all([
+    const [typesResp, usersResp, poolsResp] = await Promise.all([
       absenceTypeStore.listAbsenceTypes(undefined, null),
       userService.ListUsers({ noPaging: true }),
+      poolStore.listAllowancePools(undefined, null),
     ]);
     absenceTypes.value = (typesResp as { items: AbsenceType[] }).items || [];
     users.value = usersResp.items || [];
+    pools.value = poolsResp.items || [];
   } catch {
     // silently fail
   }
@@ -85,15 +94,20 @@ async function handleSubmit() {
       const selectedUser = users.value.find(
         (u) => u.id === formState.value.userId,
       );
-      await allowanceStore.createAllowance({
+      const createData: any = {
         userId: formState.value.userId,
         userName: selectedUser ? getUserDisplayName(selectedUser) : undefined,
-        absenceTypeId: formState.value.absenceTypeId,
         year: formState.value.year,
         totalDays: formState.value.totalDays,
         carriedOver: formState.value.carriedOver,
         notes: formState.value.notes || undefined,
-      });
+      };
+      if (formState.value.assignmentType === 'pool') {
+        createData.allowancePoolId = formState.value.allowancePoolId;
+      } else {
+        createData.absenceTypeId = formState.value.absenceTypeId;
+      }
+      await allowanceStore.createAllowance(createData);
       notification.success({
         message: $t('hr.page.allowance.createSuccess'),
       });
@@ -126,7 +140,9 @@ async function handleSubmit() {
 function resetForm() {
   formState.value = {
     userId: undefined,
+    assignmentType: 'type',
     absenceTypeId: '',
+    allowancePoolId: '',
     year: new Date().getFullYear(),
     totalDays: 0,
     carriedOver: 0,
@@ -158,7 +174,9 @@ const [Modal, modalApi] = useVbenModal({
       } else if (data.value?.row) {
         formState.value = {
           userId: data.value.row.userId,
+          assignmentType: data.value.row.allowancePoolId ? 'pool' : 'type',
           absenceTypeId: data.value.row.absenceTypeId ?? '',
+          allowancePoolId: data.value.row.allowancePoolId ?? '',
           year: data.value.row.year ?? new Date().getFullYear(),
           totalDays: data.value.row.totalDays ?? 0,
           carriedOver: data.value.row.carriedOver ?? 0,
@@ -182,6 +200,9 @@ const allowance = computed(() => data.value?.row);
         </DescriptionsItem>
         <DescriptionsItem :label="$t('hr.page.allowance.absenceTypeId')">
           {{ allowance.absenceTypeName || '-' }}
+        </DescriptionsItem>
+        <DescriptionsItem v-if="allowance.allowancePoolId" :label="$t('hr.page.allowance.poolName')">
+          {{ allowance.allowancePoolName || allowance.allowancePoolId }}
         </DescriptionsItem>
         <DescriptionsItem :label="$t('hr.page.allowance.year')">
           {{ allowance.year ?? '-' }}
@@ -238,10 +259,21 @@ const allowance = computed(() => data.value?.row);
         </FormItem>
 
         <FormItem
-          v-if="isCreateMode"
+          v-if="isCreateMode && pools.length > 0"
+          :label="$t('hr.page.allowance.assignmentType')"
+          name="assignmentType"
+        >
+          <RadioGroup v-model:value="formState.assignmentType" button-style="solid" size="small">
+            <RadioButton value="type">{{ $t('hr.page.allowance.assignAbsenceType') }}</RadioButton>
+            <RadioButton value="pool">{{ $t('hr.page.allowance.assignPool') }}</RadioButton>
+          </RadioGroup>
+        </FormItem>
+
+        <FormItem
+          v-if="isCreateMode && formState.assignmentType === 'type'"
           :label="$t('hr.page.allowance.absenceTypeId')"
           name="absenceTypeId"
-          :rules="[{ required: true, message: $t('ui.formRules.required') }]"
+          :rules="[{ required: formState.assignmentType === 'type', message: $t('ui.formRules.required') }]"
         >
           <Select
             v-model:value="formState.absenceTypeId"
@@ -258,6 +290,31 @@ const allowance = computed(() => data.value?.row);
                 :style="{ backgroundColor: at.color }"
               />
               {{ at.name }}
+            </SelectOption>
+          </Select>
+        </FormItem>
+
+        <FormItem
+          v-if="isCreateMode && formState.assignmentType === 'pool'"
+          :label="$t('hr.page.allowance.poolName')"
+          name="allowancePoolId"
+          :rules="[{ required: formState.assignmentType === 'pool', message: $t('ui.formRules.required') }]"
+        >
+          <Select
+            v-model:value="formState.allowancePoolId"
+            :placeholder="$t('ui.placeholder.select')"
+          >
+            <SelectOption
+              v-for="pool in pools"
+              :key="pool.id"
+              :value="pool.id"
+            >
+              <span
+                v-if="pool.color"
+                class="mr-1 inline-block h-3 w-3 rounded-full"
+                :style="{ backgroundColor: pool.color }"
+              />
+              {{ pool.name }}
             </SelectOption>
           </Select>
         </FormItem>

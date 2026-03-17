@@ -138,9 +138,13 @@ func (x *LeaveAllowance) Redact() string {
 
 	// Safe field: Notes
 
+	// Safe field: AllowancePoolId
+
 	// Safe field: AbsenceTypeName
 
 	// Safe field: UserName
+
+	// Safe field: AllowancePoolName
 
 	// Safe field: CreatedAt
 
@@ -163,6 +167,8 @@ func (x *CreateAllowanceRequest) Redact() string {
 	// Safe field: UserId
 
 	// Safe field: AbsenceTypeId
+
+	// Safe field: AllowancePoolId
 
 	// Safe field: Year
 
@@ -293,6 +299,12 @@ func (x *BalanceEntry) Redact() string {
 	// Safe field: CarriedOver
 
 	// Safe field: RemainingDays
+
+	// Safe field: AllowancePoolId
+
+	// Safe field: AllowancePoolName
+
+	// Safe field: MemberAbsenceTypeIds
 	return x.String()
 }
 

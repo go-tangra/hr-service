@@ -51,8 +51,14 @@ async function loadUserBalance(userId: number) {
 
 const selectedTypeBalance = computed(() => {
   if (!formState.value.absenceTypeId) return null;
-  return balanceEntries.value.find(
+  // First check for a direct match (individual allowance)
+  const direct = balanceEntries.value.find(
     (e) => e.absenceTypeId === formState.value.absenceTypeId,
+  );
+  if (direct) return direct;
+  // Then check for a pool-based entry where this type is a member
+  return balanceEntries.value.find(
+    (e) => e.memberAbsenceTypeIds?.includes(formState.value.absenceTypeId),
   ) || null;
 });
 
@@ -338,6 +344,9 @@ const request = computed(() => data.value?.row);
         >
           <div class="text-muted-foreground mb-1 text-xs font-medium">
             {{ $t('hr.page.request.remainingBalance') }}
+            <span v-if="selectedTypeBalance.allowancePoolName" class="ml-1 opacity-70">
+              ({{ selectedTypeBalance.allowancePoolName }})
+            </span>
           </div>
           <div class="text-foreground flex items-center gap-4 text-sm">
             <span>{{ $t('hr.page.allowance.totalDays') }}: <b>{{ selectedTypeBalance.totalDays }}</b></span>

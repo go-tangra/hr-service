@@ -10,6 +10,7 @@ import { useAccessStore } from 'shell/vben/stores';
 import {
   createHrAbsenceTypeServiceClient,
   createHrAllowanceServiceClient,
+  createHrAllowancePoolServiceClient,
   createHrLeaveServiceClient,
   createHrSystemServiceClient,
   createHrUserServiceClient,
@@ -53,6 +54,7 @@ async function handler(req: RequestType): Promise<unknown> {
 // Generated typed service clients
 export const absenceTypeService = createHrAbsenceTypeServiceClient(handler);
 export const allowanceService = createHrAllowanceServiceClient(handler);
+export const allowancePoolService = createHrAllowancePoolServiceClient(handler);
 export const leaveService = createHrLeaveServiceClient(handler);
 export const systemService = createHrSystemServiceClient(handler);
 export const userService = createHrUserServiceClient(handler);
@@ -65,10 +67,12 @@ export type {
   LeaveRequestStatus,
   CalendarEvent,
   BalanceEntry,
+  AllowancePool,
   HrUser,
   ListAbsenceTypesResponse,
   ListLeaveRequestsResponse,
   ListAllowancesResponse,
+  ListAllowancePoolsResponse,
   GetCalendarEventsResponse,
   GetUserBalanceResponse,
   GetStatsResponse,

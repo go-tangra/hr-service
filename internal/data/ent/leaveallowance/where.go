@@ -110,6 +110,11 @@ func AbsenceTypeID(v string) predicate.LeaveAllowance {
 	return predicate.LeaveAllowance(sql.FieldEQ(FieldAbsenceTypeID, v))
 }
 
+// AllowancePoolID applies equality check predicate on the "allowance_pool_id" field. It's identical to AllowancePoolIDEQ.
+func AllowancePoolID(v string) predicate.LeaveAllowance {
+	return predicate.LeaveAllowance(sql.FieldEQ(FieldAllowancePoolID, v))
+}
+
 // Year applies equality check predicate on the "year" field. It's identical to YearEQ.
 func Year(v int) predicate.LeaveAllowance {
 	return predicate.LeaveAllowance(sql.FieldEQ(FieldYear, v))
@@ -605,6 +610,16 @@ func AbsenceTypeIDHasSuffix(v string) predicate.LeaveAllowance {
 	return predicate.LeaveAllowance(sql.FieldHasSuffix(FieldAbsenceTypeID, v))
 }
 
+// AbsenceTypeIDIsNil applies the IsNil predicate on the "absence_type_id" field.
+func AbsenceTypeIDIsNil() predicate.LeaveAllowance {
+	return predicate.LeaveAllowance(sql.FieldIsNull(FieldAbsenceTypeID))
+}
+
+// AbsenceTypeIDNotNil applies the NotNil predicate on the "absence_type_id" field.
+func AbsenceTypeIDNotNil() predicate.LeaveAllowance {
+	return predicate.LeaveAllowance(sql.FieldNotNull(FieldAbsenceTypeID))
+}
+
 // AbsenceTypeIDEqualFold applies the EqualFold predicate on the "absence_type_id" field.
 func AbsenceTypeIDEqualFold(v string) predicate.LeaveAllowance {
 	return predicate.LeaveAllowance(sql.FieldEqualFold(FieldAbsenceTypeID, v))
@@ -613,6 +628,81 @@ func AbsenceTypeIDEqualFold(v string) predicate.LeaveAllowance {
 // AbsenceTypeIDContainsFold applies the ContainsFold predicate on the "absence_type_id" field.
 func AbsenceTypeIDContainsFold(v string) predicate.LeaveAllowance {
 	return predicate.LeaveAllowance(sql.FieldContainsFold(FieldAbsenceTypeID, v))
+}
+
+// AllowancePoolIDEQ applies the EQ predicate on the "allowance_pool_id" field.
+func AllowancePoolIDEQ(v string) predicate.LeaveAllowance {
+	return predicate.LeaveAllowance(sql.FieldEQ(FieldAllowancePoolID, v))
+}
+
+// AllowancePoolIDNEQ applies the NEQ predicate on the "allowance_pool_id" field.
+func AllowancePoolIDNEQ(v string) predicate.LeaveAllowance {
+	return predicate.LeaveAllowance(sql.FieldNEQ(FieldAllowancePoolID, v))
+}
+
+// AllowancePoolIDIn applies the In predicate on the "allowance_pool_id" field.
+func AllowancePoolIDIn(vs ...string) predicate.LeaveAllowance {
+	return predicate.LeaveAllowance(sql.FieldIn(FieldAllowancePoolID, vs...))
+}
+
+// AllowancePoolIDNotIn applies the NotIn predicate on the "allowance_pool_id" field.
+func AllowancePoolIDNotIn(vs ...string) predicate.LeaveAllowance {
+	return predicate.LeaveAllowance(sql.FieldNotIn(FieldAllowancePoolID, vs...))
+}
+
+// AllowancePoolIDGT applies the GT predicate on the "allowance_pool_id" field.
+func AllowancePoolIDGT(v string) predicate.LeaveAllowance {
+	return predicate.LeaveAllowance(sql.FieldGT(FieldAllowancePoolID, v))
+}
+
+// AllowancePoolIDGTE applies the GTE predicate on the "allowance_pool_id" field.
+func AllowancePoolIDGTE(v string) predicate.LeaveAllowance {
+	return predicate.LeaveAllowance(sql.FieldGTE(FieldAllowancePoolID, v))
+}
+
+// AllowancePoolIDLT applies the LT predicate on the "allowance_pool_id" field.
+func AllowancePoolIDLT(v string) predicate.LeaveAllowance {
+	return predicate.LeaveAllowance(sql.FieldLT(FieldAllowancePoolID, v))
+}
+
+// AllowancePoolIDLTE applies the LTE predicate on the "allowance_pool_id" field.
+func AllowancePoolIDLTE(v string) predicate.LeaveAllowance {
+	return predicate.LeaveAllowance(sql.FieldLTE(FieldAllowancePoolID, v))
+}
+
+// AllowancePoolIDContains applies the Contains predicate on the "allowance_pool_id" field.
+func AllowancePoolIDContains(v string) predicate.LeaveAllowance {
+	return predicate.LeaveAllowance(sql.FieldContains(FieldAllowancePoolID, v))
+}
+
+// AllowancePoolIDHasPrefix applies the HasPrefix predicate on the "allowance_pool_id" field.
+func AllowancePoolIDHasPrefix(v string) predicate.LeaveAllowance {
+	return predicate.LeaveAllowance(sql.FieldHasPrefix(FieldAllowancePoolID, v))
+}
+
+// AllowancePoolIDHasSuffix applies the HasSuffix predicate on the "allowance_pool_id" field.
+func AllowancePoolIDHasSuffix(v string) predicate.LeaveAllowance {
+	return predicate.LeaveAllowance(sql.FieldHasSuffix(FieldAllowancePoolID, v))
+}
+
+// AllowancePoolIDIsNil applies the IsNil predicate on the "allowance_pool_id" field.
+func AllowancePoolIDIsNil() predicate.LeaveAllowance {
+	return predicate.LeaveAllowance(sql.FieldIsNull(FieldAllowancePoolID))
+}
+
+// AllowancePoolIDNotNil applies the NotNil predicate on the "allowance_pool_id" field.
+func AllowancePoolIDNotNil() predicate.LeaveAllowance {
+	return predicate.LeaveAllowance(sql.FieldNotNull(FieldAllowancePoolID))
+}
+
+// AllowancePoolIDEqualFold applies the EqualFold predicate on the "allowance_pool_id" field.
+func AllowancePoolIDEqualFold(v string) predicate.LeaveAllowance {
+	return predicate.LeaveAllowance(sql.FieldEqualFold(FieldAllowancePoolID, v))
+}
+
+// AllowancePoolIDContainsFold applies the ContainsFold predicate on the "allowance_pool_id" field.
+func AllowancePoolIDContainsFold(v string) predicate.LeaveAllowance {
+	return predicate.LeaveAllowance(sql.FieldContainsFold(FieldAllowancePoolID, v))
 }
 
 // YearEQ applies the EQ predicate on the "year" field.
@@ -865,6 +955,29 @@ func HasAbsenceType() predicate.LeaveAllowance {
 func HasAbsenceTypeWith(preds ...predicate.AbsenceType) predicate.LeaveAllowance {
 	return predicate.LeaveAllowance(func(s *sql.Selector) {
 		step := newAbsenceTypeStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasAllowancePool applies the HasEdge predicate on the "allowance_pool" edge.
+func HasAllowancePool() predicate.LeaveAllowance {
+	return predicate.LeaveAllowance(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, AllowancePoolTable, AllowancePoolColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasAllowancePoolWith applies the HasEdge predicate on the "allowance_pool" edge with a given conditions (other predicates).
+func HasAllowancePoolWith(preds ...predicate.AllowancePool) predicate.LeaveAllowance {
+	return predicate.LeaveAllowance(func(s *sql.Selector) {
+		step := newAllowancePoolStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

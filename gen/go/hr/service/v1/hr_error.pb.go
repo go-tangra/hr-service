@@ -31,14 +31,16 @@ const (
 	HrErrorReason_INVALID_DATE_RANGE     HrErrorReason = 2 // Invalid date range
 	HrErrorReason_INSUFFICIENT_ALLOWANCE HrErrorReason = 3 // Insufficient leave allowance
 	// 404
-	HrErrorReason_NOT_FOUND               HrErrorReason = 100 // Resource not found
-	HrErrorReason_ABSENCE_TYPE_NOT_FOUND  HrErrorReason = 102 // Absence type not found
-	HrErrorReason_LEAVE_REQUEST_NOT_FOUND HrErrorReason = 103 // Leave request not found
-	HrErrorReason_ALLOWANCE_NOT_FOUND     HrErrorReason = 104 // Leave allowance not found
+	HrErrorReason_NOT_FOUND                HrErrorReason = 100 // Resource not found
+	HrErrorReason_ABSENCE_TYPE_NOT_FOUND   HrErrorReason = 102 // Absence type not found
+	HrErrorReason_LEAVE_REQUEST_NOT_FOUND  HrErrorReason = 103 // Leave request not found
+	HrErrorReason_ALLOWANCE_NOT_FOUND      HrErrorReason = 104 // Leave allowance not found
+	HrErrorReason_ALLOWANCE_POOL_NOT_FOUND HrErrorReason = 105 // Allowance pool not found
 	// 409
-	HrErrorReason_ALREADY_EXISTS      HrErrorReason = 200 // Resource already exists
-	HrErrorReason_OVERLAP_EXISTS      HrErrorReason = 201 // Overlapping leave request exists
-	HrErrorReason_ABSENCE_TYPE_IN_USE HrErrorReason = 203 // Absence type is in use
+	HrErrorReason_ALREADY_EXISTS        HrErrorReason = 200 // Resource already exists
+	HrErrorReason_OVERLAP_EXISTS        HrErrorReason = 201 // Overlapping leave request exists
+	HrErrorReason_ABSENCE_TYPE_IN_USE   HrErrorReason = 203 // Absence type is in use
+	HrErrorReason_ALLOWANCE_POOL_IN_USE HrErrorReason = 204 // Allowance pool is in use
 	// 500
 	HrErrorReason_INTERNAL_SERVER_ERROR HrErrorReason = 300 // Internal server error
 )
@@ -54,24 +56,28 @@ var (
 		102: "ABSENCE_TYPE_NOT_FOUND",
 		103: "LEAVE_REQUEST_NOT_FOUND",
 		104: "ALLOWANCE_NOT_FOUND",
+		105: "ALLOWANCE_POOL_NOT_FOUND",
 		200: "ALREADY_EXISTS",
 		201: "OVERLAP_EXISTS",
 		203: "ABSENCE_TYPE_IN_USE",
+		204: "ALLOWANCE_POOL_IN_USE",
 		300: "INTERNAL_SERVER_ERROR",
 	}
 	HrErrorReason_value = map[string]int32{
-		"BAD_REQUEST":             0,
-		"VALIDATION_FAILED":       1,
-		"INVALID_DATE_RANGE":      2,
-		"INSUFFICIENT_ALLOWANCE":  3,
-		"NOT_FOUND":               100,
-		"ABSENCE_TYPE_NOT_FOUND":  102,
-		"LEAVE_REQUEST_NOT_FOUND": 103,
-		"ALLOWANCE_NOT_FOUND":     104,
-		"ALREADY_EXISTS":          200,
-		"OVERLAP_EXISTS":          201,
-		"ABSENCE_TYPE_IN_USE":     203,
-		"INTERNAL_SERVER_ERROR":   300,
+		"BAD_REQUEST":              0,
+		"VALIDATION_FAILED":        1,
+		"INVALID_DATE_RANGE":       2,
+		"INSUFFICIENT_ALLOWANCE":   3,
+		"NOT_FOUND":                100,
+		"ABSENCE_TYPE_NOT_FOUND":   102,
+		"LEAVE_REQUEST_NOT_FOUND":  103,
+		"ALLOWANCE_NOT_FOUND":      104,
+		"ALLOWANCE_POOL_NOT_FOUND": 105,
+		"ALREADY_EXISTS":           200,
+		"OVERLAP_EXISTS":           201,
+		"ABSENCE_TYPE_IN_USE":      203,
+		"ALLOWANCE_POOL_IN_USE":    204,
+		"INTERNAL_SERVER_ERROR":    300,
 	}
 )
 
@@ -106,7 +112,7 @@ var File_hr_service_v1_hr_error_proto protoreflect.FileDescriptor
 
 const file_hr_service_v1_hr_error_proto_rawDesc = "" +
 	"\n" +
-	"\x1chr/service/v1/hr_error.proto\x12\rhr.service.v1\x1a\x13errors/errors.proto*\xfa\x02\n" +
+	"\x1chr/service/v1/hr_error.proto\x12\rhr.service.v1\x1a\x13errors/errors.proto*\xc0\x03\n" +
 	"\rHrErrorReason\x12\x15\n" +
 	"\vBAD_REQUEST\x10\x00\x1a\x04\xa8E\x90\x03\x12\x1b\n" +
 	"\x11VALIDATION_FAILED\x10\x01\x1a\x04\xa8E\x90\x03\x12\x1c\n" +
@@ -115,10 +121,12 @@ const file_hr_service_v1_hr_error_proto_rawDesc = "" +
 	"\tNOT_FOUND\x10d\x1a\x04\xa8E\x94\x03\x12 \n" +
 	"\x16ABSENCE_TYPE_NOT_FOUND\x10f\x1a\x04\xa8E\x94\x03\x12!\n" +
 	"\x17LEAVE_REQUEST_NOT_FOUND\x10g\x1a\x04\xa8E\x94\x03\x12\x1d\n" +
-	"\x13ALLOWANCE_NOT_FOUND\x10h\x1a\x04\xa8E\x94\x03\x12\x19\n" +
+	"\x13ALLOWANCE_NOT_FOUND\x10h\x1a\x04\xa8E\x94\x03\x12\"\n" +
+	"\x18ALLOWANCE_POOL_NOT_FOUND\x10i\x1a\x04\xa8E\x94\x03\x12\x19\n" +
 	"\x0eALREADY_EXISTS\x10\xc8\x01\x1a\x04\xa8E\x99\x03\x12\x19\n" +
 	"\x0eOVERLAP_EXISTS\x10\xc9\x01\x1a\x04\xa8E\x99\x03\x12\x1e\n" +
 	"\x13ABSENCE_TYPE_IN_USE\x10\xcb\x01\x1a\x04\xa8E\x99\x03\x12 \n" +
+	"\x15ALLOWANCE_POOL_IN_USE\x10\xcc\x01\x1a\x04\xa8E\x99\x03\x12 \n" +
 	"\x15INTERNAL_SERVER_ERROR\x10\xac\x02\x1a\x04\xa8E\xf4\x03\x1a\x04\xa0E\xf4\x03B\xb4\x01\n" +
 	"\x11com.hr.service.v1B\fHrErrorProtoP\x01Z;github.com/go-tangra/go-tangra-hr/gen/go/hr/service/v1;hrpb\xa2\x02\x03HSX\xaa\x02\rHr.Service.V1\xca\x02\rHr\\Service\\V1\xe2\x02\x19Hr\\Service\\V1\\GPBMetadata\xea\x02\x0fHr::Service::V1b\x06proto3"
 

@@ -15,6 +15,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/go-tangra/go-tangra-hr/internal/data/ent/absencetype"
+	"github.com/go-tangra/go-tangra-hr/internal/data/ent/allowancepool"
 	"github.com/go-tangra/go-tangra-hr/internal/data/ent/leaveallowance"
 	"github.com/go-tangra/go-tangra-hr/internal/data/ent/leaverequest"
 	"github.com/go-tangra/go-tangra-hr/internal/data/ent/predicate"
@@ -29,6 +30,7 @@ type AbsenceTypeQuery struct {
 	predicates          []predicate.AbsenceType
 	withLeaveAllowances *LeaveAllowanceQuery
 	withLeaveRequests   *LeaveRequestQuery
+	withAllowancePool   *AllowancePoolQuery
 	modifiers           []func(*sql.Selector)
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
@@ -103,6 +105,28 @@ func (_q *AbsenceTypeQuery) QueryLeaveRequests() *LeaveRequestQuery {
 			sqlgraph.From(absencetype.Table, absencetype.FieldID, selector),
 			sqlgraph.To(leaverequest.Table, leaverequest.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, absencetype.LeaveRequestsTable, absencetype.LeaveRequestsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryAllowancePool chains the current query on the "allowance_pool" edge.
+func (_q *AbsenceTypeQuery) QueryAllowancePool() *AllowancePoolQuery {
+	query := (&AllowancePoolClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(absencetype.Table, absencetype.FieldID, selector),
+			sqlgraph.To(allowancepool.Table, allowancepool.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, absencetype.AllowancePoolTable, absencetype.AllowancePoolColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
@@ -304,6 +328,7 @@ func (_q *AbsenceTypeQuery) Clone() *AbsenceTypeQuery {
 		predicates:          append([]predicate.AbsenceType{}, _q.predicates...),
 		withLeaveAllowances: _q.withLeaveAllowances.Clone(),
 		withLeaveRequests:   _q.withLeaveRequests.Clone(),
+		withAllowancePool:   _q.withAllowancePool.Clone(),
 		// clone intermediate query.
 		sql:       _q.sql.Clone(),
 		path:      _q.path,
@@ -330,6 +355,17 @@ func (_q *AbsenceTypeQuery) WithLeaveRequests(opts ...func(*LeaveRequestQuery)) 
 		opt(query)
 	}
 	_q.withLeaveRequests = query
+	return _q
+}
+
+// WithAllowancePool tells the query-builder to eager-load the nodes that are connected to
+// the "allowance_pool" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *AbsenceTypeQuery) WithAllowancePool(opts ...func(*AllowancePoolQuery)) *AbsenceTypeQuery {
+	query := (&AllowancePoolClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withAllowancePool = query
 	return _q
 }
 
@@ -417,9 +453,10 @@ func (_q *AbsenceTypeQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*
 	var (
 		nodes       = []*AbsenceType{}
 		_spec       = _q.querySpec()
-		loadedTypes = [2]bool{
+		loadedTypes = [3]bool{
 			_q.withLeaveAllowances != nil,
 			_q.withLeaveRequests != nil,
+			_q.withAllowancePool != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -454,6 +491,12 @@ func (_q *AbsenceTypeQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*
 		if err := _q.loadLeaveRequests(ctx, query, nodes,
 			func(n *AbsenceType) { n.Edges.LeaveRequests = []*LeaveRequest{} },
 			func(n *AbsenceType, e *LeaveRequest) { n.Edges.LeaveRequests = append(n.Edges.LeaveRequests, e) }); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withAllowancePool; query != nil {
+		if err := _q.loadAllowancePool(ctx, query, nodes, nil,
+			func(n *AbsenceType, e *AllowancePool) { n.Edges.AllowancePool = e }); err != nil {
 			return nil, err
 		}
 	}
@@ -520,6 +563,35 @@ func (_q *AbsenceTypeQuery) loadLeaveRequests(ctx context.Context, query *LeaveR
 	}
 	return nil
 }
+func (_q *AbsenceTypeQuery) loadAllowancePool(ctx context.Context, query *AllowancePoolQuery, nodes []*AbsenceType, init func(*AbsenceType), assign func(*AbsenceType, *AllowancePool)) error {
+	ids := make([]string, 0, len(nodes))
+	nodeids := make(map[string][]*AbsenceType)
+	for i := range nodes {
+		fk := nodes[i].AllowancePoolID
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
+		}
+		nodeids[fk] = append(nodeids[fk], nodes[i])
+	}
+	if len(ids) == 0 {
+		return nil
+	}
+	query.Where(allowancepool.IDIn(ids...))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nodeids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "allowance_pool_id" returned %v`, n.ID)
+		}
+		for i := range nodes {
+			assign(nodes[i], n)
+		}
+	}
+	return nil
+}
 
 func (_q *AbsenceTypeQuery) sqlCount(ctx context.Context) (int, error) {
 	_spec := _q.querySpec()
@@ -548,6 +620,9 @@ func (_q *AbsenceTypeQuery) querySpec() *sqlgraph.QuerySpec {
 			if fields[i] != absencetype.FieldID {
 				_spec.Node.Columns = append(_spec.Node.Columns, fields[i])
 			}
+		}
+		if _q.withAllowancePool != nil {
+			_spec.Node.AddColumnOnce(absencetype.FieldAllowancePoolID)
 		}
 	}
 	if ps := _q.predicates; len(ps) > 0 {

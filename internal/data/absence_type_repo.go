@@ -124,6 +124,13 @@ func (r *AbsenceTypeRepo) Update(ctx context.Context, id string, updates map[str
 	if signingTemplateID, ok := updates["signing_template_id"].(string); ok {
 		update = update.SetSigningTemplateID(signingTemplateID)
 	}
+	if poolID, ok := updates["allowance_pool_id"].(string); ok {
+		if poolID == "" {
+			update = update.ClearAllowancePoolID()
+		} else {
+			update = update.SetAllowancePoolID(poolID)
+		}
+	}
 
 	update = update.SetUpdateTime(time.Now())
 

@@ -14,6 +14,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/go-tangra/go-tangra-hr/internal/data/ent/absencetype"
+	"github.com/go-tangra/go-tangra-hr/internal/data/ent/allowancepool"
 	"github.com/go-tangra/go-tangra-hr/internal/data/ent/leaveallowance"
 	"github.com/go-tangra/go-tangra-hr/internal/data/ent/predicate"
 )
@@ -21,12 +22,13 @@ import (
 // LeaveAllowanceQuery is the builder for querying LeaveAllowance entities.
 type LeaveAllowanceQuery struct {
 	config
-	ctx             *QueryContext
-	order           []leaveallowance.OrderOption
-	inters          []Interceptor
-	predicates      []predicate.LeaveAllowance
-	withAbsenceType *AbsenceTypeQuery
-	modifiers       []func(*sql.Selector)
+	ctx               *QueryContext
+	order             []leaveallowance.OrderOption
+	inters            []Interceptor
+	predicates        []predicate.LeaveAllowance
+	withAbsenceType   *AbsenceTypeQuery
+	withAllowancePool *AllowancePoolQuery
+	modifiers         []func(*sql.Selector)
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -78,6 +80,28 @@ func (_q *LeaveAllowanceQuery) QueryAbsenceType() *AbsenceTypeQuery {
 			sqlgraph.From(leaveallowance.Table, leaveallowance.FieldID, selector),
 			sqlgraph.To(absencetype.Table, absencetype.FieldID),
 			sqlgraph.Edge(sqlgraph.M2O, true, leaveallowance.AbsenceTypeTable, leaveallowance.AbsenceTypeColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryAllowancePool chains the current query on the "allowance_pool" edge.
+func (_q *LeaveAllowanceQuery) QueryAllowancePool() *AllowancePoolQuery {
+	query := (&AllowancePoolClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(leaveallowance.Table, leaveallowance.FieldID, selector),
+			sqlgraph.To(allowancepool.Table, allowancepool.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, leaveallowance.AllowancePoolTable, leaveallowance.AllowancePoolColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
@@ -272,12 +296,13 @@ func (_q *LeaveAllowanceQuery) Clone() *LeaveAllowanceQuery {
 		return nil
 	}
 	return &LeaveAllowanceQuery{
-		config:          _q.config,
-		ctx:             _q.ctx.Clone(),
-		order:           append([]leaveallowance.OrderOption{}, _q.order...),
-		inters:          append([]Interceptor{}, _q.inters...),
-		predicates:      append([]predicate.LeaveAllowance{}, _q.predicates...),
-		withAbsenceType: _q.withAbsenceType.Clone(),
+		config:            _q.config,
+		ctx:               _q.ctx.Clone(),
+		order:             append([]leaveallowance.OrderOption{}, _q.order...),
+		inters:            append([]Interceptor{}, _q.inters...),
+		predicates:        append([]predicate.LeaveAllowance{}, _q.predicates...),
+		withAbsenceType:   _q.withAbsenceType.Clone(),
+		withAllowancePool: _q.withAllowancePool.Clone(),
 		// clone intermediate query.
 		sql:       _q.sql.Clone(),
 		path:      _q.path,
@@ -293,6 +318,17 @@ func (_q *LeaveAllowanceQuery) WithAbsenceType(opts ...func(*AbsenceTypeQuery)) 
 		opt(query)
 	}
 	_q.withAbsenceType = query
+	return _q
+}
+
+// WithAllowancePool tells the query-builder to eager-load the nodes that are connected to
+// the "allowance_pool" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *LeaveAllowanceQuery) WithAllowancePool(opts ...func(*AllowancePoolQuery)) *LeaveAllowanceQuery {
+	query := (&AllowancePoolClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withAllowancePool = query
 	return _q
 }
 
@@ -380,8 +416,9 @@ func (_q *LeaveAllowanceQuery) sqlAll(ctx context.Context, hooks ...queryHook) (
 	var (
 		nodes       = []*LeaveAllowance{}
 		_spec       = _q.querySpec()
-		loadedTypes = [1]bool{
+		loadedTypes = [2]bool{
 			_q.withAbsenceType != nil,
+			_q.withAllowancePool != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -411,6 +448,12 @@ func (_q *LeaveAllowanceQuery) sqlAll(ctx context.Context, hooks ...queryHook) (
 			return nil, err
 		}
 	}
+	if query := _q.withAllowancePool; query != nil {
+		if err := _q.loadAllowancePool(ctx, query, nodes, nil,
+			func(n *LeaveAllowance, e *AllowancePool) { n.Edges.AllowancePool = e }); err != nil {
+			return nil, err
+		}
+	}
 	return nodes, nil
 }
 
@@ -436,6 +479,35 @@ func (_q *LeaveAllowanceQuery) loadAbsenceType(ctx context.Context, query *Absen
 		nodes, ok := nodeids[n.ID]
 		if !ok {
 			return fmt.Errorf(`unexpected foreign-key "absence_type_id" returned %v`, n.ID)
+		}
+		for i := range nodes {
+			assign(nodes[i], n)
+		}
+	}
+	return nil
+}
+func (_q *LeaveAllowanceQuery) loadAllowancePool(ctx context.Context, query *AllowancePoolQuery, nodes []*LeaveAllowance, init func(*LeaveAllowance), assign func(*LeaveAllowance, *AllowancePool)) error {
+	ids := make([]string, 0, len(nodes))
+	nodeids := make(map[string][]*LeaveAllowance)
+	for i := range nodes {
+		fk := nodes[i].AllowancePoolID
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
+		}
+		nodeids[fk] = append(nodeids[fk], nodes[i])
+	}
+	if len(ids) == 0 {
+		return nil
+	}
+	query.Where(allowancepool.IDIn(ids...))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nodeids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "allowance_pool_id" returned %v`, n.ID)
 		}
 		for i := range nodes {
 			assign(nodes[i], n)
@@ -474,6 +546,9 @@ func (_q *LeaveAllowanceQuery) querySpec() *sqlgraph.QuerySpec {
 		}
 		if _q.withAbsenceType != nil {
 			_spec.Node.AddColumnOnce(leaveallowance.FieldAbsenceTypeID)
+		}
+		if _q.withAllowancePool != nil {
+			_spec.Node.AddColumnOnce(leaveallowance.FieldAllowancePoolID)
 		}
 	}
 	if ps := _q.predicates; len(ps) > 0 {

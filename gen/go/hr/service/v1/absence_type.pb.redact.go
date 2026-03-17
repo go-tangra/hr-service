@@ -137,6 +137,8 @@ func (x *AbsenceType) Redact() string {
 
 	// Safe field: SigningTemplateId
 
+	// Safe field: AllowancePoolId
+
 	// Safe field: CreatedAt
 
 	// Safe field: UpdatedAt
@@ -176,6 +178,8 @@ func (x *CreateAbsenceTypeRequest) Redact() string {
 	// Safe field: RequiresSigning
 
 	// Safe field: SigningTemplateId
+
+	// Safe field: AllowancePoolId
 	return x.String()
 }
 

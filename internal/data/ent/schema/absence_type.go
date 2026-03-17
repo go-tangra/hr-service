@@ -76,6 +76,10 @@ func (AbsenceType) Fields() []ent.Field {
 		field.String("signing_template_id").
 			Optional().
 			Comment("Paperless signing template ID"),
+
+		field.String("allowance_pool_id").
+			Optional().
+			Comment("FK to AllowancePool — types sharing a pool share one allowance budget"),
 	}
 }
 
@@ -83,6 +87,10 @@ func (AbsenceType) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.To("leave_allowances", LeaveAllowance.Type),
 		edge.To("leave_requests", LeaveRequest.Type),
+		edge.From("allowance_pool", AllowancePool.Type).
+			Ref("absence_types").
+			Field("allowance_pool_id").
+			Unique(),
 	}
 }
 

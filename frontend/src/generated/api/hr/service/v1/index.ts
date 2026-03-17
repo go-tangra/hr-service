@@ -17,6 +17,7 @@ export type AbsenceType = {
   metadata: wellKnownStruct | undefined;
   requiresSigning?: boolean;
   signingTemplateId?: string;
+  allowancePoolId?: string;
   createdAt?: wellKnownTimestamp;
   updatedAt?: wellKnownTimestamp;
   createdBy?: number;
@@ -48,6 +49,7 @@ export type CreateAbsenceTypeRequest = {
   metadata: wellKnownStruct | undefined;
   requiresSigning?: boolean;
   signingTemplateId?: string;
+  allowancePoolId?: string;
 };
 
 export type CreateAbsenceTypeResponse = {
@@ -269,9 +271,11 @@ export type LeaveAllowance = {
   usedDays?: number;
   carriedOver?: number;
   notes?: string;
+  allowancePoolId?: string;
   // Denormalized for display
   absenceTypeName?: string;
   userName?: string;
+  allowancePoolName?: string;
   createdAt?: wellKnownTimestamp;
   updatedAt?: wellKnownTimestamp;
   createdBy?: number;
@@ -285,9 +289,9 @@ export type CreateAllowanceRequest = {
   //
   // Behaviors: REQUIRED
   userId?: number;
-  //
-  // Behaviors: REQUIRED
+  // One of absence_type_id or allowance_pool_id must be set
   absenceTypeId?: string;
+  allowancePoolId?: string;
   //
   // Behaviors: REQUIRED
   year?: number;
@@ -347,7 +351,7 @@ export type DeleteAllowanceRequest = {
   id: string | undefined;
 };
 
-// BalanceEntry represents balance for a single absence type
+// BalanceEntry represents balance for a single absence type or pool
 export type BalanceEntry = {
   absenceTypeId: string | undefined;
   absenceTypeName: string | undefined;
@@ -356,6 +360,11 @@ export type BalanceEntry = {
   usedDays: number | undefined;
   carriedOver: number | undefined;
   remainingDays: number | undefined;
+  // Pool fields (set when this entry is for a shared pool)
+  allowancePoolId?: string;
+  allowancePoolName?: string;
+  // Absence types that share this pool (populated for pool entries)
+  memberAbsenceTypeIds: string[] | undefined;
 };
 
 export type GetUserBalanceRequest = {
@@ -525,6 +534,198 @@ export function createHrAllowanceServiceClient(
     },
   };
 }
+// AllowancePool groups multiple absence types to share a single leave allowance budget
+export type AllowancePool = {
+  id?: string;
+  tenantId?: number;
+  name?: string;
+  description?: string;
+  color?: string;
+  icon?: string;
+  // IDs of absence types that belong to this pool (read-only, populated on get/list)
+  absenceTypeIds: string[] | undefined;
+  createdAt?: wellKnownTimestamp;
+  updatedAt?: wellKnownTimestamp;
+  createdBy?: number;
+  updatedBy?: number;
+};
+
+export type CreateAllowancePoolRequest = {
+  //
+  // Behaviors: REQUIRED
+  name?: string;
+  description?: string;
+  color?: string;
+  icon?: string;
+  // Absence type IDs to add to this pool
+  absenceTypeIds: string[] | undefined;
+};
+
+export type CreateAllowancePoolResponse = {
+  pool: AllowancePool | undefined;
+};
+
+export type GetAllowancePoolRequest = {
+  //
+  // Behaviors: REQUIRED
+  id: string | undefined;
+};
+
+export type GetAllowancePoolResponse = {
+  pool: AllowancePool | undefined;
+};
+
+export type ListAllowancePoolsRequest = {
+  page?: number;
+  pageSize?: number;
+  noPaging?: boolean;
+  query?: string;
+};
+
+export type ListAllowancePoolsResponse = {
+  items: AllowancePool[] | undefined;
+  total?: number;
+};
+
+export type UpdateAllowancePoolRequest = {
+  //
+  // Behaviors: REQUIRED
+  id: string | undefined;
+  data?: AllowancePool;
+  updateMask: wellKnownFieldMask | undefined;
+};
+
+export type UpdateAllowancePoolResponse = {
+  pool: AllowancePool | undefined;
+};
+
+export type DeleteAllowancePoolRequest = {
+  //
+  // Behaviors: REQUIRED
+  id: string | undefined;
+};
+
+// HrAllowancePoolService manages allowance pools
+export interface HrAllowancePoolService {
+  CreateAllowancePool(request: CreateAllowancePoolRequest): Promise<CreateAllowancePoolResponse>;
+  GetAllowancePool(request: GetAllowancePoolRequest): Promise<GetAllowancePoolResponse>;
+  ListAllowancePools(request: ListAllowancePoolsRequest): Promise<ListAllowancePoolsResponse>;
+  UpdateAllowancePool(request: UpdateAllowancePoolRequest): Promise<UpdateAllowancePoolResponse>;
+  DeleteAllowancePool(request: DeleteAllowancePoolRequest): Promise<wellKnownEmpty>;
+}
+
+export function createHrAllowancePoolServiceClient(
+  handler: RequestHandler
+): HrAllowancePoolService {
+  return {
+    CreateAllowancePool(request) { // eslint-disable-line @typescript-eslint/no-unused-vars
+      const path = `v1/allowance-pools`; // eslint-disable-line quotes
+      const body = JSON.stringify(request);
+      const queryParams: string[] = [];
+      let uri = path;
+      if (queryParams.length > 0) {
+        uri += `?${queryParams.join("&")}`
+      }
+      return handler({
+        path: uri,
+        method: "POST",
+        body,
+      }, {
+        service: "HrAllowancePoolService",
+        method: "CreateAllowancePool",
+      }) as Promise<CreateAllowancePoolResponse>;
+    },
+    GetAllowancePool(request) { // eslint-disable-line @typescript-eslint/no-unused-vars
+      if (!request.id) {
+        throw new Error("missing required field request.id");
+      }
+      const path = `v1/allowance-pools/${request.id}`; // eslint-disable-line quotes
+      const body = null;
+      const queryParams: string[] = [];
+      let uri = path;
+      if (queryParams.length > 0) {
+        uri += `?${queryParams.join("&")}`
+      }
+      return handler({
+        path: uri,
+        method: "GET",
+        body,
+      }, {
+        service: "HrAllowancePoolService",
+        method: "GetAllowancePool",
+      }) as Promise<GetAllowancePoolResponse>;
+    },
+    ListAllowancePools(request) { // eslint-disable-line @typescript-eslint/no-unused-vars
+      const path = `v1/allowance-pools`; // eslint-disable-line quotes
+      const body = null;
+      const queryParams: string[] = [];
+      if (request.page) {
+        queryParams.push(`page=${encodeURIComponent(request.page.toString())}`)
+      }
+      if (request.pageSize) {
+        queryParams.push(`pageSize=${encodeURIComponent(request.pageSize.toString())}`)
+      }
+      if (request.noPaging) {
+        queryParams.push(`noPaging=${encodeURIComponent(request.noPaging.toString())}`)
+      }
+      if (request.query) {
+        queryParams.push(`query=${encodeURIComponent(request.query.toString())}`)
+      }
+      let uri = path;
+      if (queryParams.length > 0) {
+        uri += `?${queryParams.join("&")}`
+      }
+      return handler({
+        path: uri,
+        method: "GET",
+        body,
+      }, {
+        service: "HrAllowancePoolService",
+        method: "ListAllowancePools",
+      }) as Promise<ListAllowancePoolsResponse>;
+    },
+    UpdateAllowancePool(request) { // eslint-disable-line @typescript-eslint/no-unused-vars
+      if (!request.id) {
+        throw new Error("missing required field request.id");
+      }
+      const path = `v1/allowance-pools/${request.id}`; // eslint-disable-line quotes
+      const body = JSON.stringify(request);
+      const queryParams: string[] = [];
+      let uri = path;
+      if (queryParams.length > 0) {
+        uri += `?${queryParams.join("&")}`
+      }
+      return handler({
+        path: uri,
+        method: "PUT",
+        body,
+      }, {
+        service: "HrAllowancePoolService",
+        method: "UpdateAllowancePool",
+      }) as Promise<UpdateAllowancePoolResponse>;
+    },
+    DeleteAllowancePool(request) { // eslint-disable-line @typescript-eslint/no-unused-vars
+      if (!request.id) {
+        throw new Error("missing required field request.id");
+      }
+      const path = `v1/allowance-pools/${request.id}`; // eslint-disable-line quotes
+      const body = null;
+      const queryParams: string[] = [];
+      let uri = path;
+      if (queryParams.length > 0) {
+        uri += `?${queryParams.join("&")}`
+      }
+      return handler({
+        path: uri,
+        method: "DELETE",
+        body,
+      }, {
+        service: "HrAllowancePoolService",
+        method: "DeleteAllowancePool",
+      }) as Promise<wellKnownEmpty>;
+    },
+  };
+}
 export type HrErrorReason =
   // 400
   | "BAD_REQUEST"
@@ -536,10 +737,12 @@ export type HrErrorReason =
   | "ABSENCE_TYPE_NOT_FOUND"
   | "LEAVE_REQUEST_NOT_FOUND"
   | "ALLOWANCE_NOT_FOUND"
+  | "ALLOWANCE_POOL_NOT_FOUND"
   // 409
   | "ALREADY_EXISTS"
   | "OVERLAP_EXISTS"
   | "ABSENCE_TYPE_IN_USE"
+  | "ALLOWANCE_POOL_IN_USE"
   // 500
   | "INTERNAL_SERVER_ERROR";
 // LeaveRequestStatus represents the status of a leave request

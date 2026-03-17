@@ -19,12 +19,14 @@ import {
   SelectOption,
 } from 'ant-design-vue';
 
-import type { AbsenceType } from '../../api/client';
+import type { AbsenceType, AllowancePool } from '../../api/client';
 import { paperlessApi } from '../../api/client';
 import { $t } from 'shell/locales';
 import { useHrAbsenceTypeStore } from '../../stores/hr-absence-type.state';
+import { useHrAllowancePoolStore } from '../../stores/hr-allowance-pool.state';
 
 const absenceTypeStore = useHrAbsenceTypeStore();
+const poolStore = useHrAllowancePoolStore();
 
 interface SigningTemplate {
   id: string;
@@ -37,6 +39,7 @@ const data = ref<{
 }>();
 const loading = ref(false);
 const signingTemplates = ref<SigningTemplate[]>([]);
+const pools = ref<AllowancePool[]>([]);
 
 const formState = ref({
   name: '',
@@ -50,6 +53,7 @@ const formState = ref({
   metadata: '',
   requiresSigning: false,
   signingTemplateId: '',
+  allowancePoolId: '',
 });
 
 const title = computed(() => {
@@ -83,6 +87,7 @@ async function handleSubmit() {
         metadata: formState.value.metadata ? JSON.parse(formState.value.metadata) : undefined,
         requiresSigning: formState.value.requiresSigning,
         signingTemplateId: formState.value.requiresSigning ? formState.value.signingTemplateId || undefined : undefined,
+        allowancePoolId: formState.value.allowancePoolId || undefined,
       });
       notification.success({
         message: $t('hr.page.absenceType.createSuccess'),
@@ -102,6 +107,7 @@ async function handleSubmit() {
           metadata: formState.value.metadata ? JSON.parse(formState.value.metadata) : undefined,
           requiresSigning: formState.value.requiresSigning,
           signingTemplateId: formState.value.requiresSigning ? formState.value.signingTemplateId || undefined : undefined,
+          allowancePoolId: formState.value.allowancePoolId || undefined,
         },
         [
           'name',
@@ -115,6 +121,7 @@ async function handleSubmit() {
           'metadata',
           'requiresSigning',
           'signingTemplateId',
+          'allowancePoolId',
         ],
       );
       notification.success({
@@ -146,6 +153,7 @@ function resetForm() {
     metadata: '',
     requiresSigning: false,
     signingTemplateId: '',
+    allowancePoolId: '',
   };
 }
 
@@ -161,12 +169,18 @@ const [Modal, modalApi] = useVbenModal({
         row?: AbsenceType;
       };
 
-      // Fetch signing templates from paperless module
+      // Fetch signing templates and allowance pools
       try {
         const resp = await paperlessApi.get<{ templates: SigningTemplate[] }>('/signing/templates', { noPaging: true });
         signingTemplates.value = resp.templates ?? [];
       } catch {
         signingTemplates.value = [];
+      }
+      try {
+        const poolResp = await poolStore.listAllowancePools(undefined, null);
+        pools.value = poolResp.items ?? [];
+      } catch {
+        pools.value = [];
       }
 
       if (data.value?.mode === 'create') {
@@ -184,6 +198,7 @@ const [Modal, modalApi] = useVbenModal({
           metadata: data.value.row.metadata ? JSON.stringify(data.value.row.metadata, null, 2) : '',
           requiresSigning: data.value.row.requiresSigning ?? false,
           signingTemplateId: data.value.row.signingTemplateId ?? '',
+          allowancePoolId: data.value.row.allowancePoolId ?? '',
         };
       }
     }
@@ -245,6 +260,9 @@ const absenceType = computed(() => data.value?.row);
         </DescriptionsItem>
         <DescriptionsItem v-if="absenceType.requiresSigning" :label="$t('hr.page.absenceType.signingTemplate')">
           {{ signingTemplates.find(t => t.id === absenceType.signingTemplateId)?.name || absenceType.signingTemplateId || '-' }}
+        </DescriptionsItem>
+        <DescriptionsItem :label="$t('hr.page.absenceType.allowancePool')">
+          {{ pools.find(p => p.id === absenceType.allowancePoolId)?.name || $t('hr.page.absenceType.noPool') }}
         </DescriptionsItem>
         <DescriptionsItem :label="$t('hr.page.absenceType.sortOrder')">
           {{ absenceType.sortOrder ?? 0 }}
@@ -330,6 +348,31 @@ const absenceType = computed(() => data.value?.row);
               :value="tpl.id"
             >
               {{ tpl.name }}
+            </SelectOption>
+          </Select>
+        </FormItem>
+
+        <FormItem
+          v-if="formState.deductsFromAllowance && pools.length > 0"
+          :label="$t('hr.page.absenceType.allowancePool')"
+          name="allowancePoolId"
+        >
+          <Select
+            v-model:value="formState.allowancePoolId"
+            :placeholder="$t('hr.page.absenceType.noPool')"
+            allow-clear
+          >
+            <SelectOption
+              v-for="pool in pools"
+              :key="pool.id"
+              :value="pool.id"
+            >
+              <span
+                v-if="pool.color"
+                class="mr-1 inline-block h-3 w-3 rounded-full"
+                :style="{ backgroundColor: pool.color }"
+              />
+              {{ pool.name }}
             </SelectOption>
           </Select>
         </FormItem>

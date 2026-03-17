@@ -10,6 +10,7 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"github.com/go-tangra/go-tangra-hr/internal/data/ent/absencetype"
+	"github.com/go-tangra/go-tangra-hr/internal/data/ent/allowancepool"
 	"github.com/go-tangra/go-tangra-hr/internal/data/ent/leaveallowance"
 )
 
@@ -35,8 +36,10 @@ type LeaveAllowance struct {
 	UserID uint32 `json:"user_id,omitempty"`
 	// Denormalized user display name
 	UserName string `json:"user_name,omitempty"`
-	// FK to AbsenceType
+	// FK to AbsenceType (set when not using a pool)
 	AbsenceTypeID string `json:"absence_type_id,omitempty"`
+	// FK to AllowancePool (set when pool-based allowance)
+	AllowancePoolID string `json:"allowance_pool_id,omitempty"`
 	// Calendar year
 	Year int `json:"year,omitempty"`
 	// Total allowed days (supports half-days)
@@ -57,9 +60,11 @@ type LeaveAllowance struct {
 type LeaveAllowanceEdges struct {
 	// AbsenceType holds the value of the absence_type edge.
 	AbsenceType *AbsenceType `json:"absence_type,omitempty"`
+	// AllowancePool holds the value of the allowance_pool edge.
+	AllowancePool *AllowancePool `json:"allowance_pool,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [1]bool
+	loadedTypes [2]bool
 }
 
 // AbsenceTypeOrErr returns the AbsenceType value or an error if the edge
@@ -73,6 +78,17 @@ func (e LeaveAllowanceEdges) AbsenceTypeOrErr() (*AbsenceType, error) {
 	return nil, &NotLoadedError{edge: "absence_type"}
 }
 
+// AllowancePoolOrErr returns the AllowancePool value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e LeaveAllowanceEdges) AllowancePoolOrErr() (*AllowancePool, error) {
+	if e.AllowancePool != nil {
+		return e.AllowancePool, nil
+	} else if e.loadedTypes[1] {
+		return nil, &NotFoundError{label: allowancepool.Label}
+	}
+	return nil, &NotLoadedError{edge: "allowance_pool"}
+}
+
 // scanValues returns the types for scanning values from sql.Rows.
 func (*LeaveAllowance) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
@@ -82,7 +98,7 @@ func (*LeaveAllowance) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullFloat64)
 		case leaveallowance.FieldCreateBy, leaveallowance.FieldUpdateBy, leaveallowance.FieldTenantID, leaveallowance.FieldUserID, leaveallowance.FieldYear:
 			values[i] = new(sql.NullInt64)
-		case leaveallowance.FieldID, leaveallowance.FieldUserName, leaveallowance.FieldAbsenceTypeID, leaveallowance.FieldNotes:
+		case leaveallowance.FieldID, leaveallowance.FieldUserName, leaveallowance.FieldAbsenceTypeID, leaveallowance.FieldAllowancePoolID, leaveallowance.FieldNotes:
 			values[i] = new(sql.NullString)
 		case leaveallowance.FieldCreateTime, leaveallowance.FieldUpdateTime, leaveallowance.FieldDeleteTime:
 			values[i] = new(sql.NullTime)
@@ -167,6 +183,12 @@ func (_m *LeaveAllowance) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.AbsenceTypeID = value.String
 			}
+		case leaveallowance.FieldAllowancePoolID:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field allowance_pool_id", values[i])
+			} else if value.Valid {
+				_m.AllowancePoolID = value.String
+			}
 		case leaveallowance.FieldYear:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field year", values[i])
@@ -213,6 +235,11 @@ func (_m *LeaveAllowance) Value(name string) (ent.Value, error) {
 // QueryAbsenceType queries the "absence_type" edge of the LeaveAllowance entity.
 func (_m *LeaveAllowance) QueryAbsenceType() *AbsenceTypeQuery {
 	return NewLeaveAllowanceClient(_m.config).QueryAbsenceType(_m)
+}
+
+// QueryAllowancePool queries the "allowance_pool" edge of the LeaveAllowance entity.
+func (_m *LeaveAllowance) QueryAllowancePool() *AllowancePoolQuery {
+	return NewLeaveAllowanceClient(_m.config).QueryAllowancePool(_m)
 }
 
 // Update returns a builder for updating this LeaveAllowance.
@@ -276,6 +303,9 @@ func (_m *LeaveAllowance) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("absence_type_id=")
 	builder.WriteString(_m.AbsenceTypeID)
+	builder.WriteString(", ")
+	builder.WriteString("allowance_pool_id=")
+	builder.WriteString(_m.AllowancePoolID)
 	builder.WriteString(", ")
 	builder.WriteString("year=")
 	builder.WriteString(fmt.Sprintf("%v", _m.Year))

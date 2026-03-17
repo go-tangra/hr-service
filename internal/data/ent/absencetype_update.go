@@ -12,6 +12,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/go-tangra/go-tangra-hr/internal/data/ent/absencetype"
+	"github.com/go-tangra/go-tangra-hr/internal/data/ent/allowancepool"
 	"github.com/go-tangra/go-tangra-hr/internal/data/ent/leaveallowance"
 	"github.com/go-tangra/go-tangra-hr/internal/data/ent/leaverequest"
 	"github.com/go-tangra/go-tangra-hr/internal/data/ent/predicate"
@@ -308,6 +309,26 @@ func (_u *AbsenceTypeUpdate) ClearSigningTemplateID() *AbsenceTypeUpdate {
 	return _u
 }
 
+// SetAllowancePoolID sets the "allowance_pool_id" field.
+func (_u *AbsenceTypeUpdate) SetAllowancePoolID(v string) *AbsenceTypeUpdate {
+	_u.mutation.SetAllowancePoolID(v)
+	return _u
+}
+
+// SetNillableAllowancePoolID sets the "allowance_pool_id" field if the given value is not nil.
+func (_u *AbsenceTypeUpdate) SetNillableAllowancePoolID(v *string) *AbsenceTypeUpdate {
+	if v != nil {
+		_u.SetAllowancePoolID(*v)
+	}
+	return _u
+}
+
+// ClearAllowancePoolID clears the value of the "allowance_pool_id" field.
+func (_u *AbsenceTypeUpdate) ClearAllowancePoolID() *AbsenceTypeUpdate {
+	_u.mutation.ClearAllowancePoolID()
+	return _u
+}
+
 // AddLeaveAllowanceIDs adds the "leave_allowances" edge to the LeaveAllowance entity by IDs.
 func (_u *AbsenceTypeUpdate) AddLeaveAllowanceIDs(ids ...string) *AbsenceTypeUpdate {
 	_u.mutation.AddLeaveAllowanceIDs(ids...)
@@ -336,6 +357,11 @@ func (_u *AbsenceTypeUpdate) AddLeaveRequests(v ...*LeaveRequest) *AbsenceTypeUp
 		ids[i] = v[i].ID
 	}
 	return _u.AddLeaveRequestIDs(ids...)
+}
+
+// SetAllowancePool sets the "allowance_pool" edge to the AllowancePool entity.
+func (_u *AbsenceTypeUpdate) SetAllowancePool(v *AllowancePool) *AbsenceTypeUpdate {
+	return _u.SetAllowancePoolID(v.ID)
 }
 
 // Mutation returns the AbsenceTypeMutation object of the builder.
@@ -383,6 +409,12 @@ func (_u *AbsenceTypeUpdate) RemoveLeaveRequests(v ...*LeaveRequest) *AbsenceTyp
 		ids[i] = v[i].ID
 	}
 	return _u.RemoveLeaveRequestIDs(ids...)
+}
+
+// ClearAllowancePool clears the "allowance_pool" edge to the AllowancePool entity.
+func (_u *AbsenceTypeUpdate) ClearAllowancePool() *AbsenceTypeUpdate {
+	_u.mutation.ClearAllowancePool()
+	return _u
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -620,6 +652,35 @@ func (_u *AbsenceTypeUpdate) sqlSave(ctx context.Context) (_node int, err error)
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(leaverequest.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.AllowancePoolCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   absencetype.AllowancePoolTable,
+			Columns: []string{absencetype.AllowancePoolColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(allowancepool.FieldID, field.TypeString),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.AllowancePoolIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   absencetype.AllowancePoolTable,
+			Columns: []string{absencetype.AllowancePoolColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(allowancepool.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {
@@ -926,6 +987,26 @@ func (_u *AbsenceTypeUpdateOne) ClearSigningTemplateID() *AbsenceTypeUpdateOne {
 	return _u
 }
 
+// SetAllowancePoolID sets the "allowance_pool_id" field.
+func (_u *AbsenceTypeUpdateOne) SetAllowancePoolID(v string) *AbsenceTypeUpdateOne {
+	_u.mutation.SetAllowancePoolID(v)
+	return _u
+}
+
+// SetNillableAllowancePoolID sets the "allowance_pool_id" field if the given value is not nil.
+func (_u *AbsenceTypeUpdateOne) SetNillableAllowancePoolID(v *string) *AbsenceTypeUpdateOne {
+	if v != nil {
+		_u.SetAllowancePoolID(*v)
+	}
+	return _u
+}
+
+// ClearAllowancePoolID clears the value of the "allowance_pool_id" field.
+func (_u *AbsenceTypeUpdateOne) ClearAllowancePoolID() *AbsenceTypeUpdateOne {
+	_u.mutation.ClearAllowancePoolID()
+	return _u
+}
+
 // AddLeaveAllowanceIDs adds the "leave_allowances" edge to the LeaveAllowance entity by IDs.
 func (_u *AbsenceTypeUpdateOne) AddLeaveAllowanceIDs(ids ...string) *AbsenceTypeUpdateOne {
 	_u.mutation.AddLeaveAllowanceIDs(ids...)
@@ -954,6 +1035,11 @@ func (_u *AbsenceTypeUpdateOne) AddLeaveRequests(v ...*LeaveRequest) *AbsenceTyp
 		ids[i] = v[i].ID
 	}
 	return _u.AddLeaveRequestIDs(ids...)
+}
+
+// SetAllowancePool sets the "allowance_pool" edge to the AllowancePool entity.
+func (_u *AbsenceTypeUpdateOne) SetAllowancePool(v *AllowancePool) *AbsenceTypeUpdateOne {
+	return _u.SetAllowancePoolID(v.ID)
 }
 
 // Mutation returns the AbsenceTypeMutation object of the builder.
@@ -1001,6 +1087,12 @@ func (_u *AbsenceTypeUpdateOne) RemoveLeaveRequests(v ...*LeaveRequest) *Absence
 		ids[i] = v[i].ID
 	}
 	return _u.RemoveLeaveRequestIDs(ids...)
+}
+
+// ClearAllowancePool clears the "allowance_pool" edge to the AllowancePool entity.
+func (_u *AbsenceTypeUpdateOne) ClearAllowancePool() *AbsenceTypeUpdateOne {
+	_u.mutation.ClearAllowancePool()
+	return _u
 }
 
 // Where appends a list predicates to the AbsenceTypeUpdate builder.
@@ -1268,6 +1360,35 @@ func (_u *AbsenceTypeUpdateOne) sqlSave(ctx context.Context) (_node *AbsenceType
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(leaverequest.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.AllowancePoolCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   absencetype.AllowancePoolTable,
+			Columns: []string{absencetype.AllowancePoolColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(allowancepool.FieldID, field.TypeString),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.AllowancePoolIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   absencetype.AllowancePoolTable,
+			Columns: []string{absencetype.AllowancePoolColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(allowancepool.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {

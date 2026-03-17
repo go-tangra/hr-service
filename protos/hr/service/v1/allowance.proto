@@ -20,10 +20,12 @@ message LeaveAllowance {
   optional double used_days = 7 [json_name = "usedDays"];
   optional double carried_over = 8 [json_name = "carriedOver"];
   optional string notes = 9 [json_name = "notes"];
+  optional string allowance_pool_id = 10 [json_name = "allowancePoolId"];
 
   // Denormalized for display
   optional string absence_type_name = 30 [json_name = "absenceTypeName"];
   optional string user_name = 31 [json_name = "userName"];
+  optional string allowance_pool_name = 32 [json_name = "allowancePoolName"];
 
   optional google.protobuf.Timestamp created_at = 20 [json_name = "createdAt"];
   optional google.protobuf.Timestamp updated_at = 21 [json_name = "updatedAt"];
@@ -42,10 +44,13 @@ message CreateAllowanceRequest {
     (google.api.field_behavior) = REQUIRED
   ];
 
+  // One of absence_type_id or allowance_pool_id must be set
   optional string absence_type_id = 3 [
-    json_name = "absenceTypeId",
-    (buf.validate.field).string.min_len = 1,
-    (google.api.field_behavior) = REQUIRED
+    json_name = "absenceTypeId"
+  ];
+
+  optional string allowance_pool_id = 9 [
+    json_name = "allowancePoolId"
   ];
 
   optional int32 year = 4 [
@@ -124,7 +129,7 @@ message DeleteAllowanceRequest {
   ];
 }
 
-// BalanceEntry represents balance for a single absence type
+// BalanceEntry represents balance for a single absence type or pool
 message BalanceEntry {
   string absence_type_id = 1 [json_name = "absenceTypeId"];
   string absence_type_name = 2 [json_name = "absenceTypeName"];
@@ -133,6 +138,12 @@ message BalanceEntry {
   double used_days = 5 [json_name = "usedDays"];
   double carried_over = 6 [json_name = "carriedOver"];
   double remaining_days = 7 [json_name = "remainingDays"];
+
+  // Pool fields (set when this entry is for a shared pool)
+  optional string allowance_pool_id = 8 [json_name = "allowancePoolId"];
+  optional string allowance_pool_name = 9 [json_name = "allowancePoolName"];
+  // Absence types that share this pool (populated for pool entries)
+  repeated string member_absence_type_ids = 10 [json_name = "memberAbsenceTypeIds"];
 }
 
 message GetUserBalanceRequest {

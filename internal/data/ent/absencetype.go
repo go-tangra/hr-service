@@ -11,6 +11,7 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"github.com/go-tangra/go-tangra-hr/internal/data/ent/absencetype"
+	"github.com/go-tangra/go-tangra-hr/internal/data/ent/allowancepool"
 )
 
 // AbsenceType is the model entity for the AbsenceType schema.
@@ -53,6 +54,8 @@ type AbsenceType struct {
 	RequiresSigning bool `json:"requires_signing,omitempty"`
 	// Paperless signing template ID
 	SigningTemplateID string `json:"signing_template_id,omitempty"`
+	// FK to AllowancePool — types sharing a pool share one allowance budget
+	AllowancePoolID string `json:"allowance_pool_id,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the AbsenceTypeQuery when eager-loading is set.
 	Edges        AbsenceTypeEdges `json:"edges"`
@@ -65,9 +68,11 @@ type AbsenceTypeEdges struct {
 	LeaveAllowances []*LeaveAllowance `json:"leave_allowances,omitempty"`
 	// LeaveRequests holds the value of the leave_requests edge.
 	LeaveRequests []*LeaveRequest `json:"leave_requests,omitempty"`
+	// AllowancePool holds the value of the allowance_pool edge.
+	AllowancePool *AllowancePool `json:"allowance_pool,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [2]bool
+	loadedTypes [3]bool
 }
 
 // LeaveAllowancesOrErr returns the LeaveAllowances value or an error if the edge
@@ -88,6 +93,17 @@ func (e AbsenceTypeEdges) LeaveRequestsOrErr() ([]*LeaveRequest, error) {
 	return nil, &NotLoadedError{edge: "leave_requests"}
 }
 
+// AllowancePoolOrErr returns the AllowancePool value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e AbsenceTypeEdges) AllowancePoolOrErr() (*AllowancePool, error) {
+	if e.AllowancePool != nil {
+		return e.AllowancePool, nil
+	} else if e.loadedTypes[2] {
+		return nil, &NotFoundError{label: allowancepool.Label}
+	}
+	return nil, &NotLoadedError{edge: "allowance_pool"}
+}
+
 // scanValues returns the types for scanning values from sql.Rows.
 func (*AbsenceType) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
@@ -99,7 +115,7 @@ func (*AbsenceType) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullBool)
 		case absencetype.FieldCreateBy, absencetype.FieldUpdateBy, absencetype.FieldTenantID, absencetype.FieldSortOrder:
 			values[i] = new(sql.NullInt64)
-		case absencetype.FieldID, absencetype.FieldName, absencetype.FieldDescription, absencetype.FieldColor, absencetype.FieldIcon, absencetype.FieldSigningTemplateID:
+		case absencetype.FieldID, absencetype.FieldName, absencetype.FieldDescription, absencetype.FieldColor, absencetype.FieldIcon, absencetype.FieldSigningTemplateID, absencetype.FieldAllowancePoolID:
 			values[i] = new(sql.NullString)
 		case absencetype.FieldCreateTime, absencetype.FieldUpdateTime, absencetype.FieldDeleteTime:
 			values[i] = new(sql.NullTime)
@@ -234,6 +250,12 @@ func (_m *AbsenceType) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.SigningTemplateID = value.String
 			}
+		case absencetype.FieldAllowancePoolID:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field allowance_pool_id", values[i])
+			} else if value.Valid {
+				_m.AllowancePoolID = value.String
+			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
 		}
@@ -255,6 +277,11 @@ func (_m *AbsenceType) QueryLeaveAllowances() *LeaveAllowanceQuery {
 // QueryLeaveRequests queries the "leave_requests" edge of the AbsenceType entity.
 func (_m *AbsenceType) QueryLeaveRequests() *LeaveRequestQuery {
 	return NewAbsenceTypeClient(_m.config).QueryLeaveRequests(_m)
+}
+
+// QueryAllowancePool queries the "allowance_pool" edge of the AbsenceType entity.
+func (_m *AbsenceType) QueryAllowancePool() *AllowancePoolQuery {
+	return NewAbsenceTypeClient(_m.config).QueryAllowancePool(_m)
 }
 
 // Update returns a builder for updating this AbsenceType.
@@ -342,6 +369,9 @@ func (_m *AbsenceType) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("signing_template_id=")
 	builder.WriteString(_m.SigningTemplateID)
+	builder.WriteString(", ")
+	builder.WriteString("allowance_pool_id=")
+	builder.WriteString(_m.AllowancePoolID)
 	builder.WriteByte(')')
 	return builder.String()
 }

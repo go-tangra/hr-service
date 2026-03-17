@@ -14,6 +14,8 @@ type Tx struct {
 	config
 	// AbsenceType is the client for interacting with the AbsenceType builders.
 	AbsenceType *AbsenceTypeClient
+	// AllowancePool is the client for interacting with the AllowancePool builders.
+	AllowancePool *AllowancePoolClient
 	// AuditLog is the client for interacting with the AuditLog builders.
 	AuditLog *AuditLogClient
 	// LeaveAllowance is the client for interacting with the LeaveAllowance builders.
@@ -152,6 +154,7 @@ func (tx *Tx) Client() *Client {
 
 func (tx *Tx) init() {
 	tx.AbsenceType = NewAbsenceTypeClient(tx.config)
+	tx.AllowancePool = NewAllowancePoolClient(tx.config)
 	tx.AuditLog = NewAuditLogClient(tx.config)
 	tx.LeaveAllowance = NewLeaveAllowanceClient(tx.config)
 	tx.LeaveRequest = NewLeaveRequestClient(tx.config)

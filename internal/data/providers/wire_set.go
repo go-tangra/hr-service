@@ -17,6 +17,7 @@ var ProviderSet = wire.NewSet(
 	data.NewAbsenceTypeRepo,
 	data.NewLeaveAllowanceRepo,
 	data.NewLeaveRequestRepo,
+	data.NewAllowancePoolRepo,
 	data.NewAuditLogRepo,
 	data.NewStatisticsRepo,
 )

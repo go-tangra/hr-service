@@ -64,6 +64,9 @@ func (s *AbsenceTypeService) CreateAbsenceType(ctx context.Context, req *hrV1.Cr
 	if req.SigningTemplateId != nil {
 		opts = append(opts, func(c *ent.AbsenceTypeCreate) { c.SetSigningTemplateID(*req.SigningTemplateId) })
 	}
+	if req.AllowancePoolId != nil {
+		opts = append(opts, func(c *ent.AbsenceTypeCreate) { c.SetAllowancePoolID(*req.AllowancePoolId) })
+	}
 
 	entity, err := s.absenceTypeRepo.Create(ctx, getTenantID(ctx), req.GetName(), opts...)
 	if err != nil {
@@ -182,6 +185,9 @@ func (s *AbsenceTypeService) UpdateAbsenceType(ctx context.Context, req *hrV1.Up
 		if req.Data.SigningTemplateId != nil {
 			updates["signing_template_id"] = *req.Data.SigningTemplateId
 		}
+		if req.Data.AllowancePoolId != nil {
+			updates["allowance_pool_id"] = *req.Data.AllowancePoolId
+		}
 	}
 
 	entity, err := s.absenceTypeRepo.Update(ctx, req.GetId(), updates)
@@ -238,6 +244,7 @@ func absenceTypeToProto(e *ent.AbsenceType) *hrV1.AbsenceType {
 		Metadata:              mapToStruct(e.Metadata),
 		RequiresSigning:       ptrBool(e.RequiresSigning),
 		SigningTemplateId:     ptrString(e.SigningTemplateID),
+		AllowancePoolId:      ptrString(e.AllowancePoolID),
 		CreatedBy:             e.CreateBy,
 		UpdatedBy:             e.UpdateBy,
 	}

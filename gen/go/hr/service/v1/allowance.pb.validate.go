@@ -93,12 +93,20 @@ func (m *LeaveAllowance) validate(all bool) error {
 		// no validation rules for Notes
 	}
 
+	if m.AllowancePoolId != nil {
+		// no validation rules for AllowancePoolId
+	}
+
 	if m.AbsenceTypeName != nil {
 		// no validation rules for AbsenceTypeName
 	}
 
 	if m.UserName != nil {
 		// no validation rules for UserName
+	}
+
+	if m.AllowancePoolName != nil {
+		// no validation rules for AllowancePoolName
 	}
 
 	if m.CreatedAt != nil {
@@ -285,6 +293,10 @@ func (m *CreateAllowanceRequest) validate(all bool) error {
 
 	if m.AbsenceTypeId != nil {
 		// no validation rules for AbsenceTypeId
+	}
+
+	if m.AllowancePoolId != nil {
+		// no validation rules for AllowancePoolId
 	}
 
 	if m.Year != nil {
@@ -1459,6 +1471,14 @@ func (m *BalanceEntry) validate(all bool) error {
 	// no validation rules for CarriedOver
 
 	// no validation rules for RemainingDays
+
+	if m.AllowancePoolId != nil {
+		// no validation rules for AllowancePoolId
+	}
+
+	if m.AllowancePoolName != nil {
+		// no validation rules for AllowancePoolName
+	}
 
 	if len(errors) > 0 {
 		return BalanceEntryMultiError(errors)

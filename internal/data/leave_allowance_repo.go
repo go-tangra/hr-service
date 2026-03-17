@@ -240,6 +240,84 @@ func (r *LeaveAllowanceRepo) DeductWithBalanceCheck(ctx context.Context, tenantI
 	return allowance.ID, nil
 }
 
+// GetByUserAndPoolAndYear returns the allowance for a specific user, pool, and year.
+func (r *LeaveAllowanceRepo) GetByUserAndPoolAndYear(ctx context.Context, tenantID uint32, userID uint32, poolID string, year int) (*ent.LeaveAllowance, error) {
+	entity, err := r.entClient.Client().LeaveAllowance.Query().
+		Where(
+			leaveallowance.TenantID(tenantID),
+			leaveallowance.UserID(userID),
+			leaveallowance.AllowancePoolID(poolID),
+			leaveallowance.Year(year),
+		).
+		WithAbsenceType().
+		Only(ctx)
+	if err != nil {
+		if ent.IsNotFound(err) {
+			return nil, nil
+		}
+		r.log.Errorf("get leave allowance by user/pool/year failed: %s", err.Error())
+		return nil, hrV1.ErrorInternalServerError("get leave allowance failed")
+	}
+	return entity, nil
+}
+
+// DeductPoolWithBalanceCheck atomically verifies sufficient balance and deducts days from a pool-based allowance.
+func (r *LeaveAllowanceRepo) DeductPoolWithBalanceCheck(ctx context.Context, tenantID uint32, userID uint32, poolID string, year int, days float64) (string, error) {
+	tx, err := r.entClient.Client().Tx(ctx)
+	if err != nil {
+		r.log.Errorf("begin transaction failed: %s", err.Error())
+		return "", hrV1.ErrorInternalServerError("failed to check allowance")
+	}
+
+	// Lock the row with ForUpdate to prevent concurrent modifications
+	allowance, err := tx.LeaveAllowance.Query().
+		Where(
+			leaveallowance.TenantID(tenantID),
+			leaveallowance.UserID(userID),
+			leaveallowance.AllowancePoolID(poolID),
+			leaveallowance.Year(year),
+		).
+		ForUpdate().
+		Only(ctx)
+	if err != nil {
+		if rbErr := tx.Rollback(); rbErr != nil {
+			r.log.Errorf("rollback failed: %s", rbErr.Error())
+		}
+		if ent.IsNotFound(err) {
+			return "", nil // no allowance configured
+		}
+		r.log.Errorf("lock pool allowance row failed: %s", err.Error())
+		return "", hrV1.ErrorInternalServerError("failed to check allowance")
+	}
+
+	remaining := allowance.TotalDays + allowance.CarriedOver - allowance.UsedDays
+	if days > remaining {
+		if rbErr := tx.Rollback(); rbErr != nil {
+			r.log.Errorf("rollback failed: %s", rbErr.Error())
+		}
+		return "", hrV1.ErrorInsufficientAllowance("insufficient pool allowance: %.1f days requested, %.1f days remaining", days, remaining)
+	}
+
+	_, err = tx.LeaveAllowance.UpdateOneID(allowance.ID).
+		AddUsedDays(days).
+		SetUpdateTime(time.Now()).
+		Save(ctx)
+	if err != nil {
+		if rbErr := tx.Rollback(); rbErr != nil {
+			r.log.Errorf("rollback failed: %s", rbErr.Error())
+		}
+		r.log.Errorf("deduct pool allowance failed: %s", err.Error())
+		return "", hrV1.ErrorInternalServerError("failed to deduct allowance")
+	}
+
+	if err := tx.Commit(); err != nil {
+		r.log.Errorf("commit pool allowance deduction failed: %s", err.Error())
+		return "", hrV1.ErrorInternalServerError("failed to deduct allowance")
+	}
+
+	return allowance.ID, nil
+}
+
 func (r *LeaveAllowanceRepo) Delete(ctx context.Context, id string) error {
 	err := r.entClient.Client().LeaveAllowance.DeleteOneID(id).Exec(ctx)
 	if err != nil {

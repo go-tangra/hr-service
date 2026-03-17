@@ -12,6 +12,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/go-tangra/go-tangra-hr/internal/data/ent/absencetype"
+	"github.com/go-tangra/go-tangra-hr/internal/data/ent/allowancepool"
 	"github.com/go-tangra/go-tangra-hr/internal/data/ent/leaveallowance"
 	"github.com/go-tangra/go-tangra-hr/internal/data/ent/predicate"
 )
@@ -179,6 +180,32 @@ func (_u *LeaveAllowanceUpdate) SetNillableAbsenceTypeID(v *string) *LeaveAllowa
 	return _u
 }
 
+// ClearAbsenceTypeID clears the value of the "absence_type_id" field.
+func (_u *LeaveAllowanceUpdate) ClearAbsenceTypeID() *LeaveAllowanceUpdate {
+	_u.mutation.ClearAbsenceTypeID()
+	return _u
+}
+
+// SetAllowancePoolID sets the "allowance_pool_id" field.
+func (_u *LeaveAllowanceUpdate) SetAllowancePoolID(v string) *LeaveAllowanceUpdate {
+	_u.mutation.SetAllowancePoolID(v)
+	return _u
+}
+
+// SetNillableAllowancePoolID sets the "allowance_pool_id" field if the given value is not nil.
+func (_u *LeaveAllowanceUpdate) SetNillableAllowancePoolID(v *string) *LeaveAllowanceUpdate {
+	if v != nil {
+		_u.SetAllowancePoolID(*v)
+	}
+	return _u
+}
+
+// ClearAllowancePoolID clears the value of the "allowance_pool_id" field.
+func (_u *LeaveAllowanceUpdate) ClearAllowancePoolID() *LeaveAllowanceUpdate {
+	_u.mutation.ClearAllowancePoolID()
+	return _u
+}
+
 // SetYear sets the "year" field.
 func (_u *LeaveAllowanceUpdate) SetYear(v int) *LeaveAllowanceUpdate {
 	_u.mutation.ResetYear()
@@ -288,6 +315,11 @@ func (_u *LeaveAllowanceUpdate) SetAbsenceType(v *AbsenceType) *LeaveAllowanceUp
 	return _u.SetAbsenceTypeID(v.ID)
 }
 
+// SetAllowancePool sets the "allowance_pool" edge to the AllowancePool entity.
+func (_u *LeaveAllowanceUpdate) SetAllowancePool(v *AllowancePool) *LeaveAllowanceUpdate {
+	return _u.SetAllowancePoolID(v.ID)
+}
+
 // Mutation returns the LeaveAllowanceMutation object of the builder.
 func (_u *LeaveAllowanceUpdate) Mutation() *LeaveAllowanceMutation {
 	return _u.mutation
@@ -296,6 +328,12 @@ func (_u *LeaveAllowanceUpdate) Mutation() *LeaveAllowanceMutation {
 // ClearAbsenceType clears the "absence_type" edge to the AbsenceType entity.
 func (_u *LeaveAllowanceUpdate) ClearAbsenceType() *LeaveAllowanceUpdate {
 	_u.mutation.ClearAbsenceType()
+	return _u
+}
+
+// ClearAllowancePool clears the "allowance_pool" edge to the AllowancePool entity.
+func (_u *LeaveAllowanceUpdate) ClearAllowancePool() *LeaveAllowanceUpdate {
+	_u.mutation.ClearAllowancePool()
 	return _u
 }
 
@@ -328,18 +366,10 @@ func (_u *LeaveAllowanceUpdate) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (_u *LeaveAllowanceUpdate) check() error {
-	if v, ok := _u.mutation.AbsenceTypeID(); ok {
-		if err := leaveallowance.AbsenceTypeIDValidator(v); err != nil {
-			return &ValidationError{Name: "absence_type_id", err: fmt.Errorf(`ent: validator failed for field "LeaveAllowance.absence_type_id": %w`, err)}
-		}
-	}
 	if v, ok := _u.mutation.Year(); ok {
 		if err := leaveallowance.YearValidator(v); err != nil {
 			return &ValidationError{Name: "year", err: fmt.Errorf(`ent: validator failed for field "LeaveAllowance.year": %w`, err)}
 		}
-	}
-	if _u.mutation.AbsenceTypeCleared() && len(_u.mutation.AbsenceTypeIDs()) > 0 {
-		return errors.New(`ent: clearing a required unique edge "LeaveAllowance.absence_type"`)
 	}
 	return nil
 }
@@ -462,6 +492,35 @@ func (_u *LeaveAllowanceUpdate) sqlSave(ctx context.Context) (_node int, err err
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(absencetype.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.AllowancePoolCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   leaveallowance.AllowancePoolTable,
+			Columns: []string{leaveallowance.AllowancePoolColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(allowancepool.FieldID, field.TypeString),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.AllowancePoolIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   leaveallowance.AllowancePoolTable,
+			Columns: []string{leaveallowance.AllowancePoolColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(allowancepool.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {
@@ -640,6 +699,32 @@ func (_u *LeaveAllowanceUpdateOne) SetNillableAbsenceTypeID(v *string) *LeaveAll
 	return _u
 }
 
+// ClearAbsenceTypeID clears the value of the "absence_type_id" field.
+func (_u *LeaveAllowanceUpdateOne) ClearAbsenceTypeID() *LeaveAllowanceUpdateOne {
+	_u.mutation.ClearAbsenceTypeID()
+	return _u
+}
+
+// SetAllowancePoolID sets the "allowance_pool_id" field.
+func (_u *LeaveAllowanceUpdateOne) SetAllowancePoolID(v string) *LeaveAllowanceUpdateOne {
+	_u.mutation.SetAllowancePoolID(v)
+	return _u
+}
+
+// SetNillableAllowancePoolID sets the "allowance_pool_id" field if the given value is not nil.
+func (_u *LeaveAllowanceUpdateOne) SetNillableAllowancePoolID(v *string) *LeaveAllowanceUpdateOne {
+	if v != nil {
+		_u.SetAllowancePoolID(*v)
+	}
+	return _u
+}
+
+// ClearAllowancePoolID clears the value of the "allowance_pool_id" field.
+func (_u *LeaveAllowanceUpdateOne) ClearAllowancePoolID() *LeaveAllowanceUpdateOne {
+	_u.mutation.ClearAllowancePoolID()
+	return _u
+}
+
 // SetYear sets the "year" field.
 func (_u *LeaveAllowanceUpdateOne) SetYear(v int) *LeaveAllowanceUpdateOne {
 	_u.mutation.ResetYear()
@@ -749,6 +834,11 @@ func (_u *LeaveAllowanceUpdateOne) SetAbsenceType(v *AbsenceType) *LeaveAllowanc
 	return _u.SetAbsenceTypeID(v.ID)
 }
 
+// SetAllowancePool sets the "allowance_pool" edge to the AllowancePool entity.
+func (_u *LeaveAllowanceUpdateOne) SetAllowancePool(v *AllowancePool) *LeaveAllowanceUpdateOne {
+	return _u.SetAllowancePoolID(v.ID)
+}
+
 // Mutation returns the LeaveAllowanceMutation object of the builder.
 func (_u *LeaveAllowanceUpdateOne) Mutation() *LeaveAllowanceMutation {
 	return _u.mutation
@@ -757,6 +847,12 @@ func (_u *LeaveAllowanceUpdateOne) Mutation() *LeaveAllowanceMutation {
 // ClearAbsenceType clears the "absence_type" edge to the AbsenceType entity.
 func (_u *LeaveAllowanceUpdateOne) ClearAbsenceType() *LeaveAllowanceUpdateOne {
 	_u.mutation.ClearAbsenceType()
+	return _u
+}
+
+// ClearAllowancePool clears the "allowance_pool" edge to the AllowancePool entity.
+func (_u *LeaveAllowanceUpdateOne) ClearAllowancePool() *LeaveAllowanceUpdateOne {
+	_u.mutation.ClearAllowancePool()
 	return _u
 }
 
@@ -802,18 +898,10 @@ func (_u *LeaveAllowanceUpdateOne) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (_u *LeaveAllowanceUpdateOne) check() error {
-	if v, ok := _u.mutation.AbsenceTypeID(); ok {
-		if err := leaveallowance.AbsenceTypeIDValidator(v); err != nil {
-			return &ValidationError{Name: "absence_type_id", err: fmt.Errorf(`ent: validator failed for field "LeaveAllowance.absence_type_id": %w`, err)}
-		}
-	}
 	if v, ok := _u.mutation.Year(); ok {
 		if err := leaveallowance.YearValidator(v); err != nil {
 			return &ValidationError{Name: "year", err: fmt.Errorf(`ent: validator failed for field "LeaveAllowance.year": %w`, err)}
 		}
-	}
-	if _u.mutation.AbsenceTypeCleared() && len(_u.mutation.AbsenceTypeIDs()) > 0 {
-		return errors.New(`ent: clearing a required unique edge "LeaveAllowance.absence_type"`)
 	}
 	return nil
 }
@@ -953,6 +1041,35 @@ func (_u *LeaveAllowanceUpdateOne) sqlSave(ctx context.Context) (_node *LeaveAll
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(absencetype.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.AllowancePoolCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   leaveallowance.AllowancePoolTable,
+			Columns: []string{leaveallowance.AllowancePoolColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(allowancepool.FieldID, field.TypeString),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.AllowancePoolIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   leaveallowance.AllowancePoolTable,
+			Columns: []string{leaveallowance.AllowancePoolColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(allowancepool.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {

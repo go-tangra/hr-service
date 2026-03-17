@@ -29,12 +29,21 @@ var (
 		{Name: "metadata", Type: field.TypeJSON, Nullable: true, Comment: "Custom metadata (JSON)"},
 		{Name: "requires_signing", Type: field.TypeBool, Comment: "Whether this type requires document signing", Default: false},
 		{Name: "signing_template_id", Type: field.TypeString, Nullable: true, Comment: "Paperless signing template ID"},
+		{Name: "allowance_pool_id", Type: field.TypeString, Nullable: true, Comment: "FK to AllowancePool — types sharing a pool share one allowance budget"},
 	}
 	// HrAbsenceTypesTable holds the schema information for the "hr_absence_types" table.
 	HrAbsenceTypesTable = &schema.Table{
 		Name:       "hr_absence_types",
 		Columns:    HrAbsenceTypesColumns,
 		PrimaryKey: []*schema.Column{HrAbsenceTypesColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "hr_absence_types_hr_allowance_pools_absence_types",
+				Columns:    []*schema.Column{HrAbsenceTypesColumns[18]},
+				RefColumns: []*schema.Column{HrAllowancePoolsColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+		},
 		Indexes: []*schema.Index{
 			{
 				Name:    "idx_hr_abstype_tenant_name",
@@ -45,6 +54,38 @@ var (
 				Name:    "idx_hr_abstype_tenant",
 				Unique:  false,
 				Columns: []*schema.Column{HrAbsenceTypesColumns[6]},
+			},
+		},
+	}
+	// HrAllowancePoolsColumns holds the columns for the "hr_allowance_pools" table.
+	HrAllowancePoolsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeString, Unique: true, Comment: "Unique identifier"},
+		{Name: "create_by", Type: field.TypeUint32, Nullable: true, Comment: "创建者ID"},
+		{Name: "update_by", Type: field.TypeUint32, Nullable: true, Comment: "更新者ID"},
+		{Name: "create_time", Type: field.TypeTime, Nullable: true, Comment: "创建时间"},
+		{Name: "update_time", Type: field.TypeTime, Nullable: true, Comment: "更新时间"},
+		{Name: "delete_time", Type: field.TypeTime, Nullable: true, Comment: "删除时间"},
+		{Name: "tenant_id", Type: field.TypeUint32, Nullable: true, Comment: "租户ID", Default: 0},
+		{Name: "name", Type: field.TypeString, Size: 255, Comment: "Pool name (e.g. 'Sick Leave Pool')"},
+		{Name: "description", Type: field.TypeString, Nullable: true, Size: 2147483647, Comment: "Description"},
+		{Name: "color", Type: field.TypeString, Nullable: true, Size: 7, Comment: "Hex color for display"},
+		{Name: "icon", Type: field.TypeString, Nullable: true, Size: 100, Comment: "Lucide icon name"},
+	}
+	// HrAllowancePoolsTable holds the schema information for the "hr_allowance_pools" table.
+	HrAllowancePoolsTable = &schema.Table{
+		Name:       "hr_allowance_pools",
+		Columns:    HrAllowancePoolsColumns,
+		PrimaryKey: []*schema.Column{HrAllowancePoolsColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "idx_hr_pool_tenant_name",
+				Unique:  true,
+				Columns: []*schema.Column{HrAllowancePoolsColumns[6], HrAllowancePoolsColumns[7]},
+			},
+			{
+				Name:    "idx_hr_pool_tenant",
+				Unique:  false,
+				Columns: []*schema.Column{HrAllowancePoolsColumns[6]},
 			},
 		},
 	}
@@ -138,7 +179,8 @@ var (
 		{Name: "used_days", Type: field.TypeFloat64, Comment: "Consumed days", Default: 0},
 		{Name: "carried_over", Type: field.TypeFloat64, Comment: "Carried from previous year", Default: 0},
 		{Name: "notes", Type: field.TypeString, Nullable: true, Size: 2147483647, Comment: "Notes"},
-		{Name: "absence_type_id", Type: field.TypeString, Comment: "FK to AbsenceType"},
+		{Name: "absence_type_id", Type: field.TypeString, Nullable: true, Comment: "FK to AbsenceType (set when not using a pool)"},
+		{Name: "allowance_pool_id", Type: field.TypeString, Nullable: true, Comment: "FK to AllowancePool (set when pool-based allowance)"},
 	}
 	// HrLeaveAllowancesTable holds the schema information for the "hr_leave_allowances" table.
 	HrLeaveAllowancesTable = &schema.Table{
@@ -150,7 +192,13 @@ var (
 				Symbol:     "hr_leave_allowances_hr_absence_types_leave_allowances",
 				Columns:    []*schema.Column{HrLeaveAllowancesColumns[14]},
 				RefColumns: []*schema.Column{HrAbsenceTypesColumns[0]},
-				OnDelete:   schema.NoAction,
+				OnDelete:   schema.SetNull,
+			},
+			{
+				Symbol:     "hr_leave_allowances_hr_allowance_pools_leave_allowances",
+				Columns:    []*schema.Column{HrLeaveAllowancesColumns[15]},
+				RefColumns: []*schema.Column{HrAllowancePoolsColumns[0]},
+				OnDelete:   schema.SetNull,
 			},
 		},
 		Indexes: []*schema.Index{
@@ -158,6 +206,11 @@ var (
 				Name:    "idx_hr_allowance_tenant_user_type_year",
 				Unique:  true,
 				Columns: []*schema.Column{HrLeaveAllowancesColumns[6], HrLeaveAllowancesColumns[7], HrLeaveAllowancesColumns[14], HrLeaveAllowancesColumns[9]},
+			},
+			{
+				Name:    "idx_hr_allowance_tenant_user_pool_year",
+				Unique:  true,
+				Columns: []*schema.Column{HrLeaveAllowancesColumns[6], HrLeaveAllowancesColumns[7], HrLeaveAllowancesColumns[15], HrLeaveAllowancesColumns[9]},
 			},
 			{
 				Name:    "idx_hr_allowance_tenant",
@@ -227,6 +280,7 @@ var (
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
 		HrAbsenceTypesTable,
+		HrAllowancePoolsTable,
 		HrAuditLogsTable,
 		HrLeaveAllowancesTable,
 		HrLeaveRequestsTable,
@@ -234,13 +288,18 @@ var (
 )
 
 func init() {
+	HrAbsenceTypesTable.ForeignKeys[0].RefTable = HrAllowancePoolsTable
 	HrAbsenceTypesTable.Annotation = &entsql.Annotation{
 		Table: "hr_absence_types",
+	}
+	HrAllowancePoolsTable.Annotation = &entsql.Annotation{
+		Table: "hr_allowance_pools",
 	}
 	HrAuditLogsTable.Annotation = &entsql.Annotation{
 		Table: "hr_audit_logs",
 	}
 	HrLeaveAllowancesTable.ForeignKeys[0].RefTable = HrAbsenceTypesTable
+	HrLeaveAllowancesTable.ForeignKeys[1].RefTable = HrAllowancePoolsTable
 	HrLeaveAllowancesTable.Annotation = &entsql.Annotation{
 		Table: "hr_leave_allowances",
 	}

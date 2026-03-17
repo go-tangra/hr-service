@@ -18,24 +18,48 @@ func entityTenantID(e *ent.LeaveRequest) uint32 {
 	return 0
 }
 
+// isPoolBased returns true if the absence type uses a shared allowance pool.
+func isPoolBased(absType *ent.AbsenceType) bool {
+	return absType != nil && absType.AllowancePoolID != ""
+}
+
 // deductAllowance atomically checks balance and deducts days for a leave request's absence type.
+// Supports both individual and pool-based allowances.
 // Returns nil if the absence type doesn't deduct from allowance or has no allowance configured.
 func deductAllowance(ctx context.Context, allowanceRepo *data.LeaveAllowanceRepo, leaveReq *ent.LeaveRequest) error {
 	if leaveReq.Edges.AbsenceType == nil || !leaveReq.Edges.AbsenceType.DeductsFromAllowance {
 		return nil
 	}
-	_, err := allowanceRepo.DeductWithBalanceCheck(ctx, entityTenantID(leaveReq), leaveReq.UserID, leaveReq.AbsenceTypeID, leaveReq.StartDate.Year(), leaveReq.Days)
+
+	tid := entityTenantID(leaveReq)
+
+	if isPoolBased(leaveReq.Edges.AbsenceType) {
+		_, err := allowanceRepo.DeductPoolWithBalanceCheck(ctx, tid, leaveReq.UserID, leaveReq.Edges.AbsenceType.AllowancePoolID, leaveReq.StartDate.Year(), leaveReq.Days)
+		return err
+	}
+
+	_, err := allowanceRepo.DeductWithBalanceCheck(ctx, tid, leaveReq.UserID, leaveReq.AbsenceTypeID, leaveReq.StartDate.Year(), leaveReq.Days)
 	return err
 }
 
 // refundAllowance returns previously deducted days to the user's allowance.
+// Supports both individual and pool-based allowances.
 // Errors are logged but not returned, since refunds are best-effort during cancellation.
 func refundAllowance(ctx context.Context, log *log.Helper, allowanceRepo *data.LeaveAllowanceRepo, leaveReq *ent.LeaveRequest) {
 	if leaveReq.Edges.AbsenceType == nil || !leaveReq.Edges.AbsenceType.DeductsFromAllowance {
 		return
 	}
+
 	tid := entityTenantID(leaveReq)
-	allowance, err := allowanceRepo.GetByUserAndTypeAndYear(ctx, tid, leaveReq.UserID, leaveReq.AbsenceTypeID, leaveReq.StartDate.Year())
+	var allowance *ent.LeaveAllowance
+	var err error
+
+	if isPoolBased(leaveReq.Edges.AbsenceType) {
+		allowance, err = allowanceRepo.GetByUserAndPoolAndYear(ctx, tid, leaveReq.UserID, leaveReq.Edges.AbsenceType.AllowancePoolID, leaveReq.StartDate.Year())
+	} else {
+		allowance, err = allowanceRepo.GetByUserAndTypeAndYear(ctx, tid, leaveReq.UserID, leaveReq.AbsenceTypeID, leaveReq.StartDate.Year())
+	}
+
 	if err != nil {
 		log.Errorf("Failed to look up allowance for refund on leave %s: %v", leaveReq.ID, err)
 		return

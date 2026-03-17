@@ -123,7 +123,12 @@ func (s *LeaveService) CreateLeaveRequest(ctx context.Context, req *hrV1.CreateL
 
 	// Check allowance balance if type deducts from allowance (pre-check, non-atomic)
 	if absType.DeductsFromAllowance {
-		allowance, err := s.allowanceRepo.GetByUserAndTypeAndYear(ctx, tenantID, userID, req.GetAbsenceTypeId(), startDate.Year())
+		var allowance *ent.LeaveAllowance
+		if absType.AllowancePoolID != "" {
+			allowance, err = s.allowanceRepo.GetByUserAndPoolAndYear(ctx, tenantID, userID, absType.AllowancePoolID, startDate.Year())
+		} else {
+			allowance, err = s.allowanceRepo.GetByUserAndTypeAndYear(ctx, tenantID, userID, req.GetAbsenceTypeId(), startDate.Year())
+		}
 		if err != nil {
 			return nil, err
 		}
@@ -145,7 +150,12 @@ func (s *LeaveService) CreateLeaveRequest(ctx context.Context, req *hrV1.CreateL
 	// If auto-approved and deducts from allowance, atomically deduct before creating the request
 	var deductedAllowanceID string
 	if status == "approved" && absType.DeductsFromAllowance {
-		aid, err := s.allowanceRepo.DeductWithBalanceCheck(ctx, tenantID, userID, req.GetAbsenceTypeId(), startDate.Year(), days)
+		var aid string
+		if absType.AllowancePoolID != "" {
+			aid, err = s.allowanceRepo.DeductPoolWithBalanceCheck(ctx, tenantID, userID, absType.AllowancePoolID, startDate.Year(), days)
+		} else {
+			aid, err = s.allowanceRepo.DeductWithBalanceCheck(ctx, tenantID, userID, req.GetAbsenceTypeId(), startDate.Year(), days)
+		}
 		if err != nil {
 			return nil, err
 		}

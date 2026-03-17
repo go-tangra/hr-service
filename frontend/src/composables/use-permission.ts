@@ -5,6 +5,7 @@ export function usePermission() {
   const accessStore = useAccessStore();
   const userStore = useUserStore();
   const isAdmin = computed(() => userStore.userRoles?.includes('platform:admin') || userStore.userRoles?.includes('tenant:manager'));
+  const isHrAdmin = computed(() => isAdmin.value || userStore.userRoles?.includes('hr.admin'));
   const can = (code: string) => isAdmin.value || accessStore.accessCodes.includes(code);
 
   return {
@@ -13,5 +14,6 @@ export function usePermission() {
     canApproveRequests: computed(() => can('hr.request.approve')),
     canManageAllowances: computed(() => can('hr.allowance.manage')),
     canManageAbsenceTypes: computed(() => can('hr.absence_type.manage')),
+    canManagePools: computed(() => isHrAdmin.value),
   };
 }

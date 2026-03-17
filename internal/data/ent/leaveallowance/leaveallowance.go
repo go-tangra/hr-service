@@ -31,6 +31,8 @@ const (
 	FieldUserName = "user_name"
 	// FieldAbsenceTypeID holds the string denoting the absence_type_id field in the database.
 	FieldAbsenceTypeID = "absence_type_id"
+	// FieldAllowancePoolID holds the string denoting the allowance_pool_id field in the database.
+	FieldAllowancePoolID = "allowance_pool_id"
 	// FieldYear holds the string denoting the year field in the database.
 	FieldYear = "year"
 	// FieldTotalDays holds the string denoting the total_days field in the database.
@@ -43,6 +45,8 @@ const (
 	FieldNotes = "notes"
 	// EdgeAbsenceType holds the string denoting the absence_type edge name in mutations.
 	EdgeAbsenceType = "absence_type"
+	// EdgeAllowancePool holds the string denoting the allowance_pool edge name in mutations.
+	EdgeAllowancePool = "allowance_pool"
 	// Table holds the table name of the leaveallowance in the database.
 	Table = "hr_leave_allowances"
 	// AbsenceTypeTable is the table that holds the absence_type relation/edge.
@@ -52,6 +56,13 @@ const (
 	AbsenceTypeInverseTable = "hr_absence_types"
 	// AbsenceTypeColumn is the table column denoting the absence_type relation/edge.
 	AbsenceTypeColumn = "absence_type_id"
+	// AllowancePoolTable is the table that holds the allowance_pool relation/edge.
+	AllowancePoolTable = "hr_leave_allowances"
+	// AllowancePoolInverseTable is the table name for the AllowancePool entity.
+	// It exists in this package in order to avoid circular dependency with the "allowancepool" package.
+	AllowancePoolInverseTable = "hr_allowance_pools"
+	// AllowancePoolColumn is the table column denoting the allowance_pool relation/edge.
+	AllowancePoolColumn = "allowance_pool_id"
 )
 
 // Columns holds all SQL columns for leaveallowance fields.
@@ -66,6 +77,7 @@ var Columns = []string{
 	FieldUserID,
 	FieldUserName,
 	FieldAbsenceTypeID,
+	FieldAllowancePoolID,
 	FieldYear,
 	FieldTotalDays,
 	FieldUsedDays,
@@ -95,8 +107,6 @@ var (
 	DefaultTenantID uint32
 	// DefaultUserName holds the default value on creation for the "user_name" field.
 	DefaultUserName string
-	// AbsenceTypeIDValidator is a validator for the "absence_type_id" field. It is called by the builders before save.
-	AbsenceTypeIDValidator func(string) error
 	// YearValidator is a validator for the "year" field. It is called by the builders before save.
 	YearValidator func(int) error
 	// DefaultUsedDays holds the default value on creation for the "used_days" field.
@@ -160,6 +170,11 @@ func ByAbsenceTypeID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldAbsenceTypeID, opts...).ToFunc()
 }
 
+// ByAllowancePoolID orders the results by the allowance_pool_id field.
+func ByAllowancePoolID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldAllowancePoolID, opts...).ToFunc()
+}
+
 // ByYear orders the results by the year field.
 func ByYear(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldYear, opts...).ToFunc()
@@ -191,10 +206,24 @@ func ByAbsenceTypeField(field string, opts ...sql.OrderTermOption) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newAbsenceTypeStep(), sql.OrderByField(field, opts...))
 	}
 }
+
+// ByAllowancePoolField orders the results by allowance_pool field.
+func ByAllowancePoolField(field string, opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newAllowancePoolStep(), sql.OrderByField(field, opts...))
+	}
+}
 func newAbsenceTypeStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(AbsenceTypeInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.M2O, true, AbsenceTypeTable, AbsenceTypeColumn),
+	)
+}
+func newAllowancePoolStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(AllowancePoolInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2O, true, AllowancePoolTable, AllowancePoolColumn),
 	)
 }

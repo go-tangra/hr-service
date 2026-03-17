@@ -9,6 +9,9 @@ import (
 // AbsenceType is the predicate function for absencetype builders.
 type AbsenceType func(*sql.Selector)
 
+// AllowancePool is the predicate function for allowancepool builders.
+type AllowancePool func(*sql.Selector)
+
 // AuditLog is the predicate function for auditlog builders.
 type AuditLog func(*sql.Selector)
 

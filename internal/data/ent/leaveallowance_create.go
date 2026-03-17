@@ -13,6 +13,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/go-tangra/go-tangra-hr/internal/data/ent/absencetype"
+	"github.com/go-tangra/go-tangra-hr/internal/data/ent/allowancepool"
 	"github.com/go-tangra/go-tangra-hr/internal/data/ent/leaveallowance"
 )
 
@@ -134,6 +135,28 @@ func (_c *LeaveAllowanceCreate) SetAbsenceTypeID(v string) *LeaveAllowanceCreate
 	return _c
 }
 
+// SetNillableAbsenceTypeID sets the "absence_type_id" field if the given value is not nil.
+func (_c *LeaveAllowanceCreate) SetNillableAbsenceTypeID(v *string) *LeaveAllowanceCreate {
+	if v != nil {
+		_c.SetAbsenceTypeID(*v)
+	}
+	return _c
+}
+
+// SetAllowancePoolID sets the "allowance_pool_id" field.
+func (_c *LeaveAllowanceCreate) SetAllowancePoolID(v string) *LeaveAllowanceCreate {
+	_c.mutation.SetAllowancePoolID(v)
+	return _c
+}
+
+// SetNillableAllowancePoolID sets the "allowance_pool_id" field if the given value is not nil.
+func (_c *LeaveAllowanceCreate) SetNillableAllowancePoolID(v *string) *LeaveAllowanceCreate {
+	if v != nil {
+		_c.SetAllowancePoolID(*v)
+	}
+	return _c
+}
+
 // SetYear sets the "year" field.
 func (_c *LeaveAllowanceCreate) SetYear(v int) *LeaveAllowanceCreate {
 	_c.mutation.SetYear(v)
@@ -199,6 +222,11 @@ func (_c *LeaveAllowanceCreate) SetAbsenceType(v *AbsenceType) *LeaveAllowanceCr
 	return _c.SetAbsenceTypeID(v.ID)
 }
 
+// SetAllowancePool sets the "allowance_pool" edge to the AllowancePool entity.
+func (_c *LeaveAllowanceCreate) SetAllowancePool(v *AllowancePool) *LeaveAllowanceCreate {
+	return _c.SetAllowancePoolID(v.ID)
+}
+
 // Mutation returns the LeaveAllowanceMutation object of the builder.
 func (_c *LeaveAllowanceCreate) Mutation() *LeaveAllowanceMutation {
 	return _c.mutation
@@ -260,14 +288,6 @@ func (_c *LeaveAllowanceCreate) check() error {
 	if _, ok := _c.mutation.UserID(); !ok {
 		return &ValidationError{Name: "user_id", err: errors.New(`ent: missing required field "LeaveAllowance.user_id"`)}
 	}
-	if _, ok := _c.mutation.AbsenceTypeID(); !ok {
-		return &ValidationError{Name: "absence_type_id", err: errors.New(`ent: missing required field "LeaveAllowance.absence_type_id"`)}
-	}
-	if v, ok := _c.mutation.AbsenceTypeID(); ok {
-		if err := leaveallowance.AbsenceTypeIDValidator(v); err != nil {
-			return &ValidationError{Name: "absence_type_id", err: fmt.Errorf(`ent: validator failed for field "LeaveAllowance.absence_type_id": %w`, err)}
-		}
-	}
 	if _, ok := _c.mutation.Year(); !ok {
 		return &ValidationError{Name: "year", err: errors.New(`ent: missing required field "LeaveAllowance.year"`)}
 	}
@@ -289,9 +309,6 @@ func (_c *LeaveAllowanceCreate) check() error {
 		if err := leaveallowance.IDValidator(v); err != nil {
 			return &ValidationError{Name: "id", err: fmt.Errorf(`ent: validator failed for field "LeaveAllowance.id": %w`, err)}
 		}
-	}
-	if len(_c.mutation.AbsenceTypeIDs()) == 0 {
-		return &ValidationError{Name: "absence_type", err: errors.New(`ent: missing required edge "LeaveAllowance.absence_type"`)}
 	}
 	return nil
 }
@@ -396,6 +413,23 @@ func (_c *LeaveAllowanceCreate) createSpec() (*LeaveAllowance, *sqlgraph.CreateS
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
 		_node.AbsenceTypeID = nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.AllowancePoolIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   leaveallowance.AllowancePoolTable,
+			Columns: []string{leaveallowance.AllowancePoolColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(allowancepool.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.AllowancePoolID = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
@@ -579,6 +613,30 @@ func (u *LeaveAllowanceUpsert) SetAbsenceTypeID(v string) *LeaveAllowanceUpsert 
 // UpdateAbsenceTypeID sets the "absence_type_id" field to the value that was provided on create.
 func (u *LeaveAllowanceUpsert) UpdateAbsenceTypeID() *LeaveAllowanceUpsert {
 	u.SetExcluded(leaveallowance.FieldAbsenceTypeID)
+	return u
+}
+
+// ClearAbsenceTypeID clears the value of the "absence_type_id" field.
+func (u *LeaveAllowanceUpsert) ClearAbsenceTypeID() *LeaveAllowanceUpsert {
+	u.SetNull(leaveallowance.FieldAbsenceTypeID)
+	return u
+}
+
+// SetAllowancePoolID sets the "allowance_pool_id" field.
+func (u *LeaveAllowanceUpsert) SetAllowancePoolID(v string) *LeaveAllowanceUpsert {
+	u.Set(leaveallowance.FieldAllowancePoolID, v)
+	return u
+}
+
+// UpdateAllowancePoolID sets the "allowance_pool_id" field to the value that was provided on create.
+func (u *LeaveAllowanceUpsert) UpdateAllowancePoolID() *LeaveAllowanceUpsert {
+	u.SetExcluded(leaveallowance.FieldAllowancePoolID)
+	return u
+}
+
+// ClearAllowancePoolID clears the value of the "allowance_pool_id" field.
+func (u *LeaveAllowanceUpsert) ClearAllowancePoolID() *LeaveAllowanceUpsert {
+	u.SetNull(leaveallowance.FieldAllowancePoolID)
 	return u
 }
 
@@ -877,6 +935,34 @@ func (u *LeaveAllowanceUpsertOne) SetAbsenceTypeID(v string) *LeaveAllowanceUpse
 func (u *LeaveAllowanceUpsertOne) UpdateAbsenceTypeID() *LeaveAllowanceUpsertOne {
 	return u.Update(func(s *LeaveAllowanceUpsert) {
 		s.UpdateAbsenceTypeID()
+	})
+}
+
+// ClearAbsenceTypeID clears the value of the "absence_type_id" field.
+func (u *LeaveAllowanceUpsertOne) ClearAbsenceTypeID() *LeaveAllowanceUpsertOne {
+	return u.Update(func(s *LeaveAllowanceUpsert) {
+		s.ClearAbsenceTypeID()
+	})
+}
+
+// SetAllowancePoolID sets the "allowance_pool_id" field.
+func (u *LeaveAllowanceUpsertOne) SetAllowancePoolID(v string) *LeaveAllowanceUpsertOne {
+	return u.Update(func(s *LeaveAllowanceUpsert) {
+		s.SetAllowancePoolID(v)
+	})
+}
+
+// UpdateAllowancePoolID sets the "allowance_pool_id" field to the value that was provided on create.
+func (u *LeaveAllowanceUpsertOne) UpdateAllowancePoolID() *LeaveAllowanceUpsertOne {
+	return u.Update(func(s *LeaveAllowanceUpsert) {
+		s.UpdateAllowancePoolID()
+	})
+}
+
+// ClearAllowancePoolID clears the value of the "allowance_pool_id" field.
+func (u *LeaveAllowanceUpsertOne) ClearAllowancePoolID() *LeaveAllowanceUpsertOne {
+	return u.Update(func(s *LeaveAllowanceUpsert) {
+		s.ClearAllowancePoolID()
 	})
 }
 
@@ -1357,6 +1443,34 @@ func (u *LeaveAllowanceUpsertBulk) SetAbsenceTypeID(v string) *LeaveAllowanceUps
 func (u *LeaveAllowanceUpsertBulk) UpdateAbsenceTypeID() *LeaveAllowanceUpsertBulk {
 	return u.Update(func(s *LeaveAllowanceUpsert) {
 		s.UpdateAbsenceTypeID()
+	})
+}
+
+// ClearAbsenceTypeID clears the value of the "absence_type_id" field.
+func (u *LeaveAllowanceUpsertBulk) ClearAbsenceTypeID() *LeaveAllowanceUpsertBulk {
+	return u.Update(func(s *LeaveAllowanceUpsert) {
+		s.ClearAbsenceTypeID()
+	})
+}
+
+// SetAllowancePoolID sets the "allowance_pool_id" field.
+func (u *LeaveAllowanceUpsertBulk) SetAllowancePoolID(v string) *LeaveAllowanceUpsertBulk {
+	return u.Update(func(s *LeaveAllowanceUpsert) {
+		s.SetAllowancePoolID(v)
+	})
+}
+
+// UpdateAllowancePoolID sets the "allowance_pool_id" field to the value that was provided on create.
+func (u *LeaveAllowanceUpsertBulk) UpdateAllowancePoolID() *LeaveAllowanceUpsertBulk {
+	return u.Update(func(s *LeaveAllowanceUpsert) {
+		s.UpdateAllowancePoolID()
+	})
+}
+
+// ClearAllowancePoolID clears the value of the "allowance_pool_id" field.
+func (u *LeaveAllowanceUpsertBulk) ClearAllowancePoolID() *LeaveAllowanceUpsertBulk {
+	return u.Update(func(s *LeaveAllowanceUpsert) {
+		s.ClearAllowancePoolID()
 	})
 }
 

@@ -47,10 +47,14 @@ const (
 	FieldRequiresSigning = "requires_signing"
 	// FieldSigningTemplateID holds the string denoting the signing_template_id field in the database.
 	FieldSigningTemplateID = "signing_template_id"
+	// FieldAllowancePoolID holds the string denoting the allowance_pool_id field in the database.
+	FieldAllowancePoolID = "allowance_pool_id"
 	// EdgeLeaveAllowances holds the string denoting the leave_allowances edge name in mutations.
 	EdgeLeaveAllowances = "leave_allowances"
 	// EdgeLeaveRequests holds the string denoting the leave_requests edge name in mutations.
 	EdgeLeaveRequests = "leave_requests"
+	// EdgeAllowancePool holds the string denoting the allowance_pool edge name in mutations.
+	EdgeAllowancePool = "allowance_pool"
 	// Table holds the table name of the absencetype in the database.
 	Table = "hr_absence_types"
 	// LeaveAllowancesTable is the table that holds the leave_allowances relation/edge.
@@ -67,6 +71,13 @@ const (
 	LeaveRequestsInverseTable = "hr_leave_requests"
 	// LeaveRequestsColumn is the table column denoting the leave_requests relation/edge.
 	LeaveRequestsColumn = "absence_type_id"
+	// AllowancePoolTable is the table that holds the allowance_pool relation/edge.
+	AllowancePoolTable = "hr_absence_types"
+	// AllowancePoolInverseTable is the table name for the AllowancePool entity.
+	// It exists in this package in order to avoid circular dependency with the "allowancepool" package.
+	AllowancePoolInverseTable = "hr_allowance_pools"
+	// AllowancePoolColumn is the table column denoting the allowance_pool relation/edge.
+	AllowancePoolColumn = "allowance_pool_id"
 )
 
 // Columns holds all SQL columns for absencetype fields.
@@ -89,6 +100,7 @@ var Columns = []string{
 	FieldMetadata,
 	FieldRequiresSigning,
 	FieldSigningTemplateID,
+	FieldAllowancePoolID,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -219,6 +231,11 @@ func BySigningTemplateID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldSigningTemplateID, opts...).ToFunc()
 }
 
+// ByAllowancePoolID orders the results by the allowance_pool_id field.
+func ByAllowancePoolID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldAllowancePoolID, opts...).ToFunc()
+}
+
 // ByLeaveAllowancesCount orders the results by leave_allowances count.
 func ByLeaveAllowancesCount(opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
@@ -246,6 +263,13 @@ func ByLeaveRequests(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newLeaveRequestsStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
+
+// ByAllowancePoolField orders the results by allowance_pool field.
+func ByAllowancePoolField(field string, opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newAllowancePoolStep(), sql.OrderByField(field, opts...))
+	}
+}
 func newLeaveAllowancesStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
@@ -258,5 +282,12 @@ func newLeaveRequestsStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(LeaveRequestsInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2M, false, LeaveRequestsTable, LeaveRequestsColumn),
+	)
+}
+func newAllowancePoolStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(AllowancePoolInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2O, true, AllowancePoolTable, AllowancePoolColumn),
 	)
 }
