@@ -244,6 +244,7 @@ var (
 		{Name: "reviewed_at", Type: field.TypeTime, Nullable: true, Comment: "When the request was reviewed"},
 		{Name: "notes", Type: field.TypeString, Nullable: true, Size: 2147483647, Comment: "Additional notes"},
 		{Name: "metadata", Type: field.TypeJSON, Nullable: true, Comment: "Custom metadata (JSON)"},
+		{Name: "deducted_allowance_id", Type: field.TypeString, Nullable: true, Comment: "ID of the allowance record that was deducted, for accurate refunds", Default: ""},
 		{Name: "absence_type_id", Type: field.TypeString, Comment: "FK to AbsenceType"},
 	}
 	// HrLeaveRequestsTable holds the schema information for the "hr_leave_requests" table.
@@ -254,7 +255,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "hr_leave_requests_hr_absence_types_leave_requests",
-				Columns:    []*schema.Column{HrLeaveRequestsColumns[23]},
+				Columns:    []*schema.Column{HrLeaveRequestsColumns[24]},
 				RefColumns: []*schema.Column{HrAbsenceTypesColumns[0]},
 				OnDelete:   schema.NoAction,
 			},

@@ -103,6 +103,11 @@ func (LeaveRequest) Fields() []ent.Field {
 		field.JSON("metadata", map[string]interface{}{}).
 			Optional().
 			Comment("Custom metadata (JSON)"),
+
+		field.String("deducted_allowance_id").
+			Optional().
+			Default("").
+			Comment("ID of the allowance record that was deducted, for accurate refunds"),
 	}
 }
 

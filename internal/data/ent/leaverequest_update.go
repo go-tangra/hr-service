@@ -441,6 +441,26 @@ func (_u *LeaveRequestUpdate) ClearMetadata() *LeaveRequestUpdate {
 	return _u
 }
 
+// SetDeductedAllowanceID sets the "deducted_allowance_id" field.
+func (_u *LeaveRequestUpdate) SetDeductedAllowanceID(v string) *LeaveRequestUpdate {
+	_u.mutation.SetDeductedAllowanceID(v)
+	return _u
+}
+
+// SetNillableDeductedAllowanceID sets the "deducted_allowance_id" field if the given value is not nil.
+func (_u *LeaveRequestUpdate) SetNillableDeductedAllowanceID(v *string) *LeaveRequestUpdate {
+	if v != nil {
+		_u.SetDeductedAllowanceID(*v)
+	}
+	return _u
+}
+
+// ClearDeductedAllowanceID clears the value of the "deducted_allowance_id" field.
+func (_u *LeaveRequestUpdate) ClearDeductedAllowanceID() *LeaveRequestUpdate {
+	_u.mutation.ClearDeductedAllowanceID()
+	return _u
+}
+
 // SetAbsenceType sets the "absence_type" edge to the AbsenceType entity.
 func (_u *LeaveRequestUpdate) SetAbsenceType(v *AbsenceType) *LeaveRequestUpdate {
 	return _u.SetAbsenceTypeID(v.ID)
@@ -645,6 +665,12 @@ func (_u *LeaveRequestUpdate) sqlSave(ctx context.Context) (_node int, err error
 	}
 	if _u.mutation.MetadataCleared() {
 		_spec.ClearField(leaverequest.FieldMetadata, field.TypeJSON)
+	}
+	if value, ok := _u.mutation.DeductedAllowanceID(); ok {
+		_spec.SetField(leaverequest.FieldDeductedAllowanceID, field.TypeString, value)
+	}
+	if _u.mutation.DeductedAllowanceIDCleared() {
+		_spec.ClearField(leaverequest.FieldDeductedAllowanceID, field.TypeString)
 	}
 	if _u.mutation.AbsenceTypeCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -1108,6 +1134,26 @@ func (_u *LeaveRequestUpdateOne) ClearMetadata() *LeaveRequestUpdateOne {
 	return _u
 }
 
+// SetDeductedAllowanceID sets the "deducted_allowance_id" field.
+func (_u *LeaveRequestUpdateOne) SetDeductedAllowanceID(v string) *LeaveRequestUpdateOne {
+	_u.mutation.SetDeductedAllowanceID(v)
+	return _u
+}
+
+// SetNillableDeductedAllowanceID sets the "deducted_allowance_id" field if the given value is not nil.
+func (_u *LeaveRequestUpdateOne) SetNillableDeductedAllowanceID(v *string) *LeaveRequestUpdateOne {
+	if v != nil {
+		_u.SetDeductedAllowanceID(*v)
+	}
+	return _u
+}
+
+// ClearDeductedAllowanceID clears the value of the "deducted_allowance_id" field.
+func (_u *LeaveRequestUpdateOne) ClearDeductedAllowanceID() *LeaveRequestUpdateOne {
+	_u.mutation.ClearDeductedAllowanceID()
+	return _u
+}
+
 // SetAbsenceType sets the "absence_type" edge to the AbsenceType entity.
 func (_u *LeaveRequestUpdateOne) SetAbsenceType(v *AbsenceType) *LeaveRequestUpdateOne {
 	return _u.SetAbsenceTypeID(v.ID)
@@ -1342,6 +1388,12 @@ func (_u *LeaveRequestUpdateOne) sqlSave(ctx context.Context) (_node *LeaveReque
 	}
 	if _u.mutation.MetadataCleared() {
 		_spec.ClearField(leaverequest.FieldMetadata, field.TypeJSON)
+	}
+	if value, ok := _u.mutation.DeductedAllowanceID(); ok {
+		_spec.SetField(leaverequest.FieldDeductedAllowanceID, field.TypeString, value)
+	}
+	if _u.mutation.DeductedAllowanceIDCleared() {
+		_spec.ClearField(leaverequest.FieldDeductedAllowanceID, field.TypeString)
 	}
 	if _u.mutation.AbsenceTypeCleared() {
 		edge := &sqlgraph.EdgeSpec{

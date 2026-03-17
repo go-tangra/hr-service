@@ -24,57 +24,72 @@ func isPoolBased(absType *ent.AbsenceType) bool {
 }
 
 // deductAllowance atomically checks balance and deducts days for a leave request's absence type.
-// Supports both individual and pool-based allowances.
-// Returns nil if the absence type doesn't deduct from allowance or has no allowance configured.
-func deductAllowance(ctx context.Context, allowanceRepo *data.LeaveAllowanceRepo, leaveReq *ent.LeaveRequest) error {
+// Returns the allowance ID that was deducted (for storing on the request), or "" if no deduction.
+func deductAllowance(ctx context.Context, allowanceRepo *data.LeaveAllowanceRepo, leaveReq *ent.LeaveRequest) (string, error) {
 	if leaveReq.Edges.AbsenceType == nil || !leaveReq.Edges.AbsenceType.DeductsFromAllowance {
-		return nil
+		return "", nil
 	}
 
 	tid := entityTenantID(leaveReq)
 
 	if isPoolBased(leaveReq.Edges.AbsenceType) {
-		_, err := allowanceRepo.DeductPoolWithBalanceCheck(ctx, tid, leaveReq.UserID, leaveReq.Edges.AbsenceType.AllowancePoolID, leaveReq.StartDate.Year(), leaveReq.Days)
-		return err
+		return allowanceRepo.DeductPoolWithBalanceCheck(ctx, tid, leaveReq.UserID, leaveReq.Edges.AbsenceType.AllowancePoolID, leaveReq.StartDate.Year(), leaveReq.Days)
 	}
 
-	_, err := allowanceRepo.DeductWithBalanceCheck(ctx, tid, leaveReq.UserID, leaveReq.AbsenceTypeID, leaveReq.StartDate.Year(), leaveReq.Days)
-	return err
+	return allowanceRepo.DeductWithBalanceCheck(ctx, tid, leaveReq.UserID, leaveReq.AbsenceTypeID, leaveReq.StartDate.Year(), leaveReq.Days)
 }
 
-// refundAllowance returns previously deducted days to the user's allowance.
-// Supports both individual and pool-based allowances.
-// Errors are logged but not returned, since refunds are best-effort during cancellation.
+// refundAllowance returns previously deducted days to the correct allowance.
+// Uses the stored deducted_allowance_id when available for accuracy.
+// Falls back to lookup by type/pool if the ID is not stored (legacy requests).
 func refundAllowance(ctx context.Context, log *log.Helper, allowanceRepo *data.LeaveAllowanceRepo, leaveReq *ent.LeaveRequest) {
 	if leaveReq.Edges.AbsenceType == nil || !leaveReq.Edges.AbsenceType.DeductsFromAllowance {
 		return
 	}
 
-	tid := entityTenantID(leaveReq)
-	var allowance *ent.LeaveAllowance
-	var err error
-
-	if isPoolBased(leaveReq.Edges.AbsenceType) {
-		allowance, err = allowanceRepo.GetByUserAndPoolAndYear(ctx, tid, leaveReq.UserID, leaveReq.Edges.AbsenceType.AllowancePoolID, leaveReq.StartDate.Year())
-	} else {
-		allowance, err = allowanceRepo.GetByUserAndTypeAndYear(ctx, tid, leaveReq.UserID, leaveReq.AbsenceTypeID, leaveReq.StartDate.Year())
-	}
-
-	if err != nil {
-		log.Errorf("Failed to look up allowance for refund on leave %s: %v", leaveReq.ID, err)
+	if leaveReq.Days <= 0 {
 		return
 	}
-	if allowance != nil {
-		// Only refund if used_days would stay >= 0 to prevent negative balances
-		refund := leaveReq.Days
-		if allowance.UsedDays-refund < 0 {
-			refund = allowance.UsedDays
+
+	// Preferred path: use the stored allowance ID for exact refund
+	if leaveReq.DeductedAllowanceID != "" {
+		if err := allowanceRepo.RefundWithFloorCheck(ctx, leaveReq.DeductedAllowanceID, leaveReq.Days); err != nil {
+			log.Errorf("Failed to refund allowance %s for leave %s: %v", leaveReq.DeductedAllowanceID, leaveReq.ID, err)
 		}
-		if refund > 0 {
-			if err = allowanceRepo.AddUsedDays(ctx, allowance.ID, -refund); err != nil {
-				log.Errorf("Failed to refund allowance for leave %s: %v", leaveReq.ID, err)
-			}
+		return
+	}
+
+	// Fallback: look up by type/pool (legacy requests without deducted_allowance_id)
+	tid := entityTenantID(leaveReq)
+	var allowanceID string
+
+	if isPoolBased(leaveReq.Edges.AbsenceType) {
+		a, err := allowanceRepo.GetByUserAndPoolAndYear(ctx, tid, leaveReq.UserID, leaveReq.Edges.AbsenceType.AllowancePoolID, leaveReq.StartDate.Year())
+		if err != nil {
+			log.Errorf("Failed to look up pool allowance for refund on leave %s: %v", leaveReq.ID, err)
+			return
 		}
+		if a != nil {
+			allowanceID = a.ID
+		}
+	} else {
+		a, err := allowanceRepo.GetByUserAndTypeAndYear(ctx, tid, leaveReq.UserID, leaveReq.AbsenceTypeID, leaveReq.StartDate.Year())
+		if err != nil {
+			log.Errorf("Failed to look up allowance for refund on leave %s: %v", leaveReq.ID, err)
+			return
+		}
+		if a != nil {
+			allowanceID = a.ID
+		}
+	}
+
+	if allowanceID == "" {
+		log.Warnf("No allowance found for refund on leave %s", leaveReq.ID)
+		return
+	}
+
+	if err := allowanceRepo.RefundWithFloorCheck(ctx, allowanceID, leaveReq.Days); err != nil {
+		log.Errorf("Failed to refund allowance for leave %s: %v", leaveReq.ID, err)
 	}
 }
 

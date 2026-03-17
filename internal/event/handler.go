@@ -61,15 +61,23 @@ func (h *Handler) HandleSigningCompleted(ctx context.Context, data *SigningReque
 			tid = *leaveReq.TenantID
 		}
 
+		var allowanceID string
 		var deductErr error
 		if leaveReq.Edges.AbsenceType.AllowancePoolID != "" {
-			_, deductErr = h.allowanceRepo.DeductPoolWithBalanceCheck(ctx, tid, leaveReq.UserID, leaveReq.Edges.AbsenceType.AllowancePoolID, leaveReq.StartDate.Year(), leaveReq.Days)
+			allowanceID, deductErr = h.allowanceRepo.DeductPoolWithBalanceCheck(ctx, tid, leaveReq.UserID, leaveReq.Edges.AbsenceType.AllowancePoolID, leaveReq.StartDate.Year(), leaveReq.Days)
 		} else {
-			_, deductErr = h.allowanceRepo.DeductWithBalanceCheck(ctx, tid, leaveReq.UserID, leaveReq.AbsenceTypeID, leaveReq.StartDate.Year(), leaveReq.Days)
+			allowanceID, deductErr = h.allowanceRepo.DeductWithBalanceCheck(ctx, tid, leaveReq.UserID, leaveReq.AbsenceTypeID, leaveReq.StartDate.Year(), leaveReq.Days)
 		}
 		if deductErr != nil {
 			h.log.Errorf("Failed to deduct allowance for leave %s after signing: %v", leaveReq.ID, deductErr)
 			return deductErr
+		}
+
+		// Store which allowance was deducted for accurate refunds
+		if allowanceID != "" {
+			if setErr := h.leaveRequestRepo.SetDeductedAllowanceID(ctx, leaveReq.ID, allowanceID); setErr != nil {
+				h.log.Errorf("Failed to store deducted_allowance_id on leave %s: %v", leaveReq.ID, setErr)
+			}
 		}
 	}
 

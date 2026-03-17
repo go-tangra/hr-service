@@ -250,6 +250,21 @@ func (r *LeaveRequestRepo) SetSigningRequestID(ctx context.Context, id string, s
 	return nil
 }
 
+func (r *LeaveRequestRepo) SetDeductedAllowanceID(ctx context.Context, id string, allowanceID string) error {
+	err := r.entClient.Client().LeaveRequest.UpdateOneID(id).
+		SetDeductedAllowanceID(allowanceID).
+		SetUpdateTime(time.Now()).
+		Exec(ctx)
+	if err != nil {
+		if ent.IsNotFound(err) {
+			return hrV1.ErrorLeaveRequestNotFound("leave request not found")
+		}
+		r.log.Errorf("set deducted_allowance_id failed: %s", err.Error())
+		return hrV1.ErrorInternalServerError("set deducted_allowance_id failed")
+	}
+	return nil
+}
+
 func (r *LeaveRequestRepo) CountByStatus(ctx context.Context, tenantID uint32, status string) (int, error) {
 	return r.entClient.Client().LeaveRequest.Query().
 		Where(leaverequest.TenantID(tenantID), leaverequest.StatusEQ(leaverequest.Status(status))).

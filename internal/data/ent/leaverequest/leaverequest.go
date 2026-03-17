@@ -61,6 +61,8 @@ const (
 	FieldNotes = "notes"
 	// FieldMetadata holds the string denoting the metadata field in the database.
 	FieldMetadata = "metadata"
+	// FieldDeductedAllowanceID holds the string denoting the deducted_allowance_id field in the database.
+	FieldDeductedAllowanceID = "deducted_allowance_id"
 	// EdgeAbsenceType holds the string denoting the absence_type edge name in mutations.
 	EdgeAbsenceType = "absence_type"
 	// Table holds the table name of the leaverequest in the database.
@@ -100,6 +102,7 @@ var Columns = []string{
 	FieldReviewedAt,
 	FieldNotes,
 	FieldMetadata,
+	FieldDeductedAllowanceID,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -136,6 +139,8 @@ var (
 	DefaultReviewedBy uint32
 	// DefaultReviewerName holds the default value on creation for the "reviewer_name" field.
 	DefaultReviewerName string
+	// DefaultDeductedAllowanceID holds the default value on creation for the "deducted_allowance_id" field.
+	DefaultDeductedAllowanceID string
 	// IDValidator is a validator for the "id" field. It is called by the builders before save.
 	IDValidator func(string) error
 )
@@ -286,6 +291,11 @@ func ByReviewedAt(opts ...sql.OrderTermOption) OrderOption {
 // ByNotes orders the results by the notes field.
 func ByNotes(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldNotes, opts...).ToFunc()
+}
+
+// ByDeductedAllowanceID orders the results by the deducted_allowance_id field.
+func ByDeductedAllowanceID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDeductedAllowanceID, opts...).ToFunc()
 }
 
 // ByAbsenceTypeField orders the results by absence_type field.

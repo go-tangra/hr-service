@@ -268,6 +268,10 @@ func init() {
 	leaverequestDescReviewerName := leaverequestFields[14].Descriptor()
 	// leaverequest.DefaultReviewerName holds the default value on creation for the reviewer_name field.
 	leaverequest.DefaultReviewerName = leaverequestDescReviewerName.Default.(string)
+	// leaverequestDescDeductedAllowanceID is the schema descriptor for deducted_allowance_id field.
+	leaverequestDescDeductedAllowanceID := leaverequestFields[18].Descriptor()
+	// leaverequest.DefaultDeductedAllowanceID holds the default value on creation for the deducted_allowance_id field.
+	leaverequest.DefaultDeductedAllowanceID = leaverequestDescDeductedAllowanceID.Default.(string)
 	// leaverequestDescID is the schema descriptor for id field.
 	leaverequestDescID := leaverequestFields[0].Descriptor()
 	// leaverequest.IDValidator is a validator for the "id" field. It is called by the builders before save.

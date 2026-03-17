@@ -66,6 +66,8 @@ type LeaveRequest struct {
 	Notes string `json:"notes,omitempty"`
 	// Custom metadata (JSON)
 	Metadata map[string]interface{} `json:"metadata,omitempty"`
+	// ID of the allowance record that was deducted, for accurate refunds
+	DeductedAllowanceID string `json:"deducted_allowance_id,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the LeaveRequestQuery when eager-loading is set.
 	Edges        LeaveRequestEdges `json:"edges"`
@@ -103,7 +105,7 @@ func (*LeaveRequest) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullFloat64)
 		case leaverequest.FieldCreateBy, leaverequest.FieldUpdateBy, leaverequest.FieldTenantID, leaverequest.FieldUserID, leaverequest.FieldReviewedBy:
 			values[i] = new(sql.NullInt64)
-		case leaverequest.FieldID, leaverequest.FieldUserName, leaverequest.FieldUserEmail, leaverequest.FieldOrgUnitName, leaverequest.FieldAbsenceTypeID, leaverequest.FieldStatus, leaverequest.FieldSigningRequestID, leaverequest.FieldReason, leaverequest.FieldReviewNotes, leaverequest.FieldReviewerName, leaverequest.FieldNotes:
+		case leaverequest.FieldID, leaverequest.FieldUserName, leaverequest.FieldUserEmail, leaverequest.FieldOrgUnitName, leaverequest.FieldAbsenceTypeID, leaverequest.FieldStatus, leaverequest.FieldSigningRequestID, leaverequest.FieldReason, leaverequest.FieldReviewNotes, leaverequest.FieldReviewerName, leaverequest.FieldNotes, leaverequest.FieldDeductedAllowanceID:
 			values[i] = new(sql.NullString)
 		case leaverequest.FieldCreateTime, leaverequest.FieldUpdateTime, leaverequest.FieldDeleteTime, leaverequest.FieldStartDate, leaverequest.FieldEndDate, leaverequest.FieldReviewedAt:
 			values[i] = new(sql.NullTime)
@@ -275,6 +277,12 @@ func (_m *LeaveRequest) assignValues(columns []string, values []any) error {
 					return fmt.Errorf("unmarshal field metadata: %w", err)
 				}
 			}
+		case leaverequest.FieldDeductedAllowanceID:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field deducted_allowance_id", values[i])
+			} else if value.Valid {
+				_m.DeductedAllowanceID = value.String
+			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
 		}
@@ -398,6 +406,9 @@ func (_m *LeaveRequest) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("metadata=")
 	builder.WriteString(fmt.Sprintf("%v", _m.Metadata))
+	builder.WriteString(", ")
+	builder.WriteString("deducted_allowance_id=")
+	builder.WriteString(_m.DeductedAllowanceID)
 	builder.WriteByte(')')
 	return builder.String()
 }

@@ -298,6 +298,20 @@ func (_c *LeaveRequestCreate) SetMetadata(v map[string]interface{}) *LeaveReques
 	return _c
 }
 
+// SetDeductedAllowanceID sets the "deducted_allowance_id" field.
+func (_c *LeaveRequestCreate) SetDeductedAllowanceID(v string) *LeaveRequestCreate {
+	_c.mutation.SetDeductedAllowanceID(v)
+	return _c
+}
+
+// SetNillableDeductedAllowanceID sets the "deducted_allowance_id" field if the given value is not nil.
+func (_c *LeaveRequestCreate) SetNillableDeductedAllowanceID(v *string) *LeaveRequestCreate {
+	if v != nil {
+		_c.SetDeductedAllowanceID(*v)
+	}
+	return _c
+}
+
 // SetID sets the "id" field.
 func (_c *LeaveRequestCreate) SetID(v string) *LeaveRequestCreate {
 	_c.mutation.SetID(v)
@@ -377,6 +391,10 @@ func (_c *LeaveRequestCreate) defaults() error {
 	if _, ok := _c.mutation.ReviewerName(); !ok {
 		v := leaverequest.DefaultReviewerName
 		_c.mutation.SetReviewerName(v)
+	}
+	if _, ok := _c.mutation.DeductedAllowanceID(); !ok {
+		v := leaverequest.DefaultDeductedAllowanceID
+		_c.mutation.SetDeductedAllowanceID(v)
 	}
 	return nil
 }
@@ -542,6 +560,10 @@ func (_c *LeaveRequestCreate) createSpec() (*LeaveRequest, *sqlgraph.CreateSpec)
 	if value, ok := _c.mutation.Metadata(); ok {
 		_spec.SetField(leaverequest.FieldMetadata, field.TypeJSON, value)
 		_node.Metadata = value
+	}
+	if value, ok := _c.mutation.DeductedAllowanceID(); ok {
+		_spec.SetField(leaverequest.FieldDeductedAllowanceID, field.TypeString, value)
+		_node.DeductedAllowanceID = value
 	}
 	if nodes := _c.mutation.AbsenceTypeIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
@@ -981,6 +1003,24 @@ func (u *LeaveRequestUpsert) UpdateMetadata() *LeaveRequestUpsert {
 // ClearMetadata clears the value of the "metadata" field.
 func (u *LeaveRequestUpsert) ClearMetadata() *LeaveRequestUpsert {
 	u.SetNull(leaverequest.FieldMetadata)
+	return u
+}
+
+// SetDeductedAllowanceID sets the "deducted_allowance_id" field.
+func (u *LeaveRequestUpsert) SetDeductedAllowanceID(v string) *LeaveRequestUpsert {
+	u.Set(leaverequest.FieldDeductedAllowanceID, v)
+	return u
+}
+
+// UpdateDeductedAllowanceID sets the "deducted_allowance_id" field to the value that was provided on create.
+func (u *LeaveRequestUpsert) UpdateDeductedAllowanceID() *LeaveRequestUpsert {
+	u.SetExcluded(leaverequest.FieldDeductedAllowanceID)
+	return u
+}
+
+// ClearDeductedAllowanceID clears the value of the "deducted_allowance_id" field.
+func (u *LeaveRequestUpsert) ClearDeductedAllowanceID() *LeaveRequestUpsert {
+	u.SetNull(leaverequest.FieldDeductedAllowanceID)
 	return u
 }
 
@@ -1469,6 +1509,27 @@ func (u *LeaveRequestUpsertOne) UpdateMetadata() *LeaveRequestUpsertOne {
 func (u *LeaveRequestUpsertOne) ClearMetadata() *LeaveRequestUpsertOne {
 	return u.Update(func(s *LeaveRequestUpsert) {
 		s.ClearMetadata()
+	})
+}
+
+// SetDeductedAllowanceID sets the "deducted_allowance_id" field.
+func (u *LeaveRequestUpsertOne) SetDeductedAllowanceID(v string) *LeaveRequestUpsertOne {
+	return u.Update(func(s *LeaveRequestUpsert) {
+		s.SetDeductedAllowanceID(v)
+	})
+}
+
+// UpdateDeductedAllowanceID sets the "deducted_allowance_id" field to the value that was provided on create.
+func (u *LeaveRequestUpsertOne) UpdateDeductedAllowanceID() *LeaveRequestUpsertOne {
+	return u.Update(func(s *LeaveRequestUpsert) {
+		s.UpdateDeductedAllowanceID()
+	})
+}
+
+// ClearDeductedAllowanceID clears the value of the "deducted_allowance_id" field.
+func (u *LeaveRequestUpsertOne) ClearDeductedAllowanceID() *LeaveRequestUpsertOne {
+	return u.Update(func(s *LeaveRequestUpsert) {
+		s.ClearDeductedAllowanceID()
 	})
 }
 
@@ -2124,6 +2185,27 @@ func (u *LeaveRequestUpsertBulk) UpdateMetadata() *LeaveRequestUpsertBulk {
 func (u *LeaveRequestUpsertBulk) ClearMetadata() *LeaveRequestUpsertBulk {
 	return u.Update(func(s *LeaveRequestUpsert) {
 		s.ClearMetadata()
+	})
+}
+
+// SetDeductedAllowanceID sets the "deducted_allowance_id" field.
+func (u *LeaveRequestUpsertBulk) SetDeductedAllowanceID(v string) *LeaveRequestUpsertBulk {
+	return u.Update(func(s *LeaveRequestUpsert) {
+		s.SetDeductedAllowanceID(v)
+	})
+}
+
+// UpdateDeductedAllowanceID sets the "deducted_allowance_id" field to the value that was provided on create.
+func (u *LeaveRequestUpsertBulk) UpdateDeductedAllowanceID() *LeaveRequestUpsertBulk {
+	return u.Update(func(s *LeaveRequestUpsert) {
+		s.UpdateDeductedAllowanceID()
+	})
+}
+
+// ClearDeductedAllowanceID clears the value of the "deducted_allowance_id" field.
+func (u *LeaveRequestUpsertBulk) ClearDeductedAllowanceID() *LeaveRequestUpsertBulk {
+	return u.Update(func(s *LeaveRequestUpsert) {
+		s.ClearDeductedAllowanceID()
 	})
 }
 

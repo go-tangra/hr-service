@@ -170,6 +170,11 @@ func Notes(v string) predicate.LeaveRequest {
 	return predicate.LeaveRequest(sql.FieldEQ(FieldNotes, v))
 }
 
+// DeductedAllowanceID applies equality check predicate on the "deducted_allowance_id" field. It's identical to DeductedAllowanceIDEQ.
+func DeductedAllowanceID(v string) predicate.LeaveRequest {
+	return predicate.LeaveRequest(sql.FieldEQ(FieldDeductedAllowanceID, v))
+}
+
 // CreateByEQ applies the EQ predicate on the "create_by" field.
 func CreateByEQ(v uint32) predicate.LeaveRequest {
 	return predicate.LeaveRequest(sql.FieldEQ(FieldCreateBy, v))
@@ -1423,6 +1428,81 @@ func MetadataIsNil() predicate.LeaveRequest {
 // MetadataNotNil applies the NotNil predicate on the "metadata" field.
 func MetadataNotNil() predicate.LeaveRequest {
 	return predicate.LeaveRequest(sql.FieldNotNull(FieldMetadata))
+}
+
+// DeductedAllowanceIDEQ applies the EQ predicate on the "deducted_allowance_id" field.
+func DeductedAllowanceIDEQ(v string) predicate.LeaveRequest {
+	return predicate.LeaveRequest(sql.FieldEQ(FieldDeductedAllowanceID, v))
+}
+
+// DeductedAllowanceIDNEQ applies the NEQ predicate on the "deducted_allowance_id" field.
+func DeductedAllowanceIDNEQ(v string) predicate.LeaveRequest {
+	return predicate.LeaveRequest(sql.FieldNEQ(FieldDeductedAllowanceID, v))
+}
+
+// DeductedAllowanceIDIn applies the In predicate on the "deducted_allowance_id" field.
+func DeductedAllowanceIDIn(vs ...string) predicate.LeaveRequest {
+	return predicate.LeaveRequest(sql.FieldIn(FieldDeductedAllowanceID, vs...))
+}
+
+// DeductedAllowanceIDNotIn applies the NotIn predicate on the "deducted_allowance_id" field.
+func DeductedAllowanceIDNotIn(vs ...string) predicate.LeaveRequest {
+	return predicate.LeaveRequest(sql.FieldNotIn(FieldDeductedAllowanceID, vs...))
+}
+
+// DeductedAllowanceIDGT applies the GT predicate on the "deducted_allowance_id" field.
+func DeductedAllowanceIDGT(v string) predicate.LeaveRequest {
+	return predicate.LeaveRequest(sql.FieldGT(FieldDeductedAllowanceID, v))
+}
+
+// DeductedAllowanceIDGTE applies the GTE predicate on the "deducted_allowance_id" field.
+func DeductedAllowanceIDGTE(v string) predicate.LeaveRequest {
+	return predicate.LeaveRequest(sql.FieldGTE(FieldDeductedAllowanceID, v))
+}
+
+// DeductedAllowanceIDLT applies the LT predicate on the "deducted_allowance_id" field.
+func DeductedAllowanceIDLT(v string) predicate.LeaveRequest {
+	return predicate.LeaveRequest(sql.FieldLT(FieldDeductedAllowanceID, v))
+}
+
+// DeductedAllowanceIDLTE applies the LTE predicate on the "deducted_allowance_id" field.
+func DeductedAllowanceIDLTE(v string) predicate.LeaveRequest {
+	return predicate.LeaveRequest(sql.FieldLTE(FieldDeductedAllowanceID, v))
+}
+
+// DeductedAllowanceIDContains applies the Contains predicate on the "deducted_allowance_id" field.
+func DeductedAllowanceIDContains(v string) predicate.LeaveRequest {
+	return predicate.LeaveRequest(sql.FieldContains(FieldDeductedAllowanceID, v))
+}
+
+// DeductedAllowanceIDHasPrefix applies the HasPrefix predicate on the "deducted_allowance_id" field.
+func DeductedAllowanceIDHasPrefix(v string) predicate.LeaveRequest {
+	return predicate.LeaveRequest(sql.FieldHasPrefix(FieldDeductedAllowanceID, v))
+}
+
+// DeductedAllowanceIDHasSuffix applies the HasSuffix predicate on the "deducted_allowance_id" field.
+func DeductedAllowanceIDHasSuffix(v string) predicate.LeaveRequest {
+	return predicate.LeaveRequest(sql.FieldHasSuffix(FieldDeductedAllowanceID, v))
+}
+
+// DeductedAllowanceIDIsNil applies the IsNil predicate on the "deducted_allowance_id" field.
+func DeductedAllowanceIDIsNil() predicate.LeaveRequest {
+	return predicate.LeaveRequest(sql.FieldIsNull(FieldDeductedAllowanceID))
+}
+
+// DeductedAllowanceIDNotNil applies the NotNil predicate on the "deducted_allowance_id" field.
+func DeductedAllowanceIDNotNil() predicate.LeaveRequest {
+	return predicate.LeaveRequest(sql.FieldNotNull(FieldDeductedAllowanceID))
+}
+
+// DeductedAllowanceIDEqualFold applies the EqualFold predicate on the "deducted_allowance_id" field.
+func DeductedAllowanceIDEqualFold(v string) predicate.LeaveRequest {
+	return predicate.LeaveRequest(sql.FieldEqualFold(FieldDeductedAllowanceID, v))
+}
+
+// DeductedAllowanceIDContainsFold applies the ContainsFold predicate on the "deducted_allowance_id" field.
+func DeductedAllowanceIDContainsFold(v string) predicate.LeaveRequest {
+	return predicate.LeaveRequest(sql.FieldContainsFold(FieldDeductedAllowanceID, v))
 }
 
 // HasAbsenceType applies the HasEdge predicate on the "absence_type" edge.

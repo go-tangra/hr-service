@@ -188,6 +188,64 @@ func (r *LeaveAllowanceRepo) AddUsedDays(ctx context.Context, id string, days fl
 	return nil
 }
 
+// RefundWithFloorCheck atomically refunds days, capping at 0 to prevent negative used_days.
+func (r *LeaveAllowanceRepo) RefundWithFloorCheck(ctx context.Context, allowanceID string, days float64) error {
+	if days <= 0 {
+		return nil
+	}
+
+	tx, err := r.entClient.Client().Tx(ctx)
+	if err != nil {
+		r.log.Errorf("begin refund transaction failed: %s", err.Error())
+		return hrV1.ErrorInternalServerError("failed to refund allowance")
+	}
+
+	allowance, err := tx.LeaveAllowance.Query().
+		Where(leaveallowance.ID(allowanceID)).
+		ForUpdate().
+		Only(ctx)
+	if err != nil {
+		if rbErr := tx.Rollback(); rbErr != nil {
+			r.log.Errorf("rollback failed: %s", rbErr.Error())
+		}
+		if ent.IsNotFound(err) {
+			return nil // allowance was deleted, nothing to refund
+		}
+		r.log.Errorf("lock allowance for refund failed: %s", err.Error())
+		return hrV1.ErrorInternalServerError("failed to refund allowance")
+	}
+
+	refund := days
+	if allowance.UsedDays-refund < 0 {
+		refund = allowance.UsedDays
+	}
+	if refund <= 0 {
+		if rbErr := tx.Rollback(); rbErr != nil {
+			r.log.Errorf("rollback failed: %s", rbErr.Error())
+		}
+		return nil
+	}
+
+	_, err = tx.LeaveAllowance.UpdateOneID(allowance.ID).
+		AddUsedDays(-refund).
+		SetUpdateTime(time.Now()).
+		Save(ctx)
+	if err != nil {
+		if rbErr := tx.Rollback(); rbErr != nil {
+			r.log.Errorf("rollback failed: %s", rbErr.Error())
+		}
+		r.log.Errorf("refund allowance failed: %s", err.Error())
+		return hrV1.ErrorInternalServerError("failed to refund allowance")
+	}
+
+	if err := tx.Commit(); err != nil {
+		r.log.Errorf("commit refund failed: %s", err.Error())
+		return hrV1.ErrorInternalServerError("failed to refund allowance")
+	}
+
+	return nil
+}
+
 // DeductWithBalanceCheck atomically verifies sufficient balance and deducts days in a single transaction.
 // Returns the allowance ID on success, or an error if balance is insufficient or not found.
 func (r *LeaveAllowanceRepo) DeductWithBalanceCheck(ctx context.Context, tenantID uint32, userID uint32, absenceTypeID string, year int, days float64) (string, error) {

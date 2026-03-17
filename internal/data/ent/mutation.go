@@ -6680,43 +6680,44 @@ func (m *LeaveAllowanceMutation) ResetEdge(name string) error {
 // LeaveRequestMutation represents an operation that mutates the LeaveRequest nodes in the graph.
 type LeaveRequestMutation struct {
 	config
-	op                  Op
-	typ                 string
-	id                  *string
-	create_by           *uint32
-	addcreate_by        *int32
-	update_by           *uint32
-	addupdate_by        *int32
-	create_time         *time.Time
-	update_time         *time.Time
-	delete_time         *time.Time
-	tenant_id           *uint32
-	addtenant_id        *int32
-	user_id             *uint32
-	adduser_id          *int32
-	user_name           *string
-	user_email          *string
-	org_unit_name       *string
-	start_date          *time.Time
-	end_date            *time.Time
-	days                *float64
-	adddays             *float64
-	status              *leaverequest.Status
-	signing_request_id  *string
-	reason              *string
-	review_notes        *string
-	reviewed_by         *uint32
-	addreviewed_by      *int32
-	reviewer_name       *string
-	reviewed_at         *time.Time
-	notes               *string
-	metadata            *map[string]interface{}
-	clearedFields       map[string]struct{}
-	absence_type        *string
-	clearedabsence_type bool
-	done                bool
-	oldValue            func(context.Context) (*LeaveRequest, error)
-	predicates          []predicate.LeaveRequest
+	op                    Op
+	typ                   string
+	id                    *string
+	create_by             *uint32
+	addcreate_by          *int32
+	update_by             *uint32
+	addupdate_by          *int32
+	create_time           *time.Time
+	update_time           *time.Time
+	delete_time           *time.Time
+	tenant_id             *uint32
+	addtenant_id          *int32
+	user_id               *uint32
+	adduser_id            *int32
+	user_name             *string
+	user_email            *string
+	org_unit_name         *string
+	start_date            *time.Time
+	end_date              *time.Time
+	days                  *float64
+	adddays               *float64
+	status                *leaverequest.Status
+	signing_request_id    *string
+	reason                *string
+	review_notes          *string
+	reviewed_by           *uint32
+	addreviewed_by        *int32
+	reviewer_name         *string
+	reviewed_at           *time.Time
+	notes                 *string
+	metadata              *map[string]interface{}
+	deducted_allowance_id *string
+	clearedFields         map[string]struct{}
+	absence_type          *string
+	clearedabsence_type   bool
+	done                  bool
+	oldValue              func(context.Context) (*LeaveRequest, error)
+	predicates            []predicate.LeaveRequest
 }
 
 var _ ent.Mutation = (*LeaveRequestMutation)(nil)
@@ -7996,6 +7997,55 @@ func (m *LeaveRequestMutation) ResetMetadata() {
 	delete(m.clearedFields, leaverequest.FieldMetadata)
 }
 
+// SetDeductedAllowanceID sets the "deducted_allowance_id" field.
+func (m *LeaveRequestMutation) SetDeductedAllowanceID(s string) {
+	m.deducted_allowance_id = &s
+}
+
+// DeductedAllowanceID returns the value of the "deducted_allowance_id" field in the mutation.
+func (m *LeaveRequestMutation) DeductedAllowanceID() (r string, exists bool) {
+	v := m.deducted_allowance_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDeductedAllowanceID returns the old "deducted_allowance_id" field's value of the LeaveRequest entity.
+// If the LeaveRequest object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *LeaveRequestMutation) OldDeductedAllowanceID(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDeductedAllowanceID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDeductedAllowanceID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDeductedAllowanceID: %w", err)
+	}
+	return oldValue.DeductedAllowanceID, nil
+}
+
+// ClearDeductedAllowanceID clears the value of the "deducted_allowance_id" field.
+func (m *LeaveRequestMutation) ClearDeductedAllowanceID() {
+	m.deducted_allowance_id = nil
+	m.clearedFields[leaverequest.FieldDeductedAllowanceID] = struct{}{}
+}
+
+// DeductedAllowanceIDCleared returns if the "deducted_allowance_id" field was cleared in this mutation.
+func (m *LeaveRequestMutation) DeductedAllowanceIDCleared() bool {
+	_, ok := m.clearedFields[leaverequest.FieldDeductedAllowanceID]
+	return ok
+}
+
+// ResetDeductedAllowanceID resets all changes to the "deducted_allowance_id" field.
+func (m *LeaveRequestMutation) ResetDeductedAllowanceID() {
+	m.deducted_allowance_id = nil
+	delete(m.clearedFields, leaverequest.FieldDeductedAllowanceID)
+}
+
 // ClearAbsenceType clears the "absence_type" edge to the AbsenceType entity.
 func (m *LeaveRequestMutation) ClearAbsenceType() {
 	m.clearedabsence_type = true
@@ -8057,7 +8107,7 @@ func (m *LeaveRequestMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *LeaveRequestMutation) Fields() []string {
-	fields := make([]string, 0, 23)
+	fields := make([]string, 0, 24)
 	if m.create_by != nil {
 		fields = append(fields, leaverequest.FieldCreateBy)
 	}
@@ -8127,6 +8177,9 @@ func (m *LeaveRequestMutation) Fields() []string {
 	if m.metadata != nil {
 		fields = append(fields, leaverequest.FieldMetadata)
 	}
+	if m.deducted_allowance_id != nil {
+		fields = append(fields, leaverequest.FieldDeductedAllowanceID)
+	}
 	return fields
 }
 
@@ -8181,6 +8234,8 @@ func (m *LeaveRequestMutation) Field(name string) (ent.Value, bool) {
 		return m.Notes()
 	case leaverequest.FieldMetadata:
 		return m.Metadata()
+	case leaverequest.FieldDeductedAllowanceID:
+		return m.DeductedAllowanceID()
 	}
 	return nil, false
 }
@@ -8236,6 +8291,8 @@ func (m *LeaveRequestMutation) OldField(ctx context.Context, name string) (ent.V
 		return m.OldNotes(ctx)
 	case leaverequest.FieldMetadata:
 		return m.OldMetadata(ctx)
+	case leaverequest.FieldDeductedAllowanceID:
+		return m.OldDeductedAllowanceID(ctx)
 	}
 	return nil, fmt.Errorf("unknown LeaveRequest field %s", name)
 }
@@ -8406,6 +8463,13 @@ func (m *LeaveRequestMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetMetadata(v)
 		return nil
+	case leaverequest.FieldDeductedAllowanceID:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDeductedAllowanceID(v)
+		return nil
 	}
 	return fmt.Errorf("unknown LeaveRequest field %s", name)
 }
@@ -8562,6 +8626,9 @@ func (m *LeaveRequestMutation) ClearedFields() []string {
 	if m.FieldCleared(leaverequest.FieldMetadata) {
 		fields = append(fields, leaverequest.FieldMetadata)
 	}
+	if m.FieldCleared(leaverequest.FieldDeductedAllowanceID) {
+		fields = append(fields, leaverequest.FieldDeductedAllowanceID)
+	}
 	return fields
 }
 
@@ -8626,6 +8693,9 @@ func (m *LeaveRequestMutation) ClearField(name string) error {
 		return nil
 	case leaverequest.FieldMetadata:
 		m.ClearMetadata()
+		return nil
+	case leaverequest.FieldDeductedAllowanceID:
+		m.ClearDeductedAllowanceID()
 		return nil
 	}
 	return fmt.Errorf("unknown LeaveRequest nullable field %s", name)
@@ -8703,6 +8773,9 @@ func (m *LeaveRequestMutation) ResetField(name string) error {
 		return nil
 	case leaverequest.FieldMetadata:
 		m.ResetMetadata()
+		return nil
+	case leaverequest.FieldDeductedAllowanceID:
+		m.ResetDeductedAllowanceID()
 		return nil
 	}
 	return fmt.Errorf("unknown LeaveRequest field %s", name)

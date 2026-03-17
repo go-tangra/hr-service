@@ -189,11 +189,18 @@ func (s *LeaveService) CreateLeaveRequest(ctx context.Context, req *hrV1.CreateL
 	if err != nil {
 		// If we already deducted allowance, refund it
 		if deductedAllowanceID != "" {
-			if refundErr := s.allowanceRepo.AddUsedDays(ctx, deductedAllowanceID, -days); refundErr != nil {
+			if refundErr := s.allowanceRepo.RefundWithFloorCheck(ctx, deductedAllowanceID, days); refundErr != nil {
 				s.log.Errorf("Failed to refund allowance %s after create failure: %v", deductedAllowanceID, refundErr)
 			}
 		}
 		return nil, err
+	}
+
+	// Store which allowance was deducted for accurate refunds later
+	if deductedAllowanceID != "" {
+		if setErr := s.leaveRequestRepo.SetDeductedAllowanceID(ctx, entity.ID, deductedAllowanceID); setErr != nil {
+			s.log.Errorf("Failed to store deducted_allowance_id on leave %s: %v", entity.ID, setErr)
+		}
 	}
 
 	// Re-fetch with edges
@@ -335,6 +342,11 @@ func (s *LeaveService) DeleteLeaveRequest(ctx context.Context, req *hrV1.DeleteL
 		return nil, err
 	}
 
+	// Refund allowance if the request was approved (days were deducted)
+	if existing.Status.String() == "approved" {
+		refundAllowance(ctx, s.log, s.allowanceRepo, existing)
+	}
+
 	err = s.leaveRequestRepo.Delete(ctx, req.GetId())
 	if err != nil {
 		return nil, err
@@ -470,7 +482,8 @@ func (s *LeaveService) approveWithSigning(ctx context.Context, existing *ent.Lea
 // approveImmediate performs standard approval without signing
 func (s *LeaveService) approveImmediate(ctx context.Context, existing *ent.LeaveRequest, id string, reviewNotes string) (*hrV1.ApproveLeaveRequestResponse, error) {
 	// Atomically deduct from allowance BEFORE approving, to prevent race conditions
-	if err := deductAllowance(ctx, s.allowanceRepo, existing); err != nil {
+	allowanceID, err := deductAllowance(ctx, s.allowanceRepo, existing)
+	if err != nil {
 		return nil, err
 	}
 
@@ -479,6 +492,13 @@ func (s *LeaveService) approveImmediate(ctx context.Context, existing *ent.Leave
 		// Refund allowance if status update fails
 		refundAllowance(ctx, s.log, s.allowanceRepo, existing)
 		return nil, err
+	}
+
+	// Store which allowance was deducted for accurate refunds later
+	if allowanceID != "" {
+		if setErr := s.leaveRequestRepo.SetDeductedAllowanceID(ctx, id, allowanceID); setErr != nil {
+			s.log.Errorf("Failed to store deducted_allowance_id on leave %s: %v", id, setErr)
+		}
 	}
 
 	// Re-fetch with edges
@@ -554,14 +574,14 @@ func (s *LeaveService) CancelLeaveRequest(ctx context.Context, req *hrV1.CancelL
 
 	wasApproved := existing.Status.String() == "approved"
 
+	// Refund allowance BEFORE changing status to ensure consistency
+	if wasApproved {
+		refundAllowance(ctx, s.log, s.allowanceRepo, existing)
+	}
+
 	entity, err := s.leaveRequestRepo.UpdateStatus(ctx, req.GetId(), "cancelled", 0, "", "")
 	if err != nil {
 		return nil, err
-	}
-
-	// Refund allowance if was previously approved
-	if wasApproved {
-		refundAllowance(ctx, s.log, s.allowanceRepo, existing)
 	}
 
 	// Re-fetch with edges
@@ -595,14 +615,14 @@ func (s *LeaveService) RevokeLeaveRequest(ctx context.Context, req *hrV1.RevokeL
 		return nil, hrV1.ErrorBadRequest("only approved leave requests can be revoked")
 	}
 
+	// Refund allowance BEFORE changing status to ensure consistency
+	refundAllowance(ctx, s.log, s.allowanceRepo, existing)
+
 	// Update status to revoked
 	entity, err := s.leaveRequestRepo.UpdateStatus(ctx, req.GetId(), "revoked", 0, "", req.GetReason())
 	if err != nil {
 		return nil, err
 	}
-
-	// Refund allowance
-	refundAllowance(ctx, s.log, s.allowanceRepo, existing)
 
 	// If the absence type requires signing and we have a signing request, revoke it in paperless
 	if existing.SigningRequestID != "" && existing.Edges.AbsenceType != nil && existing.Edges.AbsenceType.RequiresSigning {
