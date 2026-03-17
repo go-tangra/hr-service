@@ -298,6 +298,11 @@ func (s *LeaveService) UpdateLeaveRequest(ctx context.Context, req *hrV1.UpdateL
 		return nil, err
 	}
 
+	// Non-admin users can only update their own requests
+	if !hasPermission(ctx, "hr.request.approve") && existing.UserID != getUserID(ctx) {
+		return nil, hrV1.ErrorBadRequest("you can only update your own leave requests")
+	}
+
 	updates := make(map[string]interface{})
 
 	if req.Data != nil {
@@ -570,6 +575,11 @@ func (s *LeaveService) CancelLeaveRequest(ctx context.Context, req *hrV1.CancelL
 	}
 	if err := checkTenantAccess(ctx, existing.TenantID, hrV1.ErrorLeaveRequestNotFound("leave request not found")); err != nil {
 		return nil, err
+	}
+
+	// Non-admin users can only cancel their own requests
+	if !hasPermission(ctx, "hr.request.approve") && existing.UserID != getUserID(ctx) {
+		return nil, hrV1.ErrorBadRequest("you can only cancel your own leave requests")
 	}
 
 	wasApproved := existing.Status.String() == "approved"
