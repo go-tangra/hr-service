@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { h } from 'vue';
+import { h, ref, onMounted } from 'vue';
 
 import { Page, useVbenModal, type VbenFormProps } from 'shell/vben/common-ui';
 import { LucideEye, LucideTrash, LucidePencil } from 'shell/vben/icons';
@@ -8,15 +8,39 @@ import { notification, Space, Button, Tag } from 'ant-design-vue';
 
 import { useVbenVxeGrid } from 'shell/adapter/vxe-table';
 import type { VxeGridProps } from 'shell/adapter/vxe-table';
-import type { AllowancePool } from '../../api/client';
+import type { AllowancePool, AbsenceType } from '../../api/client';
 import { $t } from 'shell/locales';
 import { useHrAllowancePoolStore } from '../../stores/hr-allowance-pool.state';
+import { useHrAbsenceTypeStore } from '../../stores/hr-absence-type.state';
 
 import PoolDrawer from './pool-drawer.vue';
 import { usePermission } from '../../composables/use-permission';
 
 const poolStore = useHrAllowancePoolStore();
+const absenceTypeStore = useHrAbsenceTypeStore();
 const { canManagePools } = usePermission();
+
+const typeMap = ref<Record<string, AbsenceType>>({});
+
+onMounted(async () => {
+  try {
+    const resp = await absenceTypeStore.listAbsenceTypes(undefined, null);
+    const items = (resp as { items: AbsenceType[] }).items || [];
+    const map: Record<string, AbsenceType> = {};
+    for (const t of items) {
+      if (t.id) map[t.id] = t;
+    }
+    typeMap.value = map;
+  } catch { /* silently fail */ }
+});
+
+function getTypeName(id: string): string {
+  return typeMap.value[id]?.name || id;
+}
+
+function getTypeColor(id: string): string | undefined {
+  return typeMap.value[id]?.color;
+}
 
 const formOptions: VbenFormProps = {
   collapsed: false,
@@ -165,8 +189,8 @@ async function handleDelete(row: AllowancePool) {
         <span v-if="!row.absenceTypeIds?.length" class="text-gray-400">
           {{ $t('hr.page.pool.noTypes') }}
         </span>
-        <Tag v-for="id in (row.absenceTypeIds || [])" :key="id" class="mb-1">
-          {{ id }}
+        <Tag v-for="id in (row.absenceTypeIds || [])" :key="id" :color="getTypeColor(id)" class="mb-1">
+          {{ getTypeName(id) }}
         </Tag>
       </template>
       <template #action="{ row }">
