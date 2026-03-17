@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"fmt"
+	"html"
 	"strings"
 
 	grpcMD "google.golang.org/grpc/metadata"
@@ -92,13 +93,13 @@ func (s *LeaveService) sendRejectionEmail(ctx context.Context, entity *ent.Leave
 	}
 
 	variables := map[string]string{
-		"RecipientName":   entity.UserName,
-		"AbsenceTypeName": absenceTypeName,
+		"RecipientName":   html.EscapeString(entity.UserName),
+		"AbsenceTypeName": html.EscapeString(absenceTypeName),
 		"StartDate":       entity.StartDate.Format("2006-01-02"),
 		"EndDate":         entity.EndDate.Format("2006-01-02"),
 		"Days":            fmt.Sprintf("%.1f", entity.Days),
-		"ReviewNotes":     reviewNotes,
-		"ReviewerName":    reviewerName,
+		"ReviewNotes":     html.EscapeString(reviewNotes),
+		"ReviewerName":    html.EscapeString(reviewerName),
 	}
 
 	platformCtx := detachedPlatformContext(ctx)
