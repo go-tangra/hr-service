@@ -49,6 +49,9 @@ func (s *AllowanceService) CreateAllowance(ctx context.Context, req *hrV1.Create
 		if absType == nil {
 			return nil, hrV1.ErrorAbsenceTypeNotFound("absence type not found")
 		}
+		if err := checkTenantAccess(ctx, absType.TenantID, hrV1.ErrorAbsenceTypeNotFound("absence type not found")); err != nil {
+			return nil, err
+		}
 		if absType.AllowancePoolID != "" {
 			poolEntity, _ := s.poolRepo.GetByID(ctx, absType.AllowancePoolID)
 			poolName := absType.AllowancePoolID
@@ -81,6 +84,9 @@ func (s *AllowanceService) CreateAllowance(ctx context.Context, req *hrV1.Create
 		}
 		if pool == nil {
 			return nil, hrV1.ErrorAllowancePoolNotFound("allowance pool not found")
+		}
+		if err := checkTenantAccess(ctx, pool.TenantID, hrV1.ErrorAllowancePoolNotFound("allowance pool not found")); err != nil {
+			return nil, err
 		}
 		opts = append(opts, func(c *ent.LeaveAllowanceCreate) { c.SetAllowancePoolID(poolID) })
 	}

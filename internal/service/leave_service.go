@@ -87,13 +87,16 @@ func (s *LeaveService) CreateLeaveRequest(ctx context.Context, req *hrV1.CreateL
 		return nil, hrV1.ErrorBadRequest("you can only create leave requests for yourself")
 	}
 
-	// Validate absence type exists
+	// Validate absence type exists and belongs to the caller's tenant
 	absType, err := s.absenceTypeRepo.GetByID(ctx, req.GetAbsenceTypeId())
 	if err != nil {
 		return nil, err
 	}
 	if absType == nil {
 		return nil, hrV1.ErrorAbsenceTypeNotFound("absence type not found")
+	}
+	if err := checkTenantAccess(ctx, absType.TenantID, hrV1.ErrorAbsenceTypeNotFound("absence type not found")); err != nil {
+		return nil, err
 	}
 
 	if req.GetStartDate() == nil || req.GetEndDate() == nil {
