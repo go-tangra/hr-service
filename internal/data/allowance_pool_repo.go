@@ -136,17 +136,22 @@ func (r *AllowancePoolRepo) Delete(ctx context.Context, id string) error {
 		return hrV1.ErrorAllowancePoolInUse("allowance pool has %d leave allowances", allowCount)
 	}
 
-	// Check if pool has absence types assigned
-	typeCount, err := r.entClient.Client().AllowancePool.Query().
+	// Clear allowance_pool_id on linked absence types so they can be reassigned
+	linkedTypes, err := r.entClient.Client().AllowancePool.Query().
 		Where(allowancepool.ID(id)).
 		QueryAbsenceTypes().
-		Count(ctx)
+		All(ctx)
 	if err != nil {
-		r.log.Errorf("check allowance pool type usage failed: %s", err.Error())
+		r.log.Errorf("query linked absence types failed: %s", err.Error())
 		return hrV1.ErrorInternalServerError("delete allowance pool failed")
 	}
-	if typeCount > 0 {
-		return hrV1.ErrorAllowancePoolInUse("allowance pool has %d absence types assigned", typeCount)
+	for _, at := range linkedTypes {
+		if _, err := r.entClient.Client().AbsenceType.UpdateOneID(at.ID).
+			ClearAllowancePoolID().
+			Save(ctx); err != nil {
+			r.log.Errorf("clear allowance_pool_id on absence type %s failed: %s", at.ID, err.Error())
+			return hrV1.ErrorInternalServerError("delete allowance pool failed")
+		}
 	}
 
 	err = r.entClient.Client().AllowancePool.DeleteOneID(id).Exec(ctx)
