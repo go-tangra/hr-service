@@ -285,6 +285,7 @@ const allowance = computed(() => data.value?.row);
               v-for="at in deductingTypes"
               :key="at.id"
               :value="at.id"
+              :disabled="!!at.allowancePoolId"
             >
               <span
                 v-if="at.color"
@@ -292,6 +293,7 @@ const allowance = computed(() => data.value?.row);
                 :style="{ backgroundColor: at.color }"
               />
               {{ at.name }}
+              <span v-if="at.allowancePoolId" class="text-xs text-gray-400 ml-1">(in pool)</span>
             </SelectOption>
           </Select>
         </FormItem>
