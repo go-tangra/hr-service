@@ -3,6 +3,10 @@ package client
 import (
 	"context"
 	"fmt"
+	"io"
+	"net/http"
+	"net/url"
+	"os"
 	"sync"
 	"time"
 
@@ -156,18 +160,50 @@ func (c *SigningClient) CancelSubmission(ctx context.Context, submissionID, reas
 	return nil
 }
 
-// GetSignedDocumentUrl returns a presigned download URL for a signed document.
-func (c *SigningClient) GetSignedDocumentUrl(ctx context.Context, submissionID string) (string, error) {
+// DownloadSignedDocument fetches the signed PDF bytes from the signing service.
+// It first gets the storage key via gRPC, then downloads the PDF from the
+// signing service's HTTP proxy endpoint.
+func (c *SigningClient) DownloadSignedDocument(ctx context.Context, submissionID string) ([]byte, error) {
 	if err := c.resolve(); err != nil {
-		return "", err
+		return nil, err
 	}
 
+	// Get the storage key from signing service
 	resp, err := c.submission.GetSubmissionDocumentUrl(ctx, &signingpb.GetSubmissionDocumentUrlRequest{
 		Id: submissionID,
 	})
 	if err != nil {
-		c.log.Errorf("Failed to get signed document URL: %v", err)
-		return "", err
+		c.log.Errorf("Failed to get signed document key: %v", err)
+		return nil, err
 	}
-	return resp.GetUrl(), nil
+
+	storageKey := resp.GetUrl()
+	if storageKey == "" {
+		return nil, fmt.Errorf("signing service returned empty storage key")
+	}
+
+	// Fetch the PDF from the signing service HTTP proxy
+	signingHTTP := os.Getenv("SIGNING_HTTP_ENDPOINT")
+	if signingHTTP == "" {
+		signingHTTP = "http://signing-service:10401"
+	}
+
+	pdfURL := signingHTTP + "/api/v1/signing/templates/pdf?key=" + url.QueryEscape(storageKey)
+	httpResp, err := http.Get(pdfURL)
+	if err != nil {
+		c.log.Errorf("Failed to download signed PDF: %v", err)
+		return nil, fmt.Errorf("download signed PDF: %w", err)
+	}
+	defer httpResp.Body.Close()
+
+	if httpResp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("signing service returned HTTP %d", httpResp.StatusCode)
+	}
+
+	pdfBytes, err := io.ReadAll(httpResp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("read signed PDF: %w", err)
+	}
+
+	return pdfBytes, nil
 }
