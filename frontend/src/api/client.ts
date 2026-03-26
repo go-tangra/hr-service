@@ -92,8 +92,8 @@ export function fromTimestamp(ts?: string): string {
   return ts.split('T')[0] || '';
 }
 
-/** Client for paperless module API calls (different base URL) */
-export const paperlessApi = {
+/** Client for signing module API calls (different base URL) */
+export const signingApi = {
   get: async <T>(path: string, params?: Record<string, unknown>): Promise<T> => {
     const query = params
       ? '?' + new URLSearchParams(
@@ -104,7 +104,7 @@ export const paperlessApi = {
       : '';
     const accessStore = useAccessStore();
     const token = accessStore.accessToken;
-    const response = await fetch(`/admin/v1/modules/paperless/v1${path}${query}`, {
+    const response = await fetch(`/admin/v1/modules/signing/v1${path}${query}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
