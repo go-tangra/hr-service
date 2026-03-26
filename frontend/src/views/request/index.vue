@@ -367,7 +367,7 @@ async function handleDelete(row: LeaveRequest) {
             @click.stop="handleRevoke(row)"
           />
           <a-popconfirm
-            v-if="canDeleteRequests"
+            v-if="canDeleteRequests && row.status === 'LEAVE_REQUEST_STATUS_REJECTED'"
             :cancel-text="$t('ui.button.cancel')"
             :ok-text="$t('ui.button.ok')"
             :title="$t('hr.page.request.confirmDelete')"

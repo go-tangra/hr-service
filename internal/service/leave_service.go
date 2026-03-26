@@ -351,9 +351,17 @@ func (s *LeaveService) DeleteLeaveRequest(ctx context.Context, req *hrV1.DeleteL
 		return nil, err
 	}
 
-	// Refund allowance if the request was approved (days were deducted)
-	if existing.Status.String() == "approved" {
-		refundAllowance(ctx, s.log, s.allowanceRepo, existing)
+	// Only rejected requests can be deleted
+	if existing.Status.String() != "rejected" {
+		return nil, hrV1.ErrorBadRequest("only rejected leave requests can be deleted")
+	}
+
+	// Cancel the signing submission if one exists
+	if existing.SigningRequestID != "" {
+		if err := s.signingClient.CancelSubmission(ctx, existing.SigningRequestID, "leave request deleted"); err != nil {
+			s.log.Warnf("failed to cancel signing submission %s: %v", existing.SigningRequestID, err)
+			// Continue with deletion even if cancellation fails
+		}
 	}
 
 	err = s.leaveRequestRepo.Delete(ctx, req.GetId())
