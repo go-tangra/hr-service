@@ -161,14 +161,12 @@ func (c *SigningClient) CancelSubmission(ctx context.Context, submissionID, reas
 }
 
 // DownloadSignedDocument fetches the signed PDF bytes from the signing service.
-// It first gets the storage key via gRPC, then downloads the PDF from the
-// signing service's HTTP proxy endpoint.
+// Gets the storage key via gRPC, then downloads the PDF from signing service HTTP proxy.
 func (c *SigningClient) DownloadSignedDocument(ctx context.Context, submissionID string) ([]byte, error) {
 	if err := c.resolve(); err != nil {
 		return nil, err
 	}
 
-	// Get the storage key from signing service
 	resp, err := c.submission.GetSubmissionDocumentUrl(ctx, &signingpb.GetSubmissionDocumentUrlRequest{
 		Id: submissionID,
 	})
@@ -182,7 +180,6 @@ func (c *SigningClient) DownloadSignedDocument(ctx context.Context, submissionID
 		return nil, fmt.Errorf("signing service returned empty storage key")
 	}
 
-	// Fetch the PDF from the signing service HTTP proxy
 	signingHTTP := os.Getenv("SIGNING_HTTP_ENDPOINT")
 	if signingHTTP == "" {
 		signingHTTP = "http://signing-service:10401"
@@ -200,10 +197,5 @@ func (c *SigningClient) DownloadSignedDocument(ctx context.Context, submissionID
 		return nil, fmt.Errorf("signing service returned HTTP %d", httpResp.StatusCode)
 	}
 
-	pdfBytes, err := io.ReadAll(httpResp.Body)
-	if err != nil {
-		return nil, fmt.Errorf("read signed PDF: %w", err)
-	}
-
-	return pdfBytes, nil
+	return io.ReadAll(httpResp.Body)
 }

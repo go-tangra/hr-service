@@ -253,10 +253,9 @@ async function handleDownloadSigned(row: LeaveRequest) {
   try {
     const resp = await leaveService.GetSignedDocumentUrl({ leaveRequestId: row.id });
     if (resp.url) {
-      // Create a temporary link to trigger download
       const link = document.createElement('a');
       link.href = resp.url;
-      link.download = `signed-document-${row.id}.pdf`;
+      link.download = `signed-${row.id}.pdf`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);

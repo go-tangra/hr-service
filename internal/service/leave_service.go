@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"encoding/base64"
 	"fmt"
 	"sync"
 	"time"
@@ -726,9 +727,6 @@ func (s *LeaveService) GetCalendarEvents(ctx context.Context, req *hrV1.GetCalen
 }
 
 func (s *LeaveService) GetSignedDocumentUrl(ctx context.Context, req *hrV1.GetSignedDocumentUrlRequest) (*hrV1.GetSignedDocumentUrlResponse, error) {
-	// This endpoint is now only used for internal purposes (e.g., checking if
-	// a signed document exists). The actual download happens via the HTTP proxy
-	// endpoint served by the HR HTTP server.
 	if err := checkPermission(ctx, "hr.request.view"); err != nil {
 		return nil, err
 	}
@@ -747,40 +745,27 @@ func (s *LeaveService) GetSignedDocumentUrl(ctx context.Context, req *hrV1.GetSi
 		return nil, hrV1.ErrorBadRequest("leave request has no signed document")
 	}
 
-	return &hrV1.GetSignedDocumentUrlResponse{
-		Url: "/modules/hr/api/v1/leave-requests/download-signed?id=" + req.GetLeaveRequestId(),
-	}, nil
-}
-
-// DownloadSignedDocument fetches the signed PDF bytes for a leave request.
-// Used by the HTTP handler to stream the PDF to the browser.
-func (s *LeaveService) DownloadSignedDocument(ctx context.Context, leaveRequestID string, callerID uint32) ([]byte, error) {
-	entity, err := s.leaveRequestRepo.GetByID(ctx, leaveRequestID)
-	if err != nil {
-		return nil, err
-	}
-	if entity == nil {
-		return nil, hrV1.ErrorLeaveRequestNotFound("leave request not found")
-	}
-	if err := checkTenantAccess(ctx, entity.TenantID, hrV1.ErrorLeaveRequestNotFound("leave request not found")); err != nil {
-		return nil, err
-	}
-	if entity.SigningRequestID == "" {
-		return nil, hrV1.ErrorBadRequest("leave request has no signed document")
-	}
-
 	// Check if user is a participant or has admin permission
+	callerID := getUserID(ctx)
 	isParticipant := entity.UserID == callerID || entity.ReviewedBy == callerID
 	if !isParticipant && !hasPermission(ctx, "hr.request.approve") {
 		return nil, hrV1.ErrorBadRequest("you are not a participant of this leave request")
 	}
 
+	// Get the signed PDF bytes from signing service and encode as data URL
+	// so the frontend can trigger a direct download
 	pdfBytes, err := s.signingClient.DownloadSignedDocument(ctx, entity.SigningRequestID)
 	if err != nil {
 		return nil, hrV1.ErrorInternalServerError("failed to download signed document")
 	}
 
-	return pdfBytes, nil
+	// Return base64-encoded PDF as a data: URL for direct download
+	encoded := base64.StdEncoding.EncodeToString(pdfBytes)
+	dataURL := "data:application/pdf;base64," + encoded
+
+	return &hrV1.GetSignedDocumentUrlResponse{
+		Url: dataURL,
+	}, nil
 }
 
 func leaveRequestToProto(e *ent.LeaveRequest) *hrV1.LeaveRequest {
