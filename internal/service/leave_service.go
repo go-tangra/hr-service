@@ -356,11 +356,11 @@ func (s *LeaveService) DeleteLeaveRequest(ctx context.Context, req *hrV1.DeleteL
 		return nil, hrV1.ErrorBadRequest("only rejected leave requests can be deleted")
 	}
 
-	// Cancel the signing submission if one exists
+	// Delete the signing submission and its stored documents if one exists
 	if existing.SigningRequestID != "" {
-		if err := s.signingClient.CancelSubmission(ctx, existing.SigningRequestID, "leave request deleted"); err != nil {
-			s.log.Warnf("failed to cancel signing submission %s: %v", existing.SigningRequestID, err)
-			// Continue with deletion even if cancellation fails
+		if err := s.signingClient.DeleteSubmission(ctx, existing.SigningRequestID); err != nil {
+			s.log.Warnf("failed to delete signing submission %s: %v", existing.SigningRequestID, err)
+			// Continue with deletion even if signing cleanup fails
 		}
 	}
 

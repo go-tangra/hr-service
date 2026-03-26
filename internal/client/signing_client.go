@@ -160,6 +160,24 @@ func (c *SigningClient) CancelSubmission(ctx context.Context, submissionID, reas
 	return nil
 }
 
+// DeleteSubmission deletes a submission and all associated data (submitters, stored documents).
+func (c *SigningClient) DeleteSubmission(ctx context.Context, submissionID string) error {
+	if err := c.resolve(); err != nil {
+		return err
+	}
+
+	_, err := c.submission.DeleteSubmission(ctx, &signingpb.DeleteSubmissionRequest{
+		Id: submissionID,
+	})
+	if err != nil {
+		c.log.Errorf("Failed to delete submission %s: %v", submissionID, err)
+		return err
+	}
+
+	c.log.Infof("Deleted signing submission: %s", submissionID)
+	return nil
+}
+
 // DownloadSignedDocument fetches the signed PDF bytes from the signing service.
 // Gets the storage key via gRPC, then downloads the PDF from signing service HTTP proxy.
 func (c *SigningClient) DownloadSignedDocument(ctx context.Context, submissionID string) ([]byte, error) {

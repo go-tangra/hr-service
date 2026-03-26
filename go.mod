@@ -6,8 +6,8 @@ require (
 	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.36.11-20260209202127-80ab13bee0bf.1
 	buf.build/gen/go/go-tangra/notification/grpc/go v1.6.1-20260311015104-33b6c889557e.1
 	buf.build/gen/go/go-tangra/notification/protocolbuffers/go v1.36.11-20260311015104-33b6c889557e.1
-	buf.build/gen/go/go-tangra/signing/grpc/go v1.6.1-20260326002003-91ee6b012838.1
-	buf.build/gen/go/go-tangra/signing/protocolbuffers/go v1.36.11-20260326002003-91ee6b012838.1
+	buf.build/gen/go/go-tangra/signing/grpc/go v1.6.1-20260326190420-bd324b460b84.1
+	buf.build/gen/go/go-tangra/signing/protocolbuffers/go v1.36.11-20260326190420-bd324b460b84.1
 	entgo.io/ent v0.14.5
 	github.com/go-kratos/kratos/v2 v2.9.2
 	github.com/go-sql-driver/mysql v1.9.3
