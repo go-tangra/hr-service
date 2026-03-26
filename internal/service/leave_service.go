@@ -408,17 +408,17 @@ func (s *LeaveService) approveWithSigning(ctx context.Context, existing *ent.Lea
 	approverName := getUsername(ctx)
 	approverEmail := s.resolveUserEmail(ctx, getUserID(ctx))
 
-	// Build submitters: approver signs first (order 0), then employee (order 1)
+	// Build submitters: employee signs first (order 0), then approver (order 1)
 	submitters := []client.SubmitterInput{
-		{
-			Name:  approverName,
-			Email: approverEmail,
-			Role:  "Approver",
-		},
 		{
 			Name:  existing.UserName,
 			Email: existing.UserEmail,
 			Role:  "Employee",
+		},
+		{
+			Name:  approverName,
+			Email: approverEmail,
+			Role:  "Approver",
 		},
 	}
 
