@@ -7,10 +7,7 @@
 package main
 
 import (
-	gocontext "context"
-
 	"github.com/go-kratos/kratos/v2"
-	"github.com/go-tangra/go-tangra-common/viewer"
 	"github.com/go-tangra/go-tangra-hr/internal/cert"
 	"github.com/go-tangra/go-tangra-hr/internal/client"
 	"github.com/go-tangra/go-tangra-hr/internal/data"
@@ -45,28 +42,28 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 		return nil, nil, err
 	}
 	moduleDialer := client.NewModuleDialer(context, registrationClient)
-	paperlessClient, cleanup2, err := client.NewPaperlessClient(context, moduleDialer)
+	signingClient, cleanup2, err := client.NewSigningClient(context, moduleDialer)
 	if err != nil {
 		cleanup()
 		return nil, nil, err
 	}
-	notificationClient, cleanup3, err := client.NewNotificationClient(context, moduleDialer)
+	adminClient, cleanup3, err := client.NewAdminClient(context, certManager)
 	if err != nil {
 		cleanup2()
 		cleanup()
 		return nil, nil, err
 	}
-	leaveService := service.NewLeaveService(context, leaveRequestRepo, leaveAllowanceRepo, absenceTypeRepo, paperlessClient, notificationClient)
-	allowancePoolRepo := data.NewAllowancePoolRepo(context, entClient)
-	allowanceService := service.NewAllowanceService(context, leaveAllowanceRepo, absenceTypeRepo, allowancePoolRepo)
-	allowancePoolService := service.NewAllowancePoolService(context, allowancePoolRepo, absenceTypeRepo)
-	adminClient, cleanup4, err := client.NewAdminClient(context, certManager)
+	notificationClient, cleanup4, err := client.NewNotificationClient(context, moduleDialer)
 	if err != nil {
 		cleanup3()
 		cleanup2()
 		cleanup()
 		return nil, nil, err
 	}
+	leaveService := service.NewLeaveService(context, leaveRequestRepo, leaveAllowanceRepo, absenceTypeRepo, signingClient, adminClient, notificationClient)
+	allowancePoolRepo := data.NewAllowancePoolRepo(context, entClient)
+	allowanceService := service.NewAllowanceService(context, leaveAllowanceRepo, absenceTypeRepo, allowancePoolRepo)
+	allowancePoolService := service.NewAllowancePoolService(context, allowancePoolRepo, absenceTypeRepo)
 	userService := service.NewUserService(context, adminClient)
 	grpcServer := server.NewGRPCServer(context, certManager, collector, auditLogRepo, systemService, absenceTypeService, leaveService, allowanceService, allowancePoolService, userService)
 	httpServer := server.NewHTTPServer(context)
@@ -80,15 +77,8 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 	}
 	handler := event.NewHandler(context, leaveRequestRepo, leaveAllowanceRepo, absenceTypeRepo)
 	subscriber := event.NewSubscriber(context, redisClient, handler)
-
-	// Seed Prometheus metrics from database
-	statisticsRepo := data.NewStatisticsRepo(context, entClient)
-	seedCtx := viewer.NewSystemViewerContext(gocontext.Background())
-	collector.Seed(seedCtx, statisticsRepo)
-
 	app := newApp(context, grpcServer, httpServer, subscriber, registrationClient)
 	return app, func() {
-		collector.Stop(gocontext.Background())
 		cleanup5()
 		cleanup4()
 		cleanup3()

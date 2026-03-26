@@ -69,7 +69,7 @@ func (x *HR) GetEvents() *EventConfig {
 type EventConfig struct {
 	state           protoimpl.MessageState `protogen:"open.v1"`
 	Enabled         bool                   `protobuf:"varint,1,opt,name=enabled,proto3" json:"enabled,omitempty"`                                       // Enable/disable event subscriptions
-	TopicPrefix     string                 `protobuf:"bytes,2,opt,name=topic_prefix,json=topicPrefix,proto3" json:"topic_prefix,omitempty"`             // Prefix for event topics (default: "paperless")
+	TopicPrefix     string                 `protobuf:"bytes,2,opt,name=topic_prefix,json=topicPrefix,proto3" json:"topic_prefix,omitempty"`             // Prefix for event topics (default: "signing")
 	SubscribeEvents []string               `protobuf:"bytes,3,rep,name=subscribe_events,json=subscribeEvents,proto3" json:"subscribe_events,omitempty"` // Events to subscribe to
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache

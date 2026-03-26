@@ -9,7 +9,7 @@ import (
 	"github.com/go-tangra/go-tangra-hr/internal/data"
 )
 
-// Handler handles signing events from the paperless service
+// Handler handles signing events from the signing service
 type Handler struct {
 	log              *log.Helper
 	leaveRequestRepo *data.LeaveRequestRepo
@@ -27,17 +27,17 @@ func NewHandler(ctx *bootstrap.Context, leaveRequestRepo *data.LeaveRequestRepo,
 	}
 }
 
-// HandleSigningCompleted handles a signing.request.completed event
-func (h *Handler) HandleSigningCompleted(ctx context.Context, data *SigningRequestCompletedData) error {
-	h.log.Infof("Handling signing completed: request_id=%s, tenant_id=%d", data.RequestID, data.TenantID)
+// HandleSigningCompleted handles a submission.completed event from the signing service
+func (h *Handler) HandleSigningCompleted(ctx context.Context, data *SubmissionCompletedData) error {
+	h.log.Infof("Handling signing completed: submission_id=%s, tenant_id=%d", data.SubmissionID, data.TenantID)
 
-	// Look up the leave request by signing_request_id
-	leaveReq, err := h.leaveRequestRepo.GetBySigningRequestID(ctx, data.RequestID)
+	// Look up the leave request by signing_request_id (stores submission ID)
+	leaveReq, err := h.leaveRequestRepo.GetBySigningRequestID(ctx, data.SubmissionID)
 	if err != nil {
 		return err
 	}
 	if leaveReq == nil {
-		h.log.Infof("No leave request found for signing_request_id=%s, ignoring", data.RequestID)
+		h.log.Infof("No leave request found for submission_id=%s, ignoring", data.SubmissionID)
 		return nil
 	}
 

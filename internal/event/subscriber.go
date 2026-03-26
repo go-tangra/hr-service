@@ -41,9 +41,9 @@ func NewSubscriber(ctx *bootstrap.Context, rdb *redis.Client, handler *Handler) 
 	if eventCfg == nil {
 		eventCfg = &conf.EventConfig{
 			Enabled:     true,
-			TopicPrefix: "paperless",
+			TopicPrefix: "signing",
 			SubscribeEvents: []string{
-				"signing.request.completed",
+				"submission.completed",
 			},
 		}
 	}
@@ -81,7 +81,7 @@ func (s *Subscriber) Start() error {
 
 	prefix := s.config.TopicPrefix
 	if prefix == "" {
-		prefix = "paperless"
+		prefix = "signing"
 	}
 
 	channels := make([]string, len(s.config.SubscribeEvents))
@@ -158,7 +158,7 @@ func (s *Subscriber) handleMessage(msg *redis.Message) {
 	// Extract event type from channel name
 	prefix := s.config.TopicPrefix
 	if prefix == "" {
-		prefix = "paperless"
+		prefix = "signing"
 	}
 	var eventType string
 	if len(msg.Channel) > len(prefix)+1 {
@@ -166,10 +166,10 @@ func (s *Subscriber) handleMessage(msg *redis.Message) {
 	}
 
 	switch eventType {
-	case "signing.request.completed":
-		var data SigningRequestCompletedData
+	case "submission.completed":
+		var data SubmissionCompletedData
 		if err := json.Unmarshal(signingEvent.Data, &data); err != nil {
-			s.log.Errorf("Failed to parse signing.request.completed data: %v", err)
+			s.log.Errorf("Failed to parse submission.completed data: %v", err)
 			return
 		}
 		if err := s.handler.HandleSigningCompleted(s.ctx, &data); err != nil {

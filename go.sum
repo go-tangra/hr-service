@@ -6,14 +6,10 @@ buf.build/gen/go/go-tangra/notification/grpc/go v1.6.1-20260311015104-33b6c88955
 buf.build/gen/go/go-tangra/notification/grpc/go v1.6.1-20260311015104-33b6c889557e.1/go.mod h1:NuKkRQwegLPqG7lDAB/XYW6pZC3n+0AuRM9ZB+gub20=
 buf.build/gen/go/go-tangra/notification/protocolbuffers/go v1.36.11-20260311015104-33b6c889557e.1 h1:SFfulKJE5UFPuVsUE2nt9pU0rTgzerw/hOy2eu6c3Qo=
 buf.build/gen/go/go-tangra/notification/protocolbuffers/go v1.36.11-20260311015104-33b6c889557e.1/go.mod h1:NksTEesQfVo3zqqf828X8gIKznovRNSkPDJBNuiMjvw=
-buf.build/gen/go/go-tangra/paperless/grpc/go v1.6.1-20260312082110-e6107deb6aee.1 h1:bTPaSsZ6HtKgY/Bq7G0K0QHJsPjIPh0/WBfdTlAyrgc=
-buf.build/gen/go/go-tangra/paperless/grpc/go v1.6.1-20260312082110-e6107deb6aee.1/go.mod h1:EZsft2P3fJs/eRnn3SQ4/SYe+EqEcxbjfctGJ6jA+EU=
-buf.build/gen/go/go-tangra/paperless/grpc/go v1.6.1-20260313065616-7f9c0522cc2d.1 h1:kUkrlOD9t7DlAPagau7+siyGqIW6aZGuvrOHGSvqUi0=
-buf.build/gen/go/go-tangra/paperless/grpc/go v1.6.1-20260313065616-7f9c0522cc2d.1/go.mod h1:jB0JfOEPHAbPqo5cmZIoKH5JyuLspuPUlZYSL2hzTmk=
-buf.build/gen/go/go-tangra/paperless/protocolbuffers/go v1.36.11-20260312082110-e6107deb6aee.1 h1:Fxb9cIANvjH1hKuROCkW6cmUWNSjq8Ee6cM2mRgj0iY=
-buf.build/gen/go/go-tangra/paperless/protocolbuffers/go v1.36.11-20260312082110-e6107deb6aee.1/go.mod h1:tTKPBTUrRwpTIcEdLHlHitmkIgxsb4/MqQ+ThlImGiU=
-buf.build/gen/go/go-tangra/paperless/protocolbuffers/go v1.36.11-20260313065616-7f9c0522cc2d.1 h1:tNj/Hjfp55rC/lCRlUJevSZ6OePME4b5x18zhtEKKDw=
-buf.build/gen/go/go-tangra/paperless/protocolbuffers/go v1.36.11-20260313065616-7f9c0522cc2d.1/go.mod h1:tTKPBTUrRwpTIcEdLHlHitmkIgxsb4/MqQ+ThlImGiU=
+buf.build/gen/go/go-tangra/signing/grpc/go v1.6.1-20260326002003-91ee6b012838.1 h1:NfWsbBnlfVl7pSKep1ULKgi+yVnqJ/Xa6yTQjA4DHjQ=
+buf.build/gen/go/go-tangra/signing/grpc/go v1.6.1-20260326002003-91ee6b012838.1/go.mod h1:CVOydIpKAucgQdfVb8MfEi9y/N1rvGeue6dvGzBlkG4=
+buf.build/gen/go/go-tangra/signing/protocolbuffers/go v1.36.11-20260326002003-91ee6b012838.1 h1:KrNC3jeBzSs88UBYS/jYh9e4lpXCqxi/EEETD6C0jlk=
+buf.build/gen/go/go-tangra/signing/protocolbuffers/go v1.36.11-20260326002003-91ee6b012838.1/go.mod h1:mtysEeMNuU2qVkeYLJUVM5H3SkxEToKRvvVUGTVAHKU=
 buf.build/gen/go/kratos/apis/protocolbuffers/go v1.36.10-20230105082401-c2de25f14fa4.1 h1:mwnlP1KTH4BXFSty5XsowZmB0eUIp98Uxx5buUmNJ1c=
 buf.build/gen/go/kratos/apis/protocolbuffers/go v1.36.10-20230105082401-c2de25f14fa4.1/go.mod h1:hQZ7isYk0/YE72yMHFS2sUuF+18X6HHtsXtkiTTsaq4=
 buf.build/gen/go/menta2k-org/redact/protocolbuffers/go v1.36.11-20251106143824-2e42b69270f4.1 h1:+zGT6Cd7WxBtmzdkx31oNv09TFN/Ze2I0PPoGP8/x4s=
@@ -90,8 +86,6 @@ github.com/go-playground/form/v4 v4.3.0 h1:OVttojbQv2WNCs4P+VnjPtrt/+30Ipw4890W3
 github.com/go-playground/form/v4 v4.3.0/go.mod h1:Cpe1iYJKoXb1vILRXEwxpWMGWyQuqplQ/4cvPecy+Jo=
 github.com/go-sql-driver/mysql v1.9.3 h1:U/N249h2WzJ3Ukj8SowVFjdtZKfu9vlLZxjPXV1aweo=
 github.com/go-sql-driver/mysql v1.9.3/go.mod h1:qn46aNg1333BRMNU69Lq93t8du/dwxI64Gl8i5p1WMU=
-github.com/go-tangra/go-tangra-common v1.7.0 h1:cm7OQbYe32Tx6EDBHs+MiEIhK1hToohctg8OJLuafO4=
-github.com/go-tangra/go-tangra-common v1.7.0/go.mod h1:n23r4Zu0zrneqg/Qo5wz7Wc3vBjRz+imm7bmBdeBN1I=
 github.com/go-tangra/go-tangra-common v1.8.0 h1:+5JZCmwQ+sYcOiv0uWtQFd65cblZBTprRWonbuTUpxo=
 github.com/go-tangra/go-tangra-common v1.8.0/go.mod h1:n23r4Zu0zrneqg/Qo5wz7Wc3vBjRz+imm7bmBdeBN1I=
 github.com/go-test/deep v1.0.3 h1:ZrJSEWsXzPOxaZnFteGEfooLba+ju3FYIbOrS+rQd68=

@@ -4,8 +4,10 @@ go 1.25.4
 
 require (
 	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.36.11-20260209202127-80ab13bee0bf.1
-	buf.build/gen/go/go-tangra/paperless/grpc/go v1.6.1-20260313065616-7f9c0522cc2d.1
-	buf.build/gen/go/go-tangra/paperless/protocolbuffers/go v1.36.11-20260313065616-7f9c0522cc2d.1
+	buf.build/gen/go/go-tangra/notification/grpc/go v1.6.1-20260311015104-33b6c889557e.1
+	buf.build/gen/go/go-tangra/notification/protocolbuffers/go v1.36.11-20260311015104-33b6c889557e.1
+	buf.build/gen/go/go-tangra/signing/grpc/go v1.6.1-20260326002003-91ee6b012838.1
+	buf.build/gen/go/go-tangra/signing/protocolbuffers/go v1.36.11-20260326002003-91ee6b012838.1
 	entgo.io/ent v0.14.5
 	github.com/go-kratos/kratos/v2 v2.9.2
 	github.com/go-sql-driver/mysql v1.9.3
@@ -30,8 +32,6 @@ require (
 
 require (
 	ariga.io/atlas v1.0.0 // indirect
-	buf.build/gen/go/go-tangra/notification/grpc/go v1.6.1-20260311015104-33b6c889557e.1 // indirect
-	buf.build/gen/go/go-tangra/notification/protocolbuffers/go v1.36.11-20260311015104-33b6c889557e.1 // indirect
 	buf.build/gen/go/kratos/apis/protocolbuffers/go v1.36.10-20230105082401-c2de25f14fa4.1 // indirect
 	buf.build/gen/go/menta2k-org/redact/protocolbuffers/go v1.36.11-20251106143824-2e42b69270f4.1 // indirect
 	dario.cat/mergo v1.0.2 // indirect

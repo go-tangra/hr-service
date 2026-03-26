@@ -12,8 +12,6 @@ import (
 	"google.golang.org/protobuf/types/known/emptypb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
-	paperlesspb "buf.build/gen/go/go-tangra/paperless/protocolbuffers/go/paperless/service/v1"
-
 	"github.com/go-tangra/go-tangra-hr/internal/client"
 	"github.com/go-tangra/go-tangra-hr/internal/data"
 	"github.com/go-tangra/go-tangra-hr/internal/data/ent"
@@ -55,7 +53,8 @@ type LeaveService struct {
 	leaveRequestRepo   *data.LeaveRequestRepo
 	allowanceRepo      *data.LeaveAllowanceRepo
 	absenceTypeRepo    *data.AbsenceTypeRepo
-	paperlessClient    *client.PaperlessClient
+	signingClient      *client.SigningClient
+	adminClient        *client.AdminClient
 	notificationClient *client.NotificationClient
 
 	rejectTemplateMu   sync.Mutex
@@ -63,13 +62,14 @@ type LeaveService struct {
 	rejectTemplateDone bool
 }
 
-func NewLeaveService(ctx *bootstrap.Context, leaveRequestRepo *data.LeaveRequestRepo, allowanceRepo *data.LeaveAllowanceRepo, absenceTypeRepo *data.AbsenceTypeRepo, paperlessClient *client.PaperlessClient, notificationClient *client.NotificationClient) *LeaveService {
+func NewLeaveService(ctx *bootstrap.Context, leaveRequestRepo *data.LeaveRequestRepo, allowanceRepo *data.LeaveAllowanceRepo, absenceTypeRepo *data.AbsenceTypeRepo, signingClient *client.SigningClient, adminClient *client.AdminClient, notificationClient *client.NotificationClient) *LeaveService {
 	return &LeaveService{
 		log:                ctx.NewLoggerHelper("hr/service/leave"),
 		leaveRequestRepo:   leaveRequestRepo,
 		allowanceRepo:      allowanceRepo,
 		absenceTypeRepo:    absenceTypeRepo,
-		paperlessClient:    paperlessClient,
+		signingClient:      signingClient,
+		adminClient:        adminClient,
 		notificationClient: notificationClient,
 	}
 }
@@ -396,7 +396,7 @@ func (s *LeaveService) ApproveLeaveRequest(ctx context.Context, req *hrV1.Approv
 	return s.approveImmediate(ctx, existing, req.GetId(), reviewNotes)
 }
 
-// approveWithSigning creates a signing request in paperless and sets status to awaiting_signing
+// approveWithSigning creates a signing submission and sets status to awaiting_signing.
 func (s *LeaveService) approveWithSigning(ctx context.Context, existing *ent.LeaveRequest, absType *ent.AbsenceType, req *hrV1.ApproveLeaveRequestRequest, reviewNotes string) (*hrV1.ApproveLeaveRequestResponse, error) {
 	// Store reviewer info with awaiting_signing status
 	entity, err := s.leaveRequestRepo.UpdateStatus(ctx, existing.ID, "awaiting_signing", getUserID(ctx), getUsername(ctx), reviewNotes)
@@ -404,72 +404,53 @@ func (s *LeaveService) approveWithSigning(ctx context.Context, existing *ent.Lea
 		return nil, err
 	}
 
-	// Build signing recipients: approver signs first, then employee
-	// Internal signing: use user IDs so recipients must be logged in
-	approverID := getUserID(ctx)
-	employeeID := existing.UserID
+	// Resolve approver email from admin service
+	approverName := getUsername(ctx)
+	approverEmail := s.resolveUserEmail(ctx, getUserID(ctx))
 
-	recipients := []*paperlesspb.SigningRecipientInput{
+	// Build submitters: approver signs first (order 0), then employee (order 1)
+	submitters := []client.SubmitterInput{
 		{
-			UserId:       &approverID,
-			SigningOrder: 1,
+			Name:  approverName,
+			Email: approverEmail,
+			Role:  "Approver",
 		},
 		{
-			UserId:       &employeeID,
-			SigningOrder: 2,
+			Name:  existing.UserName,
+			Email: existing.UserEmail,
+			Role:  "Employee",
 		},
 	}
 
 	// Prefill template fields with leave request data
-	// Field names must match the signing template "Заявление Платен Отпуск" fields exactly:
-	//   "Name2"      (prefill_stage=1) — employee name
-	//   "TotalDays"  (prefill_stage=1) — number of leave days
-	//   "StartDate"  (prefill_stage=1) — leave start date
-	//   "EndDate"    (prefill_stage=1) — leave end date
-	//   "Today"      (prefill_stage=1) — today's date
-	fieldValues := []*paperlesspb.SigningFieldValueInput{
-		{FieldId: "Name2", Value: existing.UserName},
-		{FieldId: "TotalDays", Value: fmt.Sprintf("%d", int(existing.Days))},
-		{FieldId: "StartDate", Value: existing.StartDate.Format("2006-01-02")},
-		{FieldId: "EndDate", Value: existing.EndDate.Format("2006-01-02")},
-		{FieldId: "Today", Value: time.Now().Format("02.01.2006")},
+	prefillValues := map[string]string{
+		"Name2":     existing.UserName,
+		"TotalDays": fmt.Sprintf("%d", int(existing.Days)),
+		"StartDate": existing.StartDate.Format("2006-01-02"),
+		"EndDate":   existing.EndDate.Format("2006-01-02"),
+		"Today":     time.Now().Format("02.01.2006"),
 	}
 
-	requestName := fmt.Sprintf("Leave Request - %s (%s to %s)",
-		existing.UserName,
-		existing.StartDate.Format("2006-01-02"),
-		existing.EndDate.Format("2006-01-02"),
-	)
-
-	message := fmt.Sprintf("Please sign the absence approval for %s. Period: %s to %s (%d days).",
-		existing.UserName,
-		existing.StartDate.Format("2006-01-02"),
-		existing.EndDate.Format("2006-01-02"),
-		int(existing.Days),
-	)
-
-	signingRequestID, err := s.paperlessClient.CreateSigningRequest(
+	submissionID, err := s.signingClient.CreateAndSendSubmission(
 		ctx,
 		absType.SigningTemplateID,
-		requestName,
-		recipients,
-		fieldValues,
-		message,
-		paperlesspb.SigningRequestType_SIGNING_REQUEST_TYPE_INTERNAL,
+		"SIGNING_MODE_SEQUENTIAL",
+		"hr",
+		submitters,
+		prefillValues,
 	)
 	if err != nil {
 		// Roll back to pending on failure
-		s.log.Errorf("Failed to create signing request, rolling back to pending: %v", err)
+		s.log.Errorf("Failed to create signing submission, rolling back to pending: %v", err)
 		if _, rollbackErr := s.leaveRequestRepo.UpdateStatus(ctx, existing.ID, "pending", 0, "", ""); rollbackErr != nil {
 			s.log.Errorf("CRITICAL: Failed to roll back leave %s from awaiting_signing to pending: %v", existing.ID, rollbackErr)
 		}
 		return nil, hrV1.ErrorInternalServerError("failed to create signing request")
 	}
 
-	// Store the signing request ID on the leave request
-	if err := s.leaveRequestRepo.SetSigningRequestID(ctx, existing.ID, signingRequestID); err != nil {
+	// Store the submission ID on the leave request (reuses signing_request_id field)
+	if err := s.leaveRequestRepo.SetSigningRequestID(ctx, existing.ID, submissionID); err != nil {
 		s.log.Errorf("Failed to store signing_request_id for leave %s: %v", existing.ID, err)
-		// Roll back: without the signing request ID, we can't track the signing flow
 		if _, rollbackErr := s.leaveRequestRepo.UpdateStatus(ctx, existing.ID, "pending", 0, "", ""); rollbackErr != nil {
 			s.log.Errorf("CRITICAL: Failed to roll back leave %s after signing_request_id storage failure: %v", existing.ID, rollbackErr)
 		}
@@ -485,6 +466,26 @@ func (s *LeaveService) approveWithSigning(ctx context.Context, existing *ent.Lea
 	return &hrV1.ApproveLeaveRequestResponse{
 		LeaveRequest: leaveRequestToProto(entity),
 	}, nil
+}
+
+// resolveUserEmail looks up a user's email by user ID via the admin service.
+func (s *LeaveService) resolveUserEmail(ctx context.Context, userID uint32) string {
+	if s.adminClient == nil {
+		return ""
+	}
+
+	resp, err := s.adminClient.ListUsers(ctx)
+	if err != nil {
+		s.log.Warnf("Failed to list users for email resolution: %v", err)
+		return ""
+	}
+
+	for _, user := range resp.GetItems() {
+		if user.GetId() == userID {
+			return user.GetEmail()
+		}
+	}
+	return ""
 }
 
 // approveImmediate performs standard approval without signing
@@ -637,7 +638,7 @@ func (s *LeaveService) RevokeLeaveRequest(ctx context.Context, req *hrV1.RevokeL
 		return nil, err
 	}
 
-	// If the absence type requires signing and we have a signing request, revoke it in paperless
+	// If the absence type requires signing and we have a signing request, cancel it
 	if existing.SigningRequestID != "" && existing.Edges.AbsenceType != nil && existing.Edges.AbsenceType.RequiresSigning {
 		reason := req.GetReason()
 		if reason == "" {
@@ -645,15 +646,13 @@ func (s *LeaveService) RevokeLeaveRequest(ctx context.Context, req *hrV1.RevokeL
 		}
 		signingReqID := existing.SigningRequestID
 		leaveID := existing.ID
-		// Build a detached context with the same gRPC metadata — the original ctx
-		// will be cancelled when the HTTP handler returns.
 		bgCtx := context.Background()
 		if inMD, ok := grpcMD.FromIncomingContext(ctx); ok {
 			bgCtx = grpcMD.NewOutgoingContext(bgCtx, inMD)
 		}
 		go func() {
-			if revokeErr := s.paperlessClient.RevokeSigningRequest(bgCtx, signingReqID, reason); revokeErr != nil {
-				s.log.Errorf("Failed to revoke signing request %s for leave %s: %v", signingReqID, leaveID, revokeErr)
+			if cancelErr := s.signingClient.CancelSubmission(bgCtx, signingReqID, reason); cancelErr != nil {
+				s.log.Errorf("Failed to cancel signing submission %s for leave %s: %v", signingReqID, leaveID, cancelErr)
 			}
 		}()
 	}
@@ -753,7 +752,7 @@ func (s *LeaveService) GetSignedDocumentUrl(ctx context.Context, req *hrV1.GetSi
 		return nil, hrV1.ErrorBadRequest("you are not a participant of this leave request")
 	}
 
-	url, err := s.paperlessClient.DownloadSignedDocument(ctx, entity.SigningRequestID)
+	url, err := s.signingClient.GetSignedDocumentUrl(ctx, entity.SigningRequestID)
 	if err != nil {
 		return nil, hrV1.ErrorInternalServerError("failed to get signed document URL")
 	}
