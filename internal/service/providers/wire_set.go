@@ -21,6 +21,7 @@ var ProviderSet = wire.NewSet(
 	service.NewAllowanceService,
 	service.NewAllowancePoolService,
 	service.NewUserService,
+	service.NewBackupService,
 	client.NewRegistrationClient,
 	client.NewModuleDialer,
 	client.NewSigningClient,

@@ -65,7 +65,8 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 	allowanceService := service.NewAllowanceService(context, leaveAllowanceRepo, absenceTypeRepo, allowancePoolRepo)
 	allowancePoolService := service.NewAllowancePoolService(context, allowancePoolRepo, absenceTypeRepo)
 	userService := service.NewUserService(context, adminClient)
-	grpcServer := server.NewGRPCServer(context, certManager, collector, auditLogRepo, systemService, absenceTypeService, leaveService, allowanceService, allowancePoolService, userService)
+	backupService := service.NewBackupService(context, entClient)
+	grpcServer := server.NewGRPCServer(context, certManager, collector, auditLogRepo, systemService, absenceTypeService, leaveService, allowanceService, allowancePoolService, userService, backupService)
 	httpServer := server.NewHTTPServer(context)
 	redisClient, cleanup5, err := data.NewRedisClient(context)
 	if err != nil {
