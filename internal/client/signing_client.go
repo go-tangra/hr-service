@@ -29,6 +29,7 @@ type SigningClient struct {
 	mu         sync.Mutex
 	conn       *grpc.ClientConn
 	submission signinggrpc.SigningSubmissionServiceClient
+	template   signinggrpc.SigningTemplateServiceClient
 }
 
 // NewSigningClient creates a new Signing gRPC client that resolves via ModuleDialer.
@@ -71,6 +72,7 @@ func (c *SigningClient) resolve() error {
 	}
 	c.conn = conn
 	c.submission = signinggrpc.NewSigningSubmissionServiceClient(conn)
+	c.template = signinggrpc.NewSigningTemplateServiceClient(conn)
 	c.log.Info("Signing client connected via ModuleDialer")
 	return nil
 }
@@ -176,6 +178,21 @@ func (c *SigningClient) DeleteSubmission(ctx context.Context, submissionID strin
 
 	c.log.Infof("Deleted signing submission: %s", submissionID)
 	return nil
+}
+
+// ListTemplates fetches available signing templates from the signing service.
+func (c *SigningClient) ListTemplates(ctx context.Context) ([]*signingpb.Template, error) {
+	if err := c.resolve(); err != nil {
+		return nil, err
+	}
+
+	resp, err := c.template.ListTemplates(ctx, &signingpb.ListTemplatesRequest{})
+	if err != nil {
+		c.log.Errorf("Failed to list signing templates: %v", err)
+		return nil, fmt.Errorf("list signing templates: %w", err)
+	}
+
+	return resp.GetTemplates(), nil
 }
 
 // DownloadSignedDocument fetches the signed PDF bytes from the signing service.

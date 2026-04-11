@@ -19,19 +19,14 @@ import {
   SelectOption,
 } from 'ant-design-vue';
 
-import type { AbsenceType, AllowancePool } from '../../api/client';
-import { signingApi } from '../../api/client';
+import type { AbsenceType, AllowancePool, SigningTemplate } from '../../api/client';
+import { systemService } from '../../api/client';
 import { $t } from 'shell/locales';
 import { useHrAbsenceTypeStore } from '../../stores/hr-absence-type.state';
 import { useHrAllowancePoolStore } from '../../stores/hr-allowance-pool.state';
 
 const absenceTypeStore = useHrAbsenceTypeStore();
 const poolStore = useHrAllowancePoolStore();
-
-interface SigningTemplate {
-  id: string;
-  name: string;
-}
 
 const data = ref<{
   mode: 'create' | 'edit' | 'view';
@@ -172,7 +167,7 @@ const [Modal, modalApi] = useVbenModal({
 
       // Fetch signing templates and allowance pools
       try {
-        const resp = await signingApi.get<{ templates: SigningTemplate[] }>('/signing/templates', { noPaging: true });
+        const resp = await systemService.ListSigningTemplates({});
         signingTemplates.value = resp.templates ?? [];
       } catch {
         signingTemplates.value = [];

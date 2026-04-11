@@ -272,6 +272,352 @@ var _ interface {
 	ErrorName() string
 } = HealthCheckResponseValidationError{}
 
+// Validate checks the field values on SigningTemplate with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// first error encountered is returned, or nil if there are no violations.
+func (m *SigningTemplate) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on SigningTemplate with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// SigningTemplateMultiError, or nil if none found.
+func (m *SigningTemplate) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *SigningTemplate) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Id
+
+	// no validation rules for Name
+
+	// no validation rules for Status
+
+	if len(errors) > 0 {
+		return SigningTemplateMultiError(errors)
+	}
+
+	return nil
+}
+
+// SigningTemplateMultiError is an error wrapping multiple validation errors
+// returned by SigningTemplate.ValidateAll() if the designated constraints
+// aren't met.
+type SigningTemplateMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m SigningTemplateMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m SigningTemplateMultiError) AllErrors() []error { return m }
+
+// SigningTemplateValidationError is the validation error returned by
+// SigningTemplate.Validate if the designated constraints aren't met.
+type SigningTemplateValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e SigningTemplateValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e SigningTemplateValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e SigningTemplateValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e SigningTemplateValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e SigningTemplateValidationError) ErrorName() string { return "SigningTemplateValidationError" }
+
+// Error satisfies the builtin error interface
+func (e SigningTemplateValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sSigningTemplate.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = SigningTemplateValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = SigningTemplateValidationError{}
+
+// Validate checks the field values on ListSigningTemplatesRequest with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *ListSigningTemplatesRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on ListSigningTemplatesRequest with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// ListSigningTemplatesRequestMultiError, or nil if none found.
+func (m *ListSigningTemplatesRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *ListSigningTemplatesRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if len(errors) > 0 {
+		return ListSigningTemplatesRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// ListSigningTemplatesRequestMultiError is an error wrapping multiple
+// validation errors returned by ListSigningTemplatesRequest.ValidateAll() if
+// the designated constraints aren't met.
+type ListSigningTemplatesRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m ListSigningTemplatesRequestMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m ListSigningTemplatesRequestMultiError) AllErrors() []error { return m }
+
+// ListSigningTemplatesRequestValidationError is the validation error returned
+// by ListSigningTemplatesRequest.Validate if the designated constraints
+// aren't met.
+type ListSigningTemplatesRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ListSigningTemplatesRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ListSigningTemplatesRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ListSigningTemplatesRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ListSigningTemplatesRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ListSigningTemplatesRequestValidationError) ErrorName() string {
+	return "ListSigningTemplatesRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e ListSigningTemplatesRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sListSigningTemplatesRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = ListSigningTemplatesRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ListSigningTemplatesRequestValidationError{}
+
+// Validate checks the field values on ListSigningTemplatesResponse with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *ListSigningTemplatesResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on ListSigningTemplatesResponse with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// ListSigningTemplatesResponseMultiError, or nil if none found.
+func (m *ListSigningTemplatesResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *ListSigningTemplatesResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	for idx, item := range m.GetTemplates() {
+		_, _ = idx, item
+
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ListSigningTemplatesResponseValidationError{
+						field:  fmt.Sprintf("Templates[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ListSigningTemplatesResponseValidationError{
+						field:  fmt.Sprintf("Templates[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ListSigningTemplatesResponseValidationError{
+					field:  fmt.Sprintf("Templates[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	if len(errors) > 0 {
+		return ListSigningTemplatesResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// ListSigningTemplatesResponseMultiError is an error wrapping multiple
+// validation errors returned by ListSigningTemplatesResponse.ValidateAll() if
+// the designated constraints aren't met.
+type ListSigningTemplatesResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m ListSigningTemplatesResponseMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m ListSigningTemplatesResponseMultiError) AllErrors() []error { return m }
+
+// ListSigningTemplatesResponseValidationError is the validation error returned
+// by ListSigningTemplatesResponse.Validate if the designated constraints
+// aren't met.
+type ListSigningTemplatesResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ListSigningTemplatesResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ListSigningTemplatesResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ListSigningTemplatesResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ListSigningTemplatesResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ListSigningTemplatesResponseValidationError) ErrorName() string {
+	return "ListSigningTemplatesResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e ListSigningTemplatesResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sListSigningTemplatesResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = ListSigningTemplatesResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ListSigningTemplatesResponseValidationError{}
+
 // Validate checks the field values on GetStatsRequest with the rules defined
 // in the proto definition for this message. If any rules are violated, the
 // first error encountered is returned, or nil if there are no violations.

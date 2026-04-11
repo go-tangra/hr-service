@@ -62,6 +62,17 @@ func (s *redactedHrSystemServiceServer) GetStats(ctx context.Context, in *GetSta
 	return res, err
 }
 
+// ListSigningTemplates is the redacted wrapper for the actual HrSystemServiceServer.ListSigningTemplates method
+// Unary RPC
+func (s *redactedHrSystemServiceServer) ListSigningTemplates(ctx context.Context, in *ListSigningTemplatesRequest) (*ListSigningTemplatesResponse, error) {
+	res, err := s.srv.ListSigningTemplates(ctx, in)
+	if !s.bypass.CheckInternal(ctx) {
+		// Apply redaction to the response
+		redact.Apply(res)
+	}
+	return res, err
+}
+
 // Redact method implementation for HealthCheckRequest
 func (x *HealthCheckRequest) Redact() string {
 	if x == nil {
@@ -81,6 +92,38 @@ func (x *HealthCheckResponse) Redact() string {
 	// Safe field: Version
 
 	// Safe field: Timestamp
+	return x.String()
+}
+
+// Redact method implementation for SigningTemplate
+func (x *SigningTemplate) Redact() string {
+	if x == nil {
+		return ""
+	}
+
+	// Safe field: Id
+
+	// Safe field: Name
+
+	// Safe field: Status
+	return x.String()
+}
+
+// Redact method implementation for ListSigningTemplatesRequest
+func (x *ListSigningTemplatesRequest) Redact() string {
+	if x == nil {
+		return ""
+	}
+	return x.String()
+}
+
+// Redact method implementation for ListSigningTemplatesResponse
+func (x *ListSigningTemplatesResponse) Redact() string {
+	if x == nil {
+		return ""
+	}
+
+	// Safe field: Templates
 	return x.String()
 }
 

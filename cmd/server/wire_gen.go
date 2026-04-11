@@ -33,7 +33,6 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 	auditLogRepo := data.NewAuditLogRepo(context, entClient)
 	absenceTypeRepo := data.NewAbsenceTypeRepo(context, entClient)
 	leaveRequestRepo := data.NewLeaveRequestRepo(context, entClient)
-	systemService := service.NewSystemService(context, absenceTypeRepo, leaveRequestRepo)
 	absenceTypeService := service.NewAbsenceTypeService(context, absenceTypeRepo)
 	leaveAllowanceRepo := data.NewLeaveAllowanceRepo(context, entClient)
 	registrationClient, err := client.NewRegistrationClient(context)
@@ -60,6 +59,7 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
+	systemService := service.NewSystemService(context, absenceTypeRepo, leaveRequestRepo, signingClient)
 	leaveService := service.NewLeaveService(context, leaveRequestRepo, leaveAllowanceRepo, absenceTypeRepo, signingClient, adminClient, notificationClient)
 	allowancePoolRepo := data.NewAllowancePoolRepo(context, entClient)
 	allowanceService := service.NewAllowanceService(context, leaveAllowanceRepo, absenceTypeRepo, allowancePoolRepo)

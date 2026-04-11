@@ -21,18 +21,22 @@ const _ = http.SupportPackageIsVersion1
 
 const OperationHrSystemServiceGetStats = "/hr.service.v1.HrSystemService/GetStats"
 const OperationHrSystemServiceHealthCheck = "/hr.service.v1.HrSystemService/HealthCheck"
+const OperationHrSystemServiceListSigningTemplates = "/hr.service.v1.HrSystemService/ListSigningTemplates"
 
 type HrSystemServiceHTTPServer interface {
 	// GetStats Get HR statistics
 	GetStats(context.Context, *GetStatsRequest) (*GetStatsResponse, error)
 	// HealthCheck Health check
 	HealthCheck(context.Context, *HealthCheckRequest) (*HealthCheckResponse, error)
+	// ListSigningTemplates List available signing templates (proxied from signing module)
+	ListSigningTemplates(context.Context, *ListSigningTemplatesRequest) (*ListSigningTemplatesResponse, error)
 }
 
 func RegisterHrSystemServiceHTTPServer(s *http.Server, srv HrSystemServiceHTTPServer) {
 	r := s.Route("/")
 	r.GET("/v1/health", _HrSystemService_HealthCheck0_HTTP_Handler(srv))
 	r.GET("/v1/stats", _HrSystemService_GetStats0_HTTP_Handler(srv))
+	r.GET("/v1/signing-templates", _HrSystemService_ListSigningTemplates0_HTTP_Handler(srv))
 }
 
 func _HrSystemService_HealthCheck0_HTTP_Handler(srv HrSystemServiceHTTPServer) func(ctx http.Context) error {
@@ -73,11 +77,32 @@ func _HrSystemService_GetStats0_HTTP_Handler(srv HrSystemServiceHTTPServer) func
 	}
 }
 
+func _HrSystemService_ListSigningTemplates0_HTTP_Handler(srv HrSystemServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in ListSigningTemplatesRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationHrSystemServiceListSigningTemplates)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.ListSigningTemplates(ctx, req.(*ListSigningTemplatesRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*ListSigningTemplatesResponse)
+		return ctx.Result(200, reply)
+	}
+}
+
 type HrSystemServiceHTTPClient interface {
 	// GetStats Get HR statistics
 	GetStats(ctx context.Context, req *GetStatsRequest, opts ...http.CallOption) (rsp *GetStatsResponse, err error)
 	// HealthCheck Health check
 	HealthCheck(ctx context.Context, req *HealthCheckRequest, opts ...http.CallOption) (rsp *HealthCheckResponse, err error)
+	// ListSigningTemplates List available signing templates (proxied from signing module)
+	ListSigningTemplates(ctx context.Context, req *ListSigningTemplatesRequest, opts ...http.CallOption) (rsp *ListSigningTemplatesResponse, err error)
 }
 
 type HrSystemServiceHTTPClientImpl struct {
@@ -108,6 +133,20 @@ func (c *HrSystemServiceHTTPClientImpl) HealthCheck(ctx context.Context, in *Hea
 	pattern := "/v1/health"
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationHrSystemServiceHealthCheck))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+// ListSigningTemplates List available signing templates (proxied from signing module)
+func (c *HrSystemServiceHTTPClientImpl) ListSigningTemplates(ctx context.Context, in *ListSigningTemplatesRequest, opts ...http.CallOption) (*ListSigningTemplatesResponse, error) {
+	var out ListSigningTemplatesResponse
+	pattern := "/v1/signing-templates"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationHrSystemServiceListSigningTemplates))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
 	if err != nil {

@@ -76,6 +76,7 @@ export type {
   GetCalendarEventsResponse,
   GetUserBalanceResponse,
   GetStatsResponse,
+  SigningTemplate,
   HrErrorReason,
 } from '../generated/api/hr/service/v1';
 
@@ -92,33 +93,3 @@ export function fromTimestamp(ts?: string): string {
   return ts.split('T')[0] || '';
 }
 
-/** Client for signing module API calls (different base URL) */
-export const signingApi = {
-  get: async <T>(path: string, params?: Record<string, unknown>): Promise<T> => {
-    const query = params
-      ? '?' + new URLSearchParams(
-          Object.entries(params)
-            .filter(([, v]) => v != null)
-            .map(([k, v]) => [k, String(v)]),
-        ).toString()
-      : '';
-    const accessStore = useAccessStore();
-    const token = accessStore.accessToken;
-    const response = await fetch(`/admin/v1/modules/signing/v1${path}${query}`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      },
-    });
-    if (!response.ok) {
-      let message = `HTTP error! status: ${response.status}`;
-      try {
-        const errorBody = await response.json();
-        if (errorBody?.message) message = errorBody.message;
-      } catch {}
-      throw new Error(message);
-    }
-    return response.json();
-  },
-};

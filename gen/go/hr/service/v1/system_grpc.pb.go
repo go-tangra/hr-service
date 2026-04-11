@@ -19,8 +19,9 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	HrSystemService_HealthCheck_FullMethodName = "/hr.service.v1.HrSystemService/HealthCheck"
-	HrSystemService_GetStats_FullMethodName    = "/hr.service.v1.HrSystemService/GetStats"
+	HrSystemService_HealthCheck_FullMethodName          = "/hr.service.v1.HrSystemService/HealthCheck"
+	HrSystemService_GetStats_FullMethodName             = "/hr.service.v1.HrSystemService/GetStats"
+	HrSystemService_ListSigningTemplates_FullMethodName = "/hr.service.v1.HrSystemService/ListSigningTemplates"
 )
 
 // HrSystemServiceClient is the client API for HrSystemService service.
@@ -33,6 +34,8 @@ type HrSystemServiceClient interface {
 	HealthCheck(ctx context.Context, in *HealthCheckRequest, opts ...grpc.CallOption) (*HealthCheckResponse, error)
 	// Get HR statistics
 	GetStats(ctx context.Context, in *GetStatsRequest, opts ...grpc.CallOption) (*GetStatsResponse, error)
+	// List available signing templates (proxied from signing module)
+	ListSigningTemplates(ctx context.Context, in *ListSigningTemplatesRequest, opts ...grpc.CallOption) (*ListSigningTemplatesResponse, error)
 }
 
 type hrSystemServiceClient struct {
@@ -63,6 +66,16 @@ func (c *hrSystemServiceClient) GetStats(ctx context.Context, in *GetStatsReques
 	return out, nil
 }
 
+func (c *hrSystemServiceClient) ListSigningTemplates(ctx context.Context, in *ListSigningTemplatesRequest, opts ...grpc.CallOption) (*ListSigningTemplatesResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListSigningTemplatesResponse)
+	err := c.cc.Invoke(ctx, HrSystemService_ListSigningTemplates_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // HrSystemServiceServer is the server API for HrSystemService service.
 // All implementations must embed UnimplementedHrSystemServiceServer
 // for forward compatibility.
@@ -73,6 +86,8 @@ type HrSystemServiceServer interface {
 	HealthCheck(context.Context, *HealthCheckRequest) (*HealthCheckResponse, error)
 	// Get HR statistics
 	GetStats(context.Context, *GetStatsRequest) (*GetStatsResponse, error)
+	// List available signing templates (proxied from signing module)
+	ListSigningTemplates(context.Context, *ListSigningTemplatesRequest) (*ListSigningTemplatesResponse, error)
 	mustEmbedUnimplementedHrSystemServiceServer()
 }
 
@@ -88,6 +103,9 @@ func (UnimplementedHrSystemServiceServer) HealthCheck(context.Context, *HealthCh
 }
 func (UnimplementedHrSystemServiceServer) GetStats(context.Context, *GetStatsRequest) (*GetStatsResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetStats not implemented")
+}
+func (UnimplementedHrSystemServiceServer) ListSigningTemplates(context.Context, *ListSigningTemplatesRequest) (*ListSigningTemplatesResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListSigningTemplates not implemented")
 }
 func (UnimplementedHrSystemServiceServer) mustEmbedUnimplementedHrSystemServiceServer() {}
 func (UnimplementedHrSystemServiceServer) testEmbeddedByValue()                         {}
@@ -146,6 +164,24 @@ func _HrSystemService_GetStats_Handler(srv interface{}, ctx context.Context, dec
 	return interceptor(ctx, in, info, handler)
 }
 
+func _HrSystemService_ListSigningTemplates_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListSigningTemplatesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(HrSystemServiceServer).ListSigningTemplates(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: HrSystemService_ListSigningTemplates_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(HrSystemServiceServer).ListSigningTemplates(ctx, req.(*ListSigningTemplatesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // HrSystemService_ServiceDesc is the grpc.ServiceDesc for HrSystemService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -160,6 +196,10 @@ var HrSystemService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetStats",
 			Handler:    _HrSystemService_GetStats_Handler,
+		},
+		{
+			MethodName: "ListSigningTemplates",
+			Handler:    _HrSystemService_ListSigningTemplates_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

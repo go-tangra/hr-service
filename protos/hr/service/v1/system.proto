@@ -14,6 +14,20 @@ message HealthCheckResponse {
   google.protobuf.Timestamp timestamp = 3 [json_name = "timestamp"];
 }
 
+// SigningTemplate represents a signing template from the signing module
+message SigningTemplate {
+  string id = 1 [json_name = "id"];
+  string name = 2 [json_name = "name"];
+  string status = 3 [json_name = "status"];
+}
+
+// ListSigningTemplatesRequest lists available signing templates
+message ListSigningTemplatesRequest {}
+
+message ListSigningTemplatesResponse {
+  repeated SigningTemplate templates = 1 [json_name = "templates"];
+}
+
 // GetStatsRequest retrieves HR module statistics
 message GetStatsRequest {
   optional uint32 tenant_id = 1 [json_name = "tenantId"];
@@ -40,6 +54,13 @@ service HrSystemService {
   rpc GetStats(GetStatsRequest) returns (GetStatsResponse) {
     option (google.api.http) = {
       get: "/v1/stats"
+    };
+  }
+
+  // List available signing templates (proxied from signing module)
+  rpc ListSigningTemplates(ListSigningTemplatesRequest) returns (ListSigningTemplatesResponse) {
+    option (google.api.http) = {
+      get: "/v1/signing-templates"
     };
   }
 }

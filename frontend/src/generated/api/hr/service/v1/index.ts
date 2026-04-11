@@ -726,6 +726,98 @@ export function createHrAllowancePoolServiceClient(
     },
   };
 }
+export type RestoreMode =
+  | "RESTORE_MODE_SKIP"
+  | "RESTORE_MODE_OVERWRITE";
+export type ExportBackupRequest = {
+  tenantId?: number;
+  includeSecrets: boolean | undefined;
+};
+
+export type ExportBackupResponse = {
+  data: string | undefined;
+  module: string | undefined;
+  version: string | undefined;
+  exportedAt: wellKnownTimestamp | undefined;
+  tenantId: number | undefined;
+  entityCounts: { [key: string]: number } | undefined;
+  schemaVersion: number | undefined;
+};
+
+export type ImportBackupRequest = {
+  data: string | undefined;
+  mode: RestoreMode | undefined;
+};
+
+export type ImportBackupResponse = {
+  success: boolean | undefined;
+  results: EntityImportResult[] | undefined;
+  warnings: string[] | undefined;
+  sourceVersion: number | undefined;
+  targetVersion: number | undefined;
+  migrationsApplied: number | undefined;
+};
+
+export type EntityImportResult = {
+  entityType: string | undefined;
+  total: number | undefined;
+  created: number | undefined;
+  updated: number | undefined;
+  skipped: number | undefined;
+  failed: number | undefined;
+};
+
+export interface BackupService {
+  ExportBackup(request: ExportBackupRequest): Promise<ExportBackupResponse>;
+  ImportBackup(request: ImportBackupRequest): Promise<ImportBackupResponse>;
+}
+
+export function createBackupServiceClient(
+  handler: RequestHandler
+): BackupService {
+  return {
+    ExportBackup(request) { // eslint-disable-line @typescript-eslint/no-unused-vars
+      const path = `v1/backup/export`; // eslint-disable-line quotes
+      const body = null;
+      const queryParams: string[] = [];
+      if (request.tenantId) {
+        queryParams.push(`tenantId=${encodeURIComponent(request.tenantId.toString())}`)
+      }
+      if (request.includeSecrets) {
+        queryParams.push(`includeSecrets=${encodeURIComponent(request.includeSecrets.toString())}`)
+      }
+      let uri = path;
+      if (queryParams.length > 0) {
+        uri += `?${queryParams.join("&")}`
+      }
+      return handler({
+        path: uri,
+        method: "GET",
+        body,
+      }, {
+        service: "BackupService",
+        method: "ExportBackup",
+      }) as Promise<ExportBackupResponse>;
+    },
+    ImportBackup(request) { // eslint-disable-line @typescript-eslint/no-unused-vars
+      const path = `v1/backup/import`; // eslint-disable-line quotes
+      const body = JSON.stringify(request);
+      const queryParams: string[] = [];
+      let uri = path;
+      if (queryParams.length > 0) {
+        uri += `?${queryParams.join("&")}`
+      }
+      return handler({
+        path: uri,
+        method: "POST",
+        body,
+      }, {
+        service: "BackupService",
+        method: "ImportBackup",
+      }) as Promise<ImportBackupResponse>;
+    },
+  };
+}
 export type HrErrorReason =
   // 400
   | "BAD_REQUEST"
@@ -1236,6 +1328,21 @@ export type HealthCheckResponse = {
   timestamp: wellKnownTimestamp | undefined;
 };
 
+// SigningTemplate represents a signing template from the signing module
+export type SigningTemplate = {
+  id: string | undefined;
+  name: string | undefined;
+  status: string | undefined;
+};
+
+// ListSigningTemplatesRequest lists available signing templates
+export type ListSigningTemplatesRequest = {
+};
+
+export type ListSigningTemplatesResponse = {
+  templates: SigningTemplate[] | undefined;
+};
+
 // GetStatsRequest retrieves HR module statistics
 export type GetStatsRequest = {
   tenantId?: number;
@@ -1255,6 +1362,8 @@ export interface HrSystemService {
   HealthCheck(request: HealthCheckRequest): Promise<HealthCheckResponse>;
   // Get HR statistics
   GetStats(request: GetStatsRequest): Promise<GetStatsResponse>;
+  // List available signing templates (proxied from signing module)
+  ListSigningTemplates(request: ListSigningTemplatesRequest): Promise<ListSigningTemplatesResponse>;
 }
 
 export function createHrSystemServiceClient(
@@ -1297,6 +1406,23 @@ export function createHrSystemServiceClient(
         service: "HrSystemService",
         method: "GetStats",
       }) as Promise<GetStatsResponse>;
+    },
+    ListSigningTemplates(request) { // eslint-disable-line @typescript-eslint/no-unused-vars
+      const path = `v1/signing-templates`; // eslint-disable-line quotes
+      const body = null;
+      const queryParams: string[] = [];
+      let uri = path;
+      if (queryParams.length > 0) {
+        uri += `?${queryParams.join("&")}`
+      }
+      return handler({
+        path: uri,
+        method: "GET",
+        body,
+      }, {
+        service: "HrSystemService",
+        method: "ListSigningTemplates",
+      }) as Promise<ListSigningTemplatesResponse>;
     },
   };
 }
