@@ -51,6 +51,11 @@ RUN curl -sSL "https://github.com/bufbuild/buf/releases/latest/download/buf-$(un
 WORKDIR /src
 
 # Copy go mod files first for better caching
+# Pull in sibling go-tangra-common via BuildKit named context
+# (compose: additional_contexts: common: ../go-tangra-common).
+# Required because go.mod has a temporary `replace` of common.
+COPY --from=common . /go-tangra-common/
+
 COPY go.mod go.sum ./
 RUN go mod download
 
@@ -99,7 +104,7 @@ COPY --from=builder /src/configs/ /app/configs/
 # Create non-root user
 RUN addgroup -g 1000 hr && \
     adduser -D -u 1000 -G hr hr && \
-    chown -R hr:hr /app
+    mkdir -p /app/certs && chown -R hr:hr /app
 
 # Switch to non-root user
 USER hr:hr

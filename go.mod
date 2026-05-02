@@ -11,7 +11,7 @@ require (
 	entgo.io/ent v0.14.5
 	github.com/go-kratos/kratos/v2 v2.9.2
 	github.com/go-sql-driver/mysql v1.9.3
-	github.com/go-tangra/go-tangra-common v1.12.0
+	github.com/go-tangra/go-tangra-common v1.17.1
 	github.com/google/uuid v1.6.0
 	github.com/google/wire v0.7.0
 	github.com/jackc/pgx/v5 v5.8.0
@@ -132,3 +132,6 @@ exclude (
 	// Conflicts with github.com/menta2k/protoc-gen-redact/v3 (dual proto registration of redact/v3/redact.proto)
 	buf.build/gen/go/menta2k-org/redact/protocolbuffers/go v1.36.11-20251106144841-73f00ca72edd.1
 )
+
+// Phase 1 of the registration rework: pull cert.Ensure() from the
+// sibling clone of go-tangra-common until a release lands.
