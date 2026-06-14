@@ -33,8 +33,6 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 	auditLogRepo := data.NewAuditLogRepo(context, entClient)
 	absenceTypeRepo := data.NewAbsenceTypeRepo(context, entClient)
 	leaveRequestRepo := data.NewLeaveRequestRepo(context, entClient)
-	absenceTypeService := service.NewAbsenceTypeService(context, absenceTypeRepo)
-	leaveAllowanceRepo := data.NewLeaveAllowanceRepo(context, entClient)
 	registrationClient, err := client.NewRegistrationClient(context)
 	if err != nil {
 		cleanup()
@@ -46,6 +44,9 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
+	systemService := service.NewSystemService(context, absenceTypeRepo, leaveRequestRepo, signingClient)
+	absenceTypeService := service.NewAbsenceTypeService(context, absenceTypeRepo)
+	leaveAllowanceRepo := data.NewLeaveAllowanceRepo(context, entClient)
 	adminClient, cleanup3, err := client.NewAdminClient(context, certManager)
 	if err != nil {
 		cleanup2()
@@ -59,14 +60,14 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	systemService := service.NewSystemService(context, absenceTypeRepo, leaveRequestRepo, signingClient)
 	leaveService := service.NewLeaveService(context, leaveRequestRepo, leaveAllowanceRepo, absenceTypeRepo, signingClient, adminClient, notificationClient)
 	allowancePoolRepo := data.NewAllowancePoolRepo(context, entClient)
 	allowanceService := service.NewAllowanceService(context, leaveAllowanceRepo, absenceTypeRepo, allowancePoolRepo)
 	allowancePoolService := service.NewAllowancePoolService(context, allowancePoolRepo, absenceTypeRepo)
 	userService := service.NewUserService(context, adminClient)
 	backupService := service.NewBackupService(context, entClient)
-	grpcServer := server.NewGRPCServer(context, certManager, collector, auditLogRepo, systemService, absenceTypeService, leaveService, allowanceService, allowancePoolService, userService, backupService)
+	sqlBackupService := service.NewSqlBackupService(context)
+	grpcServer := server.NewGRPCServer(context, certManager, collector, auditLogRepo, systemService, absenceTypeService, leaveService, allowanceService, allowancePoolService, userService, backupService, sqlBackupService)
 	httpServer := server.NewHTTPServer(context)
 	redisClient, cleanup5, err := data.NewRedisClient(context)
 	if err != nil {
